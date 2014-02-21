@@ -2,9 +2,9 @@
 
 namespace Perfumer\Controller;
 
-use Blumfontein\Container\Core as Container;
-use Framework\Request;
-use Framework\Response;
+use Perfumer\Container\Core as Container;
+use Perfumer\Request;
+use Perfumer\Response;
 
 class CoreController
 {
