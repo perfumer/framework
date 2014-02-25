@@ -1,0 +1,73 @@
+<?php
+
+namespace Perfumer\Auth;
+
+use App\Model\Base\User as BaseUser;
+use App\Model\Map\UserTableMap;
+
+class User extends BaseUser
+{
+    protected $permissions = [];
+
+    public function setPassword($v)
+    {
+        $password = password_hash($v, PASSWORD_DEFAULT);
+
+        if ($this->password !== $password)
+        {
+            $this->password = $password;
+            $this->modifiedColumns[] = UserTableMap::PASSWORD;
+        }
+
+        return $this;
+    }
+
+    public function checkPassword($password)
+    {
+        return password_verify($password, $this->getPassword());
+    }
+
+    public function granted($permissions)
+    {
+        if ($this->getIsAdmin())
+            return true;
+
+        if (!is_array($permissions))
+            $permissions = [$permissions];
+
+        foreach ($permissions as $permission)
+        {
+            if (in_array($permission, $this->permissions))
+                return true;
+        }
+
+        return false;
+    }
+
+    protected function loadPermissions()
+    {
+        $this->permissions = [];
+
+        $roles = $this->getRoles();
+
+        foreach ($roles as $role)
+        {
+            $permissions = $role->getPermissions();
+
+            foreach ($permissions as $permission)
+            {
+                $token = $permission->getToken();
+                $token = explode('.', $token);
+
+                for ($i = 1; $i <= count($token); $i++)
+                {
+                    $sub_token = array_slice($token, 0, $i);
+                    $sub_token = implode('.', $sub_token);
+
+                    if (!in_array($sub_token, $this->permissions))
+                        $this->permissions[] = $sub_token;
+                }
+            }
+        }
+    }
+}
