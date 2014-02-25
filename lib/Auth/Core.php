@@ -4,6 +4,7 @@ namespace Perfumer\Auth;
 
 use App\Model\Token;
 use App\Model\TokenQuery;
+use App\Model\User;
 use App\Model\UserQuery;
 use Perfumer\Auth\Exception as AuthException;
 use Perfumer\Session\AbstractSession as Session;
@@ -23,7 +24,6 @@ class Core
 
     protected $session;
 
-    protected $is_logged = false;
     protected $status;
     protected $user;
 
@@ -32,11 +32,12 @@ class Core
     public function __construct(Session $session)
     {
         $this->session = $session;
+        $this->user = new User();
     }
 
     public function isLogged()
     {
-        return $this->is_logged;
+        return $this->user->getIsLogged();
     }
 
     public function getUser()
@@ -91,20 +92,18 @@ class Core
             }
 
             $this->user = $user;
-            $this->is_logged = true;
+            $this->user->setIsLogged(true);
+            $this->user->loadPermissions();
             $this->status = self::STATUS_AUTHENTICATED;
 
             if ($update_token)
             {
                 $this->updateToken();
-
-                $this->user->loadPermissions();
             }
         }
         catch (AuthException $e)
         {
-            $this->is_logged = false;
-            $this->user = null;
+            $this->user = new User();
             $this->status = $e->getMessage();
         }
     }
@@ -123,25 +122,23 @@ class Core
         }
         catch(AuthException $e)
         {
-            $this->is_logged = false;
-            $this->user = null;
+            $this->user = new User();
             $this->status = $e->getMessage();
             return;
         }
 
-        $this->is_logged = true;
         $this->user = $user;
+        $this->user->setIsLogged(true);
+        $this->user->loadPermissions();
         $this->status = self::STATUS_SIGNED_IN;
 
         $this->updateToken();
-        $this->user->loadPermissions();
     }
 
     public function signOut()
     {
         $this->session->restart();
-        $this->is_logged = false;
-        $this->user = null;
+        $this->user = new User();
         $this->status = self::STATUS_SIGNED_OUT;
     }
 

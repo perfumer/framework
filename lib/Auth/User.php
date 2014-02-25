@@ -7,7 +7,20 @@ use App\Model\Map\UserTableMap;
 
 class User extends BaseUser
 {
+    protected $is_logged = false;
     protected $permissions = [];
+
+    public function getIsLogged()
+    {
+        return $this->is_logged;
+    }
+
+    public function setIsLogged($is_logged)
+    {
+        $this->is_logged = (boolean) $is_logged;
+
+        return $this;
+    }
 
     public function setPassword($v)
     {
@@ -29,6 +42,9 @@ class User extends BaseUser
 
     public function granted($permissions)
     {
+        if (!$this->getIsLogged())
+            return false;
+
         if ($this->getIsAdmin())
             return true;
 
