@@ -13,16 +13,16 @@ namespace Perfumer\Session;
  */
 abstract class AbstractSession
 {
-    protected $name;
-    protected $lifetime;
+    protected $cookie_name;
+    protected $cookie_lifetime;
     protected $data = [];
     protected $is_started = false;
     protected $is_destroyed = false;
 
-    public function __construct($name, $lifetime)
+    public function __construct($cookie_name, $cookie_lifetime)
     {
-        $this->name = (string) $name;
-        $this->lifetime = (int) $lifetime;
+        $this->cookie_name = (string) $cookie_name;
+        $this->cookie_lifetime = (int) $cookie_lifetime;
     }
 
     public function isStarted()
@@ -42,7 +42,7 @@ abstract class AbstractSession
 
     public function getName()
     {
-        return $this->name;
+        return $this->cookie_name;
     }
 
     public function get($key, $default = null)
@@ -97,7 +97,7 @@ abstract class AbstractSession
         }
         catch (\Exception $e)
         {
-            throw new Exception('Error reading session data. Session data is likely corrupted.');
+            throw new SessionException('Error reading session data. Session data is likely corrupted.');
         }
     }
 

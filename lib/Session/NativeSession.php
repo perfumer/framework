@@ -17,15 +17,15 @@ class NativeSession extends AbstractSession
 {
     protected $cookie;
 
-    public function __construct(Cookie $cookie, $name, $lifetime)
+    public function __construct(Cookie $cookie, $cookie_name, $cookie_lifetime)
     {
         $this->cookie = $cookie;
 
-        parent::__construct($name, $lifetime);
+        parent::__construct($cookie_name, $cookie_lifetime);
 
-        session_set_cookie_params($this->lifetime, $this->cookie->getPath(), $this->cookie->getDomain(), $this->cookie->getSecure(), $this->cookie->getHttponly());
+        session_set_cookie_params($this->cookie_lifetime, $this->cookie->getPath(), $this->cookie->getDomain(), $this->cookie->getSecure(), $this->cookie->getHttponly());
         session_cache_limiter(false);
-        session_name($this->name);
+        session_name($this->cookie_name);
     }
 
     public function getId()
@@ -74,7 +74,7 @@ class NativeSession extends AbstractSession
 
         if ($status)
         {
-            $this->cookie->delete($this->name);
+            $this->cookie->delete($this->cookie_name);
         }
 
         return $status;
