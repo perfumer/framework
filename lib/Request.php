@@ -35,7 +35,7 @@ class Request
         $this->template = $url . '/' . $this->method . '.twig';
         $this->css = $url . '/' . $this->method . '.css';
         $this->js = $url . '/' . $this->method . '.js';
-        $this->controller = 'App\\Controller\\' . implode('\\', array_map('ucfirst', $path));
+        $this->controller = 'App\\Controller\\' . implode('\\', array_map('ucfirst', $path)) . 'Controller';
 
         $reflection_class = new \ReflectionClass($this->controller);
 
