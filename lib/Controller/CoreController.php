@@ -29,7 +29,19 @@ class CoreController
     {
         $this->before();
 
+        if (!method_exists($this, $method))
+            throw new HTTPException(404);
+
         $reflection_class = new \ReflectionClass($this);
+
+        if (method_exists($this, $method . 'Access'))
+        {
+            $access = $reflection_class->getMethod($method . 'Access')->invoke($this);
+
+            if (!$access)
+                throw new HTTPException(403);
+        }
+
         $reflection_class->getMethod($method)->invokeArgs($this, $args);
 
         $this->after();
