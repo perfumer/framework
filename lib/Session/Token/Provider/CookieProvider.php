@@ -17,6 +17,6 @@ class CookieProvider extends AbstractProvider
 
     public function getToken()
     {
-        return $this->$cookie->get($this->session_name);
+        return $this->cookie->get($this->session_name);
     }
 }

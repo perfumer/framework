@@ -11,7 +11,6 @@ class CoreController
     protected $container;
     protected $request;
     protected $response;
-    protected $assets;
 
     protected $view_vars = [];
     protected $js_vars = [];
@@ -22,7 +21,6 @@ class CoreController
         $this->container = $container;
         $this->request = $request;
         $this->response = $response;
-        $this->assets = $this->container->s('assets');
     }
 
     public function execute($method, array $args)
@@ -64,14 +62,6 @@ class CoreController
 
     protected function after()
     {
-        $this->assets
-            ->addCSS($this->request->css)
-            ->addJS($this->request->js);
-
-        $this->addViewVars([
-            'css' => $this->assets->getCSS(),
-            'js' => $this->assets->getJS()
-        ]);
     }
 
     protected function addViewVars(array $vars)
