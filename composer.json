@@ -13,7 +13,9 @@
         }
     ],
     "require": {
-        "php": ">=5.5.0"
+        "php": ">=5.5.0",
+        "perfumer/container": "dev-master",
+        "perfumer/helpers": "dev-master"
     },
     "autoload": {
         "psr-4": {
