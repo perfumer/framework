@@ -3,6 +3,7 @@
 namespace Perfumer;
 
 use Perfumer\Container\Core as Container;
+use Perfumer\Controller\HTTPException;
 
 class Request
 {
@@ -37,7 +38,14 @@ class Request
         $this->js = $url . '/' . $this->method . '.js';
         $this->controller = 'App\\Controller\\' . implode('\\', array_map('ucfirst', $path)) . 'Controller';
 
-        $reflection_class = new \ReflectionClass($this->controller);
+        try
+        {
+            $reflection_class = new \ReflectionClass($this->controller);
+        }
+        catch (\ReflectionException $e)
+        {
+            throw new HTTPException("Controller '{$this->controller}' does not exist", 404);
+        }
 
         $request = $this;
         $response = $this->container->s('response');

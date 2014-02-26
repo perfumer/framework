@@ -30,7 +30,7 @@ class CoreController
         $this->before();
 
         if (!method_exists($this, $method))
-            throw new HTTPException(404);
+            throw new HTTPException("Method '$method' does not exist", 404);
 
         $reflection_class = new \ReflectionClass($this);
 
@@ -39,7 +39,7 @@ class CoreController
             $access = $reflection_class->getMethod($method . 'Access')->invoke($this);
 
             if (!$access)
-                throw new HTTPException(403);
+                throw new HTTPException("Access to method '$method' is denied", 403);
         }
 
         $reflection_class->getMethod($method)->invokeArgs($this, $args);
