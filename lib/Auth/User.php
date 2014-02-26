@@ -60,7 +60,7 @@ class User extends BaseUser
         return false;
     }
 
-    protected function loadPermissions()
+    public function loadPermissions()
     {
         $this->permissions = [];
 
