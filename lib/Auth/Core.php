@@ -117,7 +117,7 @@ class Core
             if (!$user)
                 throw new AuthException(self::STATUS_INVALID_USERNAME);
 
-            if (!$force_login && !$this->user->checkPassword($password))
+            if (!$force_login && !$this->user->validatePassword($password))
                 throw new AuthException(self::STATUS_INVALID_PASSWORD);
         }
         catch(AuthException $e)
