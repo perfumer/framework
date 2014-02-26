@@ -108,7 +108,7 @@ class Core
         }
     }
 
-    public function signIn($username, $password, $force_login = false)
+    public function login($username, $password, $force_login = false)
     {
         try
         {
@@ -135,7 +135,7 @@ class Core
         $this->updateToken();
     }
 
-    public function signOut()
+    public function logout()
     {
         $this->session->restart();
         $this->user = new User();
