@@ -40,8 +40,16 @@ class Assets
 
     public function addCSS($css)
     {
-        @unlink($this->cache_dir . '/css/' . $css);
-        @copy($this->source_dir . '/css/' . $css, $this->cache_dir . '/css/' . $css);
+        $target_file = $this->cache_dir . '/css/' . $css;
+
+        @unlink($target_file);
+
+        $target_dir = explode('/', $target_file);
+        $target_dir = array_slice($target_dir, 0, count($target_dir) - 1);
+        $target_dir = implode('/', $target_dir);
+        @mkdir($target_dir, 0777, true);
+
+        @copy($this->source_dir . '/css/' . $css, $target_file);
 
         if (!in_array($css, $this->css))
             $this->css[] = $css;
@@ -51,8 +59,16 @@ class Assets
 
     public function addJS($js)
     {
-        @unlink($this->cache_dir . '/js/' . $js);
-        @copy($this->source_dir . '/js/' . $js, $this->cache_dir . '/js/' . $js);
+        $target_file = $this->cache_dir . '/js/' . $js;
+
+        @unlink($target_file);
+
+        $target_dir = explode('/', $target_file);
+        $target_dir = array_slice($target_dir, 0, count($target_dir) - 1);
+        $target_dir = implode('/', $target_dir);
+        @mkdir($target_dir, 0777, true);
+
+        @copy($this->source_dir . '/js/' . $js, $target_file);
 
         if (!in_array($js, $this->js))
             $this->js[] = $js;
