@@ -11,6 +11,7 @@ class CoreController
     protected $container;
     protected $request;
     protected $response;
+    protected $reflection_class;
 
     protected $view_vars = [];
     protected $js_vars = [];
@@ -21,28 +22,26 @@ class CoreController
         $this->container = $container;
         $this->request = $request;
         $this->response = $response;
+        $this->reflection_class = new \ReflectionClass($this);
     }
 
     public function execute($method, array $args)
     {
-        $this->before();
-
-        if (!method_exists($this, $method))
-            throw new HTTPException("Method '$method' does not exist", 404);
-
-        $reflection_class = new \ReflectionClass($this);
-
-        if (method_exists($this, $method . 'Access'))
+        try
         {
-            $access = $reflection_class->getMethod($method . 'Access')->invoke($this);
+            $this->before();
 
-            if (!$access)
-                throw new HTTPException("Access to method '$method' is denied", 403);
+            if (!method_exists($this, $method))
+                throw new HTTPException("Method '$method' does not exist", 404);
+
+            $this->reflection_class->getMethod($method)->invokeArgs($this, $args);
+
+            $this->after();
         }
-
-        $reflection_class->getMethod($method)->invokeArgs($this, $args);
-
-        $this->after();
+        catch (FilterException $e)
+        {
+            $this->executeFilterExceptionHandler($e->getMessage());
+        }
 
         if ($this->render_template)
         {
@@ -72,5 +71,10 @@ class CoreController
     protected function addJsVars(array $vars)
     {
         $this->js_vars = array_merge($this->js_vars, $vars);
+    }
+
+    protected function executeFilterExceptionHandler($handler)
+    {
+        $this->reflection_class->getMethod('filter' . ucfirst($handler) . 'ExceptionHandler')->invoke($this);
     }
 }
