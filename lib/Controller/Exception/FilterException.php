@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Controller;
+namespace Perfumer\Controller\Exception;
 
 class FilterException extends \Exception
 {
