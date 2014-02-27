@@ -3,6 +3,8 @@
 namespace Perfumer\Controller;
 
 use Perfumer\Container\Core as Container;
+use Perfumer\Controller\Exception\FilterException;
+use Perfumer\Controller\Exception\HTTPException;
 use Perfumer\Request;
 use Perfumer\Response;
 
