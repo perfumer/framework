@@ -65,6 +65,7 @@ class Core
             {
                 $user = new User();
                 $user->fromArray(unserialize($data));
+                $user->setNew(false);
             }
 
             if ($user)
