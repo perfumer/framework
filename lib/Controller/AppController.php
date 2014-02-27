@@ -7,6 +7,7 @@ class AppController extends CoreController
     protected $auth;
     protected $session;
     protected $assets;
+    protected $user;
 
     protected function before()
     {
@@ -20,6 +21,7 @@ class AppController extends CoreController
         $token = $token_provider->getToken();
         $this->session->start($token);
         $this->auth->init();
+        $this->user = $this->auth->getUser();
     }
 
     protected function after()
