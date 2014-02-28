@@ -13,6 +13,7 @@ class CoreController
     protected $container;
     protected $request;
     protected $response;
+    protected $assets;
     protected $reflection_class;
 
     protected $view_vars = [];
@@ -24,6 +25,7 @@ class CoreController
         $this->container = $container;
         $this->request = $request;
         $this->response = $response;
+        $this->assets = $this->container->s('assets');
         $this->reflection_class = new \ReflectionClass($this);
     }
 
@@ -47,9 +49,18 @@ class CoreController
 
         if ($this->render_template)
         {
+            $this->assets
+                ->addCSS($this->request->getCSS())
+                ->addJS($this->request->getJS());
+
+            $this->addViewVars([
+                'css' => $this->assets->getCSS(),
+                'js' => $this->assets->getJS()
+            ]);
+
             $this->view_vars['js_vars'] = $this->js_vars;
 
-            $body = $this->container->s('twig')->render($this->request->template, $this->view_vars);
+            $body = $this->container->s('twig')->render($this->request->getTemplate(), $this->view_vars);
 
             $this->response->setBody($body);
         }
