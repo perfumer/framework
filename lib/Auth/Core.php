@@ -37,7 +37,7 @@ class Core
 
     public function isLogged()
     {
-        return $this->user->getIsLogged();
+        return $this->user->isLogged();
     }
 
     public function getUser()
@@ -93,7 +93,7 @@ class Core
             }
 
             $this->user = $user;
-            $this->user->setIsLogged(true);
+            $this->user->setLogged(true);
             $this->user->loadPermissions();
             $this->status = self::STATUS_AUTHENTICATED;
 
@@ -129,7 +129,7 @@ class Core
         }
 
         $this->user = $user;
-        $this->user->setIsLogged(true);
+        $this->user->setLogged(true);
         $this->user->loadPermissions();
         $this->status = self::STATUS_SIGNED_IN;
 

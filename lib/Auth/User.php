@@ -10,12 +10,12 @@ class User extends BaseUser
     protected $is_logged = false;
     protected $permissions = [];
 
-    public function getIsLogged()
+    public function isLogged()
     {
         return $this->is_logged;
     }
 
-    public function setIsLogged($is_logged)
+    public function setLogged($is_logged)
     {
         $this->is_logged = (boolean) $is_logged;
 
@@ -40,9 +40,9 @@ class User extends BaseUser
         return password_verify($password, $this->getPassword());
     }
 
-    public function granted($permissions)
+    public function isGranted($permissions)
     {
-        if (!$this->getIsLogged())
+        if (!$this->isLogged())
             return false;
 
         if ($this->getIsAdmin())
