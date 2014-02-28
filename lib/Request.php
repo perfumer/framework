@@ -9,12 +9,12 @@ class Request
 {
     protected $container;
 
-    public $url;
-    public $controller;
-    public $method;
-    public $template;
-    public $css;
-    public $js;
+    protected $url;
+    protected $controller;
+    protected $method;
+    protected $template;
+    protected $css;
+    protected $js;
 
     public function __construct(Container $container)
     {
