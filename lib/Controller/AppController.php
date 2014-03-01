@@ -2,8 +2,12 @@
 
 namespace Perfumer\Controller;
 
+use Perfumer\Controller\Filter\PermissionPack;
+
 class AppController extends CoreController
 {
+    use PermissionPack;
+
     protected $auth;
     protected $session;
     protected $user;
@@ -11,6 +15,8 @@ class AppController extends CoreController
     protected function before()
     {
         parent::before();
+
+        $this->filterActionExists($this->request->getAction(), 'html');
 
         $token_provider = $this->container->s('session.cookie_provider');
         $this->auth = $this->container->s('auth');

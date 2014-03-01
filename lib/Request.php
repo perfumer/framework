@@ -11,7 +11,7 @@ class Request
 
     protected $url;
     protected $controller;
-    protected $method;
+    protected $action;
     protected $template;
     protected $css;
     protected $js;
@@ -21,21 +21,21 @@ class Request
         $this->container = $container;
     }
 
-    public function execute($url = null, $method = null, array $args = [])
+    public function execute($url = null, $action = null, array $args = [])
     {
         if ($url === null)
         {
-            $url = ($_SERVER['PATH_INFO'] !== '/') ? $_SERVER['PATH_INFO'] : $this->container->p('app.default_url');
+            $url = ($_SERVER['PATH_INFO'] !== '/') ? $_SERVER['PATH_INFO'] : $this->container->p('url.default');
         }
 
         $url = trim($url, '/');
         $path = explode('/', $url);
 
         $this->setURL($url);
-        $this->setMethod(($method === null) ? strtolower($_SERVER['REQUEST_METHOD']) : $method);
-        $this->setTemplate($url . '/' . $this->method . '.twig');
-        $this->setCSS($url . '/' . $this->method . '.css');
-        $this->setJS($url . '/' . $this->method . '.js');
+        $this->setAction(($action === null) ? strtolower($_SERVER['REQUEST_METHOD']) : $action);
+        $this->setTemplate($url . '/' . $this->getAction() . '.twig');
+        $this->setCSS($url . '/' . $this->getAction() . '.css');
+        $this->setJS($url . '/' . $this->getAction() . '.js');
         $this->setController('App\\Controller\\' . implode('\\', array_map('ucfirst', $path)) . 'Controller');
 
         try
@@ -51,7 +51,7 @@ class Request
         $response = $this->container->s('response');
         $controller = $reflection_class->newInstance($this->container, $request, $response);
 
-        return $reflection_class->getMethod('execute')->invoke($controller, $this->getMethod(), $args);
+        return $reflection_class->getMethod('execute')->invoke($controller, $args);
     }
 
     public function getURL()
@@ -76,14 +76,14 @@ class Request
         return $this;
     }
 
-    public function getMethod()
+    public function getAction()
     {
-        return $this->method;
+        return $this->action;
     }
 
-    public function setMethod($method)
+    public function setAction($action)
     {
-        $this->method = $method;
+        $this->action = $action;
         return $this;
     }
 

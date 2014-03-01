@@ -16,6 +16,7 @@ class CoreController
     protected $assets;
     protected $reflection_class;
 
+    protected $filter_vars = [];
     protected $view_vars = [];
     protected $js_vars = [];
     protected $render_template = true;
@@ -29,17 +30,12 @@ class CoreController
         $this->reflection_class = new \ReflectionClass($this);
     }
 
-    public function execute($method, array $args)
+    public function execute(array $args)
     {
         try
         {
             $this->before();
-
-            if (!method_exists($this, $method))
-                throw new HTTPException("Method '$method' does not exist", 404);
-
-            $this->reflection_class->getMethod($method)->invokeArgs($this, $args);
-
+            $this->reflection_class->getMethod($this->request->getAction())->invokeArgs($this, $args);
             $this->after();
         }
         catch (FilterException $e)
