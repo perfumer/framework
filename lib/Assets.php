@@ -4,18 +4,16 @@ namespace Perfumer;
 
 class Assets
 {
-    protected $source_dir;
-    protected $cache_dir;
-    protected $web_path;
+    protected $css_path;
+    protected $js_path;
 
     protected $css = [];
     protected $js = [];
 
     public function __construct(array $params)
     {
-        $this->source_dir = rtrim($params['source_dir'], '/');
-        $this->cache_dir = rtrim($params['cache_dir'], '/');
-        $this->web_path = rtrim($params['web_path'], '/');
+        $this->css_path = rtrim($params['css_path'], '/');
+        $this->js_path = rtrim($params['js_path'], '/');
     }
 
     public function getCSS()
@@ -23,7 +21,7 @@ class Assets
         $array = [];
 
         foreach ($this->css as $css)
-            $array[] = $this->web_path . '/css/' . $css;
+            $array[] = $this->css_path . '/' . $css;
 
         return $array;
     }
@@ -33,24 +31,13 @@ class Assets
         $array = [];
 
         foreach ($this->js as $js)
-            $array[] = $this->web_path . '/js/' . $js;
+            $array[] = $this->js_path . '/' . $js;
 
         return $array;
     }
 
     public function addCSS($css)
     {
-        $target_file = $this->cache_dir . '/css/' . $css;
-
-        @unlink($target_file);
-
-        $target_dir = explode('/', $target_file);
-        $target_dir = array_slice($target_dir, 0, count($target_dir) - 1);
-        $target_dir = implode('/', $target_dir);
-        @mkdir($target_dir, 0777, true);
-
-        @copy($this->source_dir . '/css/' . $css, $target_file);
-
         if (!in_array($css, $this->css))
             $this->css[] = $css;
 
@@ -59,17 +46,6 @@ class Assets
 
     public function addJS($js)
     {
-        $target_file = $this->cache_dir . '/js/' . $js;
-
-        @unlink($target_file);
-
-        $target_dir = explode('/', $target_file);
-        $target_dir = array_slice($target_dir, 0, count($target_dir) - 1);
-        $target_dir = implode('/', $target_dir);
-        @mkdir($target_dir, 0777, true);
-
-        @copy($this->source_dir . '/js/' . $js, $target_file);
-
         if (!in_array($js, $this->js))
             $this->js[] = $js;
 
