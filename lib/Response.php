@@ -11,6 +11,8 @@ class Response
     {
         foreach ($this->headers as $name => $value)
             header($name . ': ' . $value);
+
+        return $this;
     }
 
     public function addHeader($name, $value)
