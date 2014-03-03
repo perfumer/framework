@@ -56,7 +56,7 @@ trait PermissionPack
 
     public function filterIsLoggedHTMLExceptionHandler()
     {
-        $login_url = $this->container->s('url.login');
+        $login_url = $this->container->p('url.login');
 
         $this->request->setTemplate($login_url . '/get.twig');
         $this->request->setCSS($login_url . '/get.css');
