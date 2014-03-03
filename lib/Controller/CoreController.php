@@ -75,6 +75,11 @@ class CoreController
     {
     }
 
+    protected function redirect($url)
+    {
+        $this->response->addHeader('Location', $url);
+    }
+
     protected function addViewVars(array $vars)
     {
         $this->view_vars = array_merge($this->view_vars, $vars);
