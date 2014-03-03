@@ -39,12 +39,12 @@ trait PermissionPack
             throw new FilterException('isGranted' . strtoupper($mode));
     }
 
-    protected function filterActionExistsHTMLExceptionHandler()
+    public function filterActionExistsHTMLExceptionHandler()
     {
         throw new HTTPException("Action '{$this->filter_vars['action']}' does not exist", 404);
     }
 
-    protected function filterActionExistsJSONExceptionHandler()
+    public function filterActionExistsJSONExceptionHandler()
     {
         $this->request->setTemplate('layout/json.twig');
 
@@ -54,7 +54,7 @@ trait PermissionPack
         ]);
     }
 
-    protected function filterIsLoggedHTMLExceptionHandler()
+    public function filterIsLoggedHTMLExceptionHandler()
     {
         $login_url = $this->container->s('url.login');
 
@@ -63,7 +63,7 @@ trait PermissionPack
         $this->request->setJS($login_url . '/get.js');
     }
 
-    protected function filterIsLoggedJSONExceptionHandler()
+    public function filterIsLoggedJSONExceptionHandler()
     {
         $this->request->setTemplate('layout/json.twig');
 
@@ -73,12 +73,12 @@ trait PermissionPack
         ]);
     }
 
-    protected function filterIsAdminHTMLExceptionHandler()
+    public function filterIsAdminHTMLExceptionHandler()
     {
         throw new HTTPException('Action is permitted to administrators only', 403);
     }
 
-    protected function filterIsAdminJSONExceptionHandler()
+    public function filterIsAdminJSONExceptionHandler()
     {
         $this->request->setTemplate('layout/json.twig');
 
@@ -88,12 +88,12 @@ trait PermissionPack
         ]);
     }
 
-    protected function filterIsGrantedHTMLExceptionHandler()
+    public function filterIsGrantedHTMLExceptionHandler()
     {
         throw new HTTPException('You do not have enough rights for the action', 403);
     }
 
-    protected function filterIsGrantedJSONExceptionHandler()
+    public function filterIsGrantedJSONExceptionHandler()
     {
         $this->request->setTemplate('layout/json.twig');
 
