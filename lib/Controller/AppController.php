@@ -25,6 +25,6 @@ class AppController extends CoreController
         $token = $token_provider->getToken();
         $this->session->start($token);
         $this->auth->init();
-        $this->user = $this->auth->getUser();
+        $this->user = $this->global_vars['user'] = $this->auth->getUser();
     }
 }

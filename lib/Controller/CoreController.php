@@ -17,6 +17,7 @@ class CoreController
     protected $reflection_class;
 
     protected $filter_vars = [];
+    protected $global_vars = [];
     protected $view_vars = [];
     protected $js_vars = [];
     protected $render_template = true;
@@ -28,6 +29,9 @@ class CoreController
         $this->response = $response;
         $this->assets = $this->container->s('assets');
         $this->reflection_class = new \ReflectionClass($this);
+
+        $this->global_vars['request'] = $request;
+        $this->global_vars['response'] = $response;
     }
 
     public function execute(array $args)
@@ -49,12 +53,11 @@ class CoreController
                 ->addCSS($this->request->getCSS())
                 ->addJS($this->request->getJS());
 
-            $this->addViewVars([
-                'css' => $this->assets->getCSS(),
-                'js' => $this->assets->getJS()
-            ]);
+            $this->global_vars['css'] = $this->assets->getCSS();
+            $this->global_vars['js'] = $this->assets->getJS();
+            $this->global_vars['vars'] = $this->js_vars;
 
-            $this->view_vars['js_vars'] = $this->js_vars;
+            $this->view_vars['app'] = $this->global_vars;
 
             $body = $this->container->s('twig')->render($this->request->getTemplate(), $this->view_vars);
 
