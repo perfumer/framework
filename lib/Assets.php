@@ -12,8 +12,8 @@ class Assets
 
     public function __construct(array $params)
     {
-        $this->css_path = trim($params['css_path'], '/');
-        $this->js_path = trim($params['js_path'], '/');
+        $this->css_path = '/' . trim($params['css_path'], '/');
+        $this->js_path = '/' . trim($params['js_path'], '/');
     }
 
     public function getCSS()
