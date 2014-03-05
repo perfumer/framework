@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer;
+namespace Perfumer\Proxy;
 
 class Response
 {

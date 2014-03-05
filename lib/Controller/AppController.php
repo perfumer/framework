@@ -2,29 +2,39 @@
 
 namespace Perfumer\Controller;
 
-use Perfumer\Controller\Filter\PermissionPack;
-
 class AppController extends CoreController
 {
-    use PermissionPack;
-
-    protected $auth;
-    protected $session;
-    protected $user;
+    protected $assets;
 
     protected function before()
     {
         parent::before();
 
-        $this->filterActionExists($this->request->getAction(), 'html');
+        $this->assets = $this->container->s('assets');
 
-        $token_provider = $this->container->s('session.cookie_provider');
-        $this->auth = $this->container->s('auth');
-        $this->session = $this->container->s('session');
+        if (!$this->stock->has('user'))
+        {
+            $token = $this->container->s('session.cookie_provider')->getToken();
 
-        $token = $token_provider->getToken();
-        $this->session->start($token);
-        $this->auth->init();
-        $this->user = $this->global_vars['user'] = $this->auth->getUser();
+            $this->container->s('session')->start($token);
+            $this->container->s('auth')->init();
+
+            $this->stock->set('user', $this->container->s('auth')->getUser());
+        }
+
+        $this->user = $this->global_vars['user'] = $this->stock->get('user');
+    }
+
+    protected function after()
+    {
+        $this->assets
+            ->addCSS($this->request->getCSS())
+            ->addJS($this->request->getJS());
+
+        $this->global_vars['css'] = $this->assets->getCSS();
+        $this->global_vars['js'] = $this->assets->getJS();
+        $this->global_vars['vars'] = $this->js_vars;
+
+        parent::after();
     }
 }

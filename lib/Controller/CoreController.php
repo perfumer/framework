@@ -3,32 +3,31 @@
 namespace Perfumer\Controller;
 
 use Perfumer\Container\Core as Container;
-use Perfumer\Controller\Exception\FilterException;
-use Perfumer\Controller\Exception\HTTPException;
-use Perfumer\Request;
-use Perfumer\Response;
+use Perfumer\Proxy\Core as Proxy;
+use Perfumer\Proxy\Request;
+use Perfumer\Proxy\Response;
 
 class CoreController
 {
     protected $container;
+    protected $proxy;
     protected $request;
     protected $response;
-    protected $assets;
-    protected $reflection_class;
+    protected $stock;
 
-    protected $filter_vars = [];
     protected $global_vars = [];
     protected $view_vars = [];
     protected $js_vars = [];
     protected $render_template = true;
 
-    public function __construct(Container $container, Request $request, Response $response)
+    public function __construct(Container $container, Proxy $proxy, Request $request, Response $response)
     {
         $this->container = $container;
+        $this->proxy = $proxy;
         $this->request = $request;
         $this->response = $response;
-        $this->assets = $this->container->s('assets');
-        $this->reflection_class = new \ReflectionClass($this);
+
+        $this->stock = $container->s('stock');
 
         $this->global_vars['request'] = $request;
         $this->global_vars['response'] = $response;
@@ -36,27 +35,15 @@ class CoreController
 
     public function execute(array $args)
     {
-        try
-        {
-            $this->before();
-            $this->reflection_class->getMethod($this->request->getAction())->invokeArgs($this, $args);
-            $this->after();
-        }
-        catch (FilterException $e)
-        {
-            $this->executeFilterExceptionHandler($e->getMessage());
-        }
+        $this->before();
+
+        $reflection_class = new \ReflectionClass($this);
+        $reflection_class->getMethod($this->request->getAction())->invokeArgs($this, $args);
+
+        $this->after();
 
         if ($this->render_template)
         {
-            $this->assets
-                ->addCSS($this->request->getCSS())
-                ->addJS($this->request->getJS());
-
-            $this->global_vars['css'] = $this->assets->getCSS();
-            $this->global_vars['js'] = $this->assets->getJS();
-            $this->global_vars['vars'] = $this->js_vars;
-
             $this->view_vars['app'] = $this->global_vars;
 
             $body = $this->container->s('twig')->render($this->request->getTemplate(), $this->view_vars);
@@ -85,13 +72,18 @@ class CoreController
         $this->view_vars = array_merge($this->view_vars, $vars);
     }
 
+    protected function addViewVar($name, $value)
+    {
+        $this->view_vars[$name] = $value;
+    }
+
     protected function addJsVars(array $vars)
     {
         $this->js_vars = array_merge($this->js_vars, $vars);
     }
 
-    protected function executeFilterExceptionHandler($handler)
+    protected function addJsVar($name, $value)
     {
-        $this->reflection_class->getMethod('filter' . ucfirst($handler) . 'ExceptionHandler')->invoke($this);
+        $this->js_vars[$name] = $value;
     }
 }

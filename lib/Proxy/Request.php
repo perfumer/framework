@@ -1,38 +1,37 @@
 <?php
 
-namespace Perfumer;
+namespace Perfumer\Proxy;
 
 use Perfumer\Container\Core as Container;
-use Perfumer\Controller\Exception\HTTPException;
+use Perfumer\Proxy\Core as Proxy;
 
 class Request
 {
     protected $container;
+    protected $proxy;
 
     protected $url;
+    protected $args;
     protected $controller;
     protected $action;
     protected $template;
     protected $css;
     protected $js;
 
-    public function __construct(Container $container)
+    public function __construct(Container $container, Proxy $proxy)
     {
         $this->container = $container;
+        $this->proxy = $proxy;
     }
 
-    public function execute($url = null, $action = null, array $args = [])
+    public function execute($url, $action, array $args = [])
     {
-        if ($url === null)
-        {
-            $url = ($_SERVER['PATH_INFO'] !== '/') ? $_SERVER['PATH_INFO'] : $this->container->p('url.default');
-        }
-
         $url = trim($url, '/');
         $path = explode('/', $url);
 
         $this->setURL($url);
-        $this->setAction(($action === null) ? strtolower($_SERVER['REQUEST_METHOD']) : $action);
+        $this->setArgs($args);
+        $this->setAction($action);
         $this->setTemplate($url . '/' . $this->getAction() . '.twig');
         $this->setCSS($url . '/' . $this->getAction() . '.css');
         $this->setJS($url . '/' . $this->getAction() . '.js');
@@ -44,12 +43,12 @@ class Request
         }
         catch (\ReflectionException $e)
         {
-            throw new HTTPException("Controller '{$this->getController()}' does not exist", 404);
+            $this->proxy->forward('exception', 'http', [404]);
         }
 
         $request = $this;
         $response = $this->container->s('response');
-        $controller = $reflection_class->newInstance($this->container, $request, $response);
+        $controller = $reflection_class->newInstance($this->container, $this->proxy, $request, $response);
 
         return $reflection_class->getMethod('execute')->invoke($controller, $args);
     }
@@ -62,6 +61,17 @@ class Request
     public function setURL($url)
     {
         $this->url = $url;
+        return $this;
+    }
+
+    public function getArgs()
+    {
+        return $this->args;
+    }
+
+    public function setArgs($args)
+    {
+        $this->args = $args;
         return $this;
     }
 
