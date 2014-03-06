@@ -8,7 +8,6 @@ use Perfumer\Proxy\Core as Proxy;
 class Request
 {
     protected $container;
-    protected $proxy;
 
     protected $url;
     protected $args;
@@ -18,10 +17,9 @@ class Request
     protected $css;
     protected $js;
 
-    public function __construct(Container $container, Proxy $proxy)
+    public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->proxy = $proxy;
     }
 
     public function execute($url, $action, array $args = [])
@@ -43,14 +41,14 @@ class Request
         }
         catch (\ReflectionException $e)
         {
-            $this->proxy->forward('exception', 'http', [404]);
+            $this->container->s('proxy')->forward('exception/html', 'pageNotFound');
         }
 
         $request = $this;
         $response = $this->container->s('response');
-        $controller = $reflection_class->newInstance($this->container, $this->proxy, $request, $response);
+        $controller = $reflection_class->newInstance($this->container, $request, $response);
 
-        return $reflection_class->getMethod('execute')->invoke($controller, $args);
+        return $reflection_class->getMethod('execute')->invoke($controller);
     }
 
     public function getURL()

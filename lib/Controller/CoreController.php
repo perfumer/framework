@@ -3,7 +3,6 @@
 namespace Perfumer\Controller;
 
 use Perfumer\Container\Core as Container;
-use Perfumer\Proxy\Core as Proxy;
 use Perfumer\Proxy\Request;
 use Perfumer\Proxy\Response;
 
@@ -20,25 +19,28 @@ class CoreController
     protected $js_vars = [];
     protected $render_template = true;
 
-    public function __construct(Container $container, Proxy $proxy, Request $request, Response $response)
+    public function __construct(Container $container, Request $request, Response $response)
     {
         $this->container = $container;
-        $this->proxy = $proxy;
         $this->request = $request;
         $this->response = $response;
 
+        $this->proxy = $container->s('proxy');
         $this->stock = $container->s('stock');
 
         $this->global_vars['request'] = $request;
         $this->global_vars['response'] = $response;
     }
 
-    public function execute(array $args)
+    public function execute()
     {
         $this->before();
 
+        $action = $this->request->getAction();
+        $args = $this->request->getArgs();
+
         $reflection_class = new \ReflectionClass($this);
-        $reflection_class->getMethod($this->request->getAction())->invokeArgs($this, $args);
+        $reflection_class->getMethod($action)->invokeArgs($this, $args);
 
         $this->after();
 

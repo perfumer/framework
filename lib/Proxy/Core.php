@@ -4,7 +4,6 @@ namespace Perfumer\Proxy;
 
 use Perfumer\Container\Core as Container;
 use Perfumer\Proxy\Exception\ForwardException;
-use Perfumer\Proxy\Exception\ProxyException;
 
 class Core
 {
@@ -12,7 +11,6 @@ class Core
     protected $request_url;
     protected $request_action;
     protected $request_args = [];
-    protected $class_vars = [];
 
     public function __construct(Container $container)
     {
@@ -29,11 +27,10 @@ class Core
         }
         catch (ForwardException $e)
         {
-            $this->start();
-            return;
+            return $this->start();
         }
 
-        echo $response->sendHeaders()->getBody();
+        return $response;
     }
 
     public function execute($url, $action, array $args = [])

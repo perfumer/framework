@@ -10,6 +10,9 @@ class AppController extends CoreController
     {
         parent::before();
 
+        if (!method_exists($this, $this->request->getAction()))
+            $this->proxy->forward('exception/html', 'pageNotFound');
+
         $this->assets = $this->container->s('assets');
 
         if (!$this->stock->has('user'))
