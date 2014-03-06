@@ -30,13 +30,16 @@ class AppController extends CoreController
 
     protected function after()
     {
-        $this->assets
-            ->addCSS($this->request->getCSS())
-            ->addJS($this->request->getJS());
+        if ($this->render_template)
+        {
+            $this->assets
+                ->addCSS($this->request->getCSS())
+                ->addJS($this->request->getJS());
 
-        $this->global_vars['css'] = $this->assets->getCSS();
-        $this->global_vars['js'] = $this->assets->getJS();
-        $this->global_vars['vars'] = $this->js_vars;
+            $this->global_vars['css'] = $this->assets->getCSS();
+            $this->global_vars['js'] = $this->assets->getJS();
+            $this->global_vars['vars'] = $this->js_vars;
+        }
 
         parent::after();
     }

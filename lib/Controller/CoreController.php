@@ -27,9 +27,6 @@ class CoreController
 
         $this->proxy = $container->s('proxy');
         $this->stock = $container->s('stock');
-
-        $this->global_vars['request'] = $request;
-        $this->global_vars['response'] = $response;
     }
 
     public function execute()
@@ -46,6 +43,9 @@ class CoreController
 
         if ($this->render_template)
         {
+            $this->global_vars['request'] = $this->request;
+            $this->global_vars['response'] = $this->response;
+
             $this->view_vars['app'] = $this->global_vars;
 
             $body = $this->container->s('twig')->render($this->request->getTemplate(), $this->view_vars);
