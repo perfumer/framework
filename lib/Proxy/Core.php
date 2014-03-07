@@ -11,12 +11,29 @@ class Core
     protected $request_url;
     protected $request_action;
     protected $request_args = [];
+    protected $http_query = [];
+    protected $http_params = [];
 
     public function __construct(Container $container)
     {
         $this->container = $container;
         $this->request_url = ($_SERVER['PATH_INFO'] !== '/') ? $_SERVER['PATH_INFO'] : $this->container->p('url.default');
         $this->request_action = strtolower($_SERVER['REQUEST_METHOD']);
+
+        switch ($this->request_action)
+        {
+            case 'get':
+                $this->http_query = $_GET;
+                break;
+            case 'post':
+                $this->http_query = $_GET;
+                $this->http_params = $_POST;
+                break;
+            default:
+                $this->http_query = $_GET;
+                parse_str(file_get_contents("php://input"), $this->http_params);
+                break;
+        }
     }
 
     public function start()
@@ -45,5 +62,39 @@ class Core
         $this->request_args = $args;
 
         throw new ForwardException();
+    }
+
+    public function q($name)
+    {
+        return $this->getQuery($name);
+    }
+
+    public function getQuery($name)
+    {
+        return isset($this->http_query[$name]) ? $this->http_query[$name] : null;
+    }
+
+    public function setQuery($name, $value)
+    {
+        $this->http_query[$name] = $value;
+
+        return $this;
+    }
+
+    public function p($name)
+    {
+        return $this->getParam($name);
+    }
+
+    public function getParam($name)
+    {
+        return isset($this->http_params[$name]) ? $this->http_params[$name] : null;
+    }
+
+    public function setParam($name, $value)
+    {
+        $this->http_params[$name] = $value;
+
+        return $this;
     }
 }
