@@ -33,11 +33,11 @@ class AppController extends CoreController
         if ($this->render_template)
         {
             $this->assets
-                ->addCSS($this->request->getCSS())
-                ->addJS($this->request->getJS());
+                ->addCss($this->request->getCss())
+                ->addJs($this->request->getJs());
 
-            $this->global_vars['css'] = $this->assets->getCSS();
-            $this->global_vars['js'] = $this->assets->getJS();
+            $this->global_vars['css'] = $this->assets->getCss();
+            $this->global_vars['js'] = $this->assets->getJs();
             $this->global_vars['vars'] = $this->js_vars;
         }
 

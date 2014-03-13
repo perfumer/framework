@@ -27,12 +27,12 @@ class Request
         $url = trim($url, '/');
         $path = explode('/', $url);
 
-        $this->setURL($url);
+        $this->setUrl($url);
         $this->setArgs($args);
         $this->setAction($action);
         $this->setTemplate($url . '/' . $this->getAction() . '.twig');
-        $this->setCSS($url . '/' . $this->getAction() . '.css');
-        $this->setJS($url . '/' . $this->getAction() . '.js');
+        $this->setCss($url . '/' . $this->getAction() . '.css');
+        $this->setJs($url . '/' . $this->getAction() . '.js');
         $this->setController('App\\Controller\\' . implode('\\', array_map('ucfirst', $path)) . 'Controller');
 
         try
@@ -51,12 +51,12 @@ class Request
         return $reflection_class->getMethod('execute')->invoke($controller);
     }
 
-    public function getURL()
+    public function getUrl()
     {
         return $this->url;
     }
 
-    public function setURL($url)
+    public function setUrl($url)
     {
         $this->url = $url;
         return $this;
@@ -106,23 +106,23 @@ class Request
         return $this;
     }
 
-    public function getCSS()
+    public function getCss()
     {
         return $this->css;
     }
 
-    public function setCSS($css)
+    public function setCss($css)
     {
         $this->css = $css;
         return $this;
     }
 
-    public function getJS()
+    public function getJs()
     {
         return $this->js;
     }
 
-    public function setJS($js)
+    public function setJs($js)
     {
         $this->js = $js;
         return $this;

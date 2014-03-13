@@ -16,7 +16,7 @@ class Assets
         $this->js_path = '/' . trim($params['js_path'], '/');
     }
 
-    public function getCSS()
+    public function getCss()
     {
         $array = [];
 
@@ -26,7 +26,7 @@ class Assets
         return $array;
     }
 
-    public function getJS()
+    public function getJs()
     {
         $array = [];
 
@@ -36,7 +36,7 @@ class Assets
         return $array;
     }
 
-    public function addCSS($css)
+    public function addCss($css)
     {
         if (!in_array($css, $this->css))
             $this->css[] = $css;
@@ -44,7 +44,7 @@ class Assets
         return $this;
     }
 
-    public function addJS($js)
+    public function addJs($js)
     {
         if (!in_array($js, $this->js))
             $this->js[] = $js;
