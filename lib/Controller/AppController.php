@@ -14,18 +14,6 @@ class AppController extends CoreController
             $this->proxy->forward('exception/html', 'pageNotFound');
 
         $this->assets = $this->container->s('assets');
-
-        if (!$this->stock->has('user'))
-        {
-            $token = $this->container->s('session.cookie_provider')->getToken();
-
-            $this->container->s('session')->start($token);
-            $this->container->s('auth')->init();
-
-            $this->stock->set('user', $this->container->s('auth')->getUser());
-        }
-
-        $this->user = $this->global_vars['user'] = $this->stock->get('user');
     }
 
     protected function after()

@@ -11,13 +11,15 @@ class Core
     protected $request_url;
     protected $request_action;
     protected $request_args = [];
+    protected $http_globals = [];
+    protected $http_id;
     protected $http_query = [];
     protected $http_params = [];
 
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->request_url = ($_SERVER['PATH_INFO'] !== '/') ? $_SERVER['PATH_INFO'] : $this->container->p('url.default');
+        $this->request_url = ($_SERVER['PATH_INFO'] !== '/') ? $_SERVER['PATH_INFO'] : $this->container->p('proxy.default_url');
         $this->request_action = strtolower($_SERVER['REQUEST_METHOD']);
 
         switch ($this->request_action)
@@ -64,19 +66,36 @@ class Core
         throw new ForwardException();
     }
 
-    public function q($name)
+    public function g($name)
     {
-        return $this->getQuery($name);
+        return $this->getGlobal($name);
     }
 
-    public function getQuery($name)
+    public function getGlobal($name)
     {
-        return isset($this->http_query[$name]) ? $this->http_query[$name] : null;
+        return isset($this->http_globals[$name]) ? $this->http_globals[$name] : null;
     }
 
-    public function setQuery($name, $value)
+    public function setGlobal($name, $value)
     {
-        $this->http_query[$name] = $value;
+        $this->http_globals[$name] = $value;
+
+        return $this;
+    }
+
+    public function i()
+    {
+        return $this->http_id;
+    }
+
+    public function getId()
+    {
+        return $this->http_id;
+    }
+
+    public function setId($value)
+    {
+        $this->http_id = $value;
 
         return $this;
     }
@@ -94,6 +113,23 @@ class Core
     public function setParam($name, $value)
     {
         $this->http_params[$name] = $value;
+
+        return $this;
+    }
+
+    public function q($name)
+    {
+        return $this->getQuery($name);
+    }
+
+    public function getQuery($name)
+    {
+        return isset($this->http_query[$name]) ? $this->http_query[$name] : null;
+    }
+
+    public function setQuery($name, $value)
+    {
+        $this->http_query[$name] = $value;
 
         return $this;
     }

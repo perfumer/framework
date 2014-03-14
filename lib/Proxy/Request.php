@@ -3,7 +3,6 @@
 namespace Perfumer\Proxy;
 
 use Perfumer\Container\Core as Container;
-use Perfumer\Proxy\Core as Proxy;
 
 class Request
 {
