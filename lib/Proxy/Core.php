@@ -33,7 +33,7 @@ class Core
             if ($hyphen_pos !== false)
             {
                 $this->setId(substr($url, $hyphen_pos + 1));
-                $url = substr($url, 0, 5);
+                $url = substr($url, 0, $hyphen_pos);
             }
 
             if ($globals = $this->container->p('proxy.globals'))
