@@ -6,6 +6,8 @@ class AppController extends CoreController
 {
     protected $assets;
 
+    protected $js_vars = [];
+
     protected function before()
     {
         parent::before();
@@ -30,5 +32,15 @@ class AppController extends CoreController
         }
 
         parent::after();
+    }
+
+    protected function addJsVars(array $vars)
+    {
+        $this->js_vars = array_merge($this->js_vars, $vars);
+    }
+
+    protected function addJsVar($name, $value)
+    {
+        $this->js_vars[$name] = $value;
     }
 }

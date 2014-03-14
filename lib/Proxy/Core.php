@@ -19,8 +19,48 @@ class Core
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->request_url = ($_SERVER['PATH_INFO'] !== '/') ? $_SERVER['PATH_INFO'] : $this->container->p('proxy.default_url');
         $this->request_action = strtolower($_SERVER['REQUEST_METHOD']);
+
+        if ($_SERVER['PATH_INFO'] == '/')
+        {
+            $this->request_url = $this->container->p('proxy.default_url');
+        }
+        else
+        {
+            $url = $_SERVER['PATH_INFO'];
+            $hyphen_pos = strpos($url, '-');
+
+            if ($hyphen_pos !== false)
+            {
+                $this->setId(substr($url, $hyphen_pos + 1));
+                $url = substr($url, 0, 5);
+            }
+
+            if ($globals = $this->container->p('proxy.globals'))
+            {
+                $url = explode('/', $url);
+                array_shift($url);
+
+                $global_values = array_slice($url, 0, count($globals));
+
+                foreach ($globals as $key => $global)
+                {
+                    $this->setGlobal($global, $global_values[$key]);
+                }
+
+                if (count($globals) >= count($url))
+                {
+                    $url = $this->container->p('proxy.default_url');
+                }
+                else
+                {
+                    $url = array_slice($url, count($globals));
+                    $url = implode('/', $url);
+                }
+            }
+
+            $this->request_url = $url;
+        }
 
         switch ($this->request_action)
         {
