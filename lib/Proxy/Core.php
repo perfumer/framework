@@ -106,14 +106,17 @@ class Core
         throw new ForwardException();
     }
 
-    public function g($name)
+    public function g($name = null, $default = null)
     {
-        return $this->getGlobal($name);
+        return $this->getGlobal($name, $default);
     }
 
-    public function getGlobal($name)
+    public function getGlobal($name = null, $default = null)
     {
-        return isset($this->http_globals[$name]) ? $this->http_globals[$name] : null;
+        if ($name === null)
+            return $this->http_globals;
+
+        return isset($this->http_globals[$name]) ? $this->http_globals[$name] : $default;
     }
 
     public function setGlobal($name, $value)
@@ -140,14 +143,17 @@ class Core
         return $this;
     }
 
-    public function p($name)
+    public function p($name = null, $default = null)
     {
-        return $this->getParam($name);
+        return $this->getParam($name, $default);
     }
 
-    public function getParam($name)
+    public function getParam($name = null, $default = null)
     {
-        return isset($this->http_params[$name]) ? $this->http_params[$name] : null;
+        if ($name === null)
+            return $this->http_params;
+
+        return isset($this->http_params[$name]) ? $this->http_params[$name] : $default;
     }
 
     public function setParam($name, $value)
@@ -157,14 +163,17 @@ class Core
         return $this;
     }
 
-    public function q($name)
+    public function q($name = null, $default = null)
     {
-        return $this->getQuery($name);
+        return $this->getQuery($name, $default);
     }
 
-    public function getQuery($name)
+    public function getQuery($name = null, $default = null)
     {
-        return isset($this->http_query[$name]) ? $this->http_query[$name] : null;
+        if ($name === null)
+            return $this->http_query;
+
+        return isset($this->http_query[$name]) ? $this->http_query[$name] : $default;
     }
 
     public function setQuery($name, $value)
