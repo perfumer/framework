@@ -42,8 +42,7 @@ class CoreController
 
         if ($this->render_template)
         {
-            $this->global_vars['request'] = $this->request;
-            $this->global_vars['response'] = $this->response;
+            $this->global_vars['proxy'] = $this->proxy;
 
             $this->view_vars['app'] = $this->global_vars;
 
