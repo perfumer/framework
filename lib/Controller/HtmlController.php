@@ -2,7 +2,7 @@
 
 namespace Perfumer\Controller;
 
-class AppController extends CoreController
+class HtmlController extends CoreController
 {
     protected $assets;
 
@@ -26,12 +26,19 @@ class AppController extends CoreController
                 ->addCss($this->request->getCss())
                 ->addJs($this->request->getJs());
 
-            $this->global_vars['css'] = $this->assets->getCss();
-            $this->global_vars['js'] = $this->assets->getJs();
-            $this->global_vars['vars'] = $this->js_vars;
+            $this->addViewVars([
+                'css' => $this->assets->getCss(),
+                'js' => $this->assets->getJs(),
+                'vars' => $this->js_vars
+            ]);
         }
 
         parent::after();
+    }
+
+    protected function redirect($url)
+    {
+        $this->response->addHeader('Location', $url);
     }
 
     protected function addJsVars(array $vars)

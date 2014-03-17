@@ -14,8 +14,9 @@ class CoreController
     protected $response;
     protected $stock;
 
-    protected $global_vars = [];
     protected $view_vars = [];
+    protected $app_vars = [];
+
     protected $render_template = true;
 
     public function __construct(Container $container, Request $request, Response $response)
@@ -42,12 +43,12 @@ class CoreController
 
         if ($this->render_template)
         {
-            $this->global_vars['request'] = $this->request;
-            $this->global_vars['response'] = $this->response;
+            $this->app_vars['proxy'] = $this->proxy;
 
-            $this->view_vars['app'] = $this->global_vars;
+            $twig = $this->container->s('twig');
+            $twig->addGlobal('app', $this->app_vars);
 
-            $body = $this->container->s('twig')->render($this->request->getTemplate(), $this->view_vars);
+            $body = $twig->render($this->request->getTemplate(), $this->view_vars);
 
             $this->response->setBody($body);
         }
@@ -63,11 +64,6 @@ class CoreController
     {
     }
 
-    protected function redirect($url)
-    {
-        $this->response->addHeader('Location', $url);
-    }
-
     protected function addViewVars(array $vars)
     {
         $this->view_vars = array_merge($this->view_vars, $vars);
@@ -76,5 +72,15 @@ class CoreController
     protected function addViewVar($name, $value)
     {
         $this->view_vars[$name] = $value;
+    }
+
+    protected function addAppVars(array $vars)
+    {
+        $this->app_vars = array_merge($this->app_vars, $vars);
+    }
+
+    protected function addAppVar($name, $value)
+    {
+        $this->app_vars[$name] = $value;
     }
 }
