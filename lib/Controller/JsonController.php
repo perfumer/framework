@@ -2,9 +2,11 @@
 
 namespace Perfumer\Controller;
 
+use Symfony\Component\Validator\ConstraintViolationList;
+
 class JsonController extends CoreController
 {
-    protected $status = false;
+    protected $status;
     protected $error_message;
     protected $success_message;
     protected $content;
@@ -20,11 +22,7 @@ class JsonController extends CoreController
 
     protected function after()
     {
-        if ($this->error_message || count($this->errors) > 0)
-            $this->status = false;
-
-        if ($this->success_message)
-            $this->status = true;
+        $this->status = !($this->error_message || count($this->errors) > 0);
 
         if (!$this->template)
             $this->template = 'layout/json.twig';
@@ -39,8 +37,16 @@ class JsonController extends CoreController
         parent::after();
     }
 
-    protected function addErrors(array $errors)
+    protected function addErrors($errors)
     {
-        $this->errors = array_merge($this->errors, $errors);
+        if ($errors instanceof ConstraintViolationList)
+        {
+            foreach ($errors as $error)
+                $this->errors[$error->getPropertyPath()] = $error->getMessage();
+        }
+        else
+        {
+            $this->errors = array_merge($this->errors, $errors);
+        }
     }
 }

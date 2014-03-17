@@ -23,8 +23,8 @@ class HtmlController extends CoreController
         if ($this->render_template)
         {
             $this->assets
-                ->addCss($this->request->getCss())
-                ->addJs($this->request->getJs());
+                ->addCss($this->request->getUrl() . '/' . $this->request->getAction() . '.css')
+                ->addJs($this->request->getUrl() . '/' . $this->request->getAction() . '.js');
 
             $this->addViewVars([
                 'css' => $this->assets->getCss(),
