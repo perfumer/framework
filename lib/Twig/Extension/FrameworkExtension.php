@@ -4,7 +4,7 @@ namespace Perfumer\Twig\Extension;
 
 use Perfumer\Proxy\Core as Proxy;
 
-class ProxyExtension extends \Twig_Extension
+class FrameworkExtension extends \Twig_Extension
 {
     protected $proxy;
 
@@ -15,7 +15,7 @@ class ProxyExtension extends \Twig_Extension
 
     public function getName()
     {
-        return 'proxy_extension';
+        return 'framework_extension';
     }
 
     public function getFunctions()
