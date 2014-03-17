@@ -14,10 +14,10 @@ class Core
     protected $request_action;
     protected $request_args = [];
 
-    protected $http_globals = [];
+    protected $http_prefixes = [];
     protected $http_id;
     protected $http_query = [];
-    protected $http_params = [];
+    protected $http_args = [];
 
     public function __construct(Container $container)
     {
@@ -39,25 +39,25 @@ class Core
                 $url = substr($url, 0, $hyphen_pos);
             }
 
-            if ($globals = $this->container->p('proxy.globals'))
+            if ($prefixes = $this->container->p('proxy.prefixes'))
             {
                 $url = explode('/', $url);
                 array_shift($url);
 
-                $global_values = array_slice($url, 0, count($globals));
+                $prefix_values = array_slice($url, 0, count($prefixes));
 
-                foreach ($globals as $key => $global)
+                foreach ($prefixes as $key => $prefix)
                 {
-                    $this->http_globals[$global] = $global_values[$key];
+                    $this->http_prefixes[$prefix] = $prefix_values[$key];
                 }
 
-                if (count($globals) >= count($url))
+                if (count($prefixes) >= count($url))
                 {
                     $url = $this->container->p('proxy.default_url');
                 }
                 else
                 {
-                    $url = array_slice($url, count($globals));
+                    $url = array_slice($url, count($prefixes));
                     $url = implode('/', $url);
                 }
             }
@@ -72,11 +72,11 @@ class Core
                 break;
             case 'post':
                 $this->http_query = $_GET;
-                $this->http_params = $_POST;
+                $this->http_args = $_POST;
                 break;
             default:
                 $this->http_query = $_GET;
-                parse_str(file_get_contents("php://input"), $this->http_params);
+                parse_str(file_get_contents("php://input"), $this->http_args);
                 break;
         }
     }
@@ -113,17 +113,17 @@ class Core
         throw new ForwardException();
     }
 
-    public function g($name = null, $default = null)
+    public function p($name = null, $default = null)
     {
-        return $this->getGlobal($name, $default);
+        return $this->getPrefix($name, $default);
     }
 
-    public function getGlobal($name = null, $default = null)
+    public function getPrefix($name = null, $default = null)
     {
         if ($name === null)
-            return $this->http_globals;
+            return $this->http_prefixes;
 
-        return isset($this->http_globals[$name]) ? $this->http_globals[$name] : $default;
+        return isset($this->http_prefixes[$name]) ? $this->http_prefixes[$name] : $default;
     }
 
     public function i()
@@ -136,17 +136,17 @@ class Core
         return $this->http_id;
     }
 
-    public function p($name = null, $default = null)
+    public function a($name = null, $default = null)
     {
-        return $this->getParam($name, $default);
+        return $this->getArg($name, $default);
     }
 
-    public function getParam($name = null, $default = null)
+    public function getArg($name = null, $default = null)
     {
         if ($name === null)
-            return $this->http_params;
+            return $this->http_args;
 
-        return isset($this->http_params[$name]) ? $this->http_params[$name] : $default;
+        return isset($this->http_args[$name]) ? $this->http_args[$name] : $default;
     }
 
     public function q($name = null, $default = null)
