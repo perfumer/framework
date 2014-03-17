@@ -48,6 +48,7 @@ class CoreController
                 $this->template = $this->request->getUrl() . '/' . $this->request->getAction() . '.twig';
 
             $twig = $this->container->s('twig');
+            $twig->addExtension($this->container->s('twig.proxy_extension'));
             $twig->addGlobal('app', $this->app_vars);
 
             $body = $twig->render($this->template, $this->view_vars);
