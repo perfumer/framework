@@ -29,11 +29,11 @@ class ProxyExtension extends \Twig_Extension
         ];
     }
 
-    public function url($url, $id = null, $query = [])
+    public function url($url, $id = null, $query = [], $ignore_prefixes = false)
     {
         $generated_url = '/' . trim($url, '/');
 
-        if ($this->proxy->p())
+        if ($this->proxy->p() && !$ignore_prefixes)
             $generated_url = '/' . implode('/', $this->proxy->p()) . $generated_url;
 
         if ($id)
