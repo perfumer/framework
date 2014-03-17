@@ -45,9 +45,4 @@ class HtmlController extends CoreController
     {
         $this->js_vars = array_merge($this->js_vars, $vars);
     }
-
-    protected function addJsVar($name, $value)
-    {
-        $this->js_vars[$name] = $value;
-    }
 }

@@ -8,9 +8,12 @@ use Perfumer\Proxy\Exception\ForwardException;
 class Core
 {
     protected $container;
+    protected $request_pool = [];
+
     protected $request_url;
     protected $request_action;
     protected $request_args = [];
+
     protected $http_globals = [];
     protected $http_id;
     protected $http_query = [];
@@ -32,7 +35,7 @@ class Core
 
             if ($hyphen_pos !== false)
             {
-                $this->setId(substr($url, $hyphen_pos + 1));
+                $this->http_id = substr($url, $hyphen_pos + 1);
                 $url = substr($url, 0, $hyphen_pos);
             }
 
@@ -45,7 +48,7 @@ class Core
 
                 foreach ($globals as $key => $global)
                 {
-                    $this->setGlobal($global, $global_values[$key]);
+                    $this->http_globals[$global] = $global_values[$key];
                 }
 
                 if (count($globals) >= count($url))
@@ -94,7 +97,11 @@ class Core
 
     public function execute($url, $action, array $args = [])
     {
-        return $this->container->s('request')->execute($url, $action, $args);
+        $request = $this->container->s('request');
+
+        $this->request_pool[] = $request;
+
+        return $request->execute($url, $action, $args);
     }
 
     public function forward($url, $action, array $args = [])
@@ -119,13 +126,6 @@ class Core
         return isset($this->http_globals[$name]) ? $this->http_globals[$name] : $default;
     }
 
-    public function setGlobal($name, $value)
-    {
-        $this->http_globals[$name] = $value;
-
-        return $this;
-    }
-
     public function i()
     {
         return $this->http_id;
@@ -134,13 +134,6 @@ class Core
     public function getId()
     {
         return $this->http_id;
-    }
-
-    public function setId($value)
-    {
-        $this->http_id = $value;
-
-        return $this;
     }
 
     public function p($name = null, $default = null)
@@ -156,13 +149,6 @@ class Core
         return isset($this->http_params[$name]) ? $this->http_params[$name] : $default;
     }
 
-    public function setParam($name, $value)
-    {
-        $this->http_params[$name] = $value;
-
-        return $this;
-    }
-
     public function q($name = null, $default = null)
     {
         return $this->getQuery($name, $default);
@@ -174,12 +160,5 @@ class Core
             return $this->http_query;
 
         return isset($this->http_query[$name]) ? $this->http_query[$name] : $default;
-    }
-
-    public function setQuery($name, $value)
-    {
-        $this->http_query[$name] = $value;
-
-        return $this;
     }
 }

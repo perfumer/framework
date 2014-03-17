@@ -12,9 +12,6 @@ class Request
     protected $args;
     protected $controller;
     protected $action;
-    protected $template;
-    protected $css;
-    protected $js;
 
     public function __construct(Container $container)
     {
@@ -26,13 +23,10 @@ class Request
         $url = trim($url, '/');
         $path = explode('/', $url);
 
-        $this->setUrl($url);
-        $this->setArgs($args);
-        $this->setAction($action);
-        $this->setTemplate($url . '/' . $this->getAction() . '.twig');
-        $this->setCss($url . '/' . $this->getAction() . '.css');
-        $this->setJs($url . '/' . $this->getAction() . '.js');
-        $this->setController('App\\Controller\\' . implode('\\', array_map('ucfirst', $path)) . 'Controller');
+        $this->url = $url;
+        $this->args = $args;
+        $this->action = $action;
+        $this->controller = 'App\\Controller\\' . implode('\\', array_map('ucfirst', $path)) . 'Controller';
 
         try
         {
@@ -55,21 +49,9 @@ class Request
         return $this->url;
     }
 
-    public function setUrl($url)
-    {
-        $this->url = $url;
-        return $this;
-    }
-
     public function getArgs()
     {
         return $this->args;
-    }
-
-    public function setArgs($args)
-    {
-        $this->args = $args;
-        return $this;
     }
 
     public function getController()
@@ -77,53 +59,8 @@ class Request
         return $this->controller;
     }
 
-    public function setController($controller)
-    {
-        $this->controller = $controller;
-        return $this;
-    }
-
     public function getAction()
     {
         return $this->action;
-    }
-
-    public function setAction($action)
-    {
-        $this->action = $action;
-        return $this;
-    }
-
-    public function getTemplate()
-    {
-        return $this->template;
-    }
-
-    public function setTemplate($template)
-    {
-        $this->template = $template;
-        return $this;
-    }
-
-    public function getCss()
-    {
-        return $this->css;
-    }
-
-    public function setCss($css)
-    {
-        $this->css = $css;
-        return $this;
-    }
-
-    public function getJs()
-    {
-        return $this->js;
-    }
-
-    public function setJs($js)
-    {
-        $this->js = $js;
-        return $this;
     }
 }

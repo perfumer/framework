@@ -26,6 +26,9 @@ class JsonController extends CoreController
         if ($this->success_message)
             $this->status = true;
 
+        if (!$this->template)
+            $this->template = 'layout/json.twig';
+
         $this->addViewVars([
             'status' => (int) $this->status,
             'message' => $this->status ? $this->success_message : $this->error_message,
@@ -39,10 +42,5 @@ class JsonController extends CoreController
     protected function addErrors(array $errors)
     {
         $this->errors = array_merge($this->errors, $errors);
-    }
-
-    protected function addError($name, $value)
-    {
-        $this->errors[$name] = $value;
     }
 }
