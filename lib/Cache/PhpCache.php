@@ -6,6 +6,10 @@ class PhpCache extends AbstractCache
 {
     protected $data;
 
+    public function __construct()
+    {
+    }
+
     public function get($name, $default = null)
     {
         if ($this->has($name))
