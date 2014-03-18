@@ -12,7 +12,6 @@ class CoreController
     protected $proxy;
     protected $request;
     protected $response;
-    protected $stock;
 
     protected $view_vars = [];
     protected $app_vars = [];
@@ -27,7 +26,6 @@ class CoreController
         $this->response = $response;
 
         $this->proxy = $container->s('proxy');
-        $this->stock = $container->s('stock');
     }
 
     public function execute()
@@ -47,11 +45,10 @@ class CoreController
             if (!$this->template)
                 $this->template = $this->request->getUrl() . '/' . $this->request->getAction() . '.twig';
 
-            $twig = $this->container->s('twig');
-            $twig->addExtension($this->container->s('twig.proxy_extension'));
-            $twig->addGlobal('app', $this->app_vars);
+            $templating = $this->container->s('templating');
+            $templating->addGlobal('app', $this->app_vars);
 
-            $body = $twig->render($this->template, $this->view_vars);
+            $body = $templating->render($this->template, $this->view_vars);
 
             $this->response->setBody($body);
         }
