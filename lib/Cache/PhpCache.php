@@ -1,24 +1,24 @@
 <?php
 
-namespace Perfumer;
+namespace Perfumer\Cache;
 
-class Stock
+class PhpCache extends AbstractCache
 {
     protected $data;
 
-    public function get($name)
+    public function get($name, $default = null)
     {
         if ($this->has($name))
             return $this->data[$name];
 
-        return null;
+        return $default;
     }
 
-    public function set($name, $value)
+    public function set($name, $value, $lifetime = null)
     {
         $this->data[$name] = $value;
 
-        return $this;
+        return true;
     }
 
     public function has($name)
@@ -31,6 +31,6 @@ class Stock
         if ($this->has($name))
             unset($this->data[$name]);
 
-        return $this;
+        return true;
     }
 }

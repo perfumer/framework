@@ -2,6 +2,8 @@
 
 namespace Perfumer\Session;
 
+use Perfumer\Session\Exception\SessionException;
+
 /**
  * Fork of Kohana_Session class
  *

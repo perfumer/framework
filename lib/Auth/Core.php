@@ -6,7 +6,7 @@ use App\Model\Token;
 use App\Model\TokenQuery;
 use App\Model\User;
 use App\Model\UserQuery;
-use Perfumer\Auth\AuthException;
+use Perfumer\Auth\Exception\AuthException;
 use Perfumer\Session\AbstractSession as Session;
 
 class Core

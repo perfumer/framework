@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Session;
+namespace Perfumer\Session\Exception;
 
 class SessionException extends \Exception
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Auth;
+namespace Perfumer\Auth\Exception;
 
 class AuthException extends \Exception
 {
