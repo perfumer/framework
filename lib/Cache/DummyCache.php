@@ -7,7 +7,7 @@ class DummyCache extends AbstractCache
     public function __construct()
     {
     }
-    
+
     public function get($name, $default = null)
     {
         return $default;

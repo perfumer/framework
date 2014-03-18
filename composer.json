@@ -2,7 +2,7 @@
     "name": "perfumer/perfumer",
     "type": "library",
     "description": "PHP 5.5+ DIC Framework",
-    "keywords": ["framework", "dic"],
+    "keywords": ["framework", "container"],
     "homepage": "https://github.com/blumfontein/perfumer",
     "license": "MIT",
     "authors": [
@@ -13,9 +13,7 @@
         }
     ],
     "require": {
-        "php": ">=5.5.0",
-        "perfumer/container": "dev-master",
-        "perfumer/helpers": "dev-master"
+        "php": ">=5.5.0"
     },
     "autoload": {
         "psr-4": {
