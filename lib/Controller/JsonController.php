@@ -25,7 +25,7 @@ class JsonController extends CoreController
         $this->status = !($this->error_message || count($this->errors) > 0);
 
         if (!$this->template)
-            $this->template = 'layout/json.twig';
+            $this->template = 'layout/json';
 
         $this->addViewVars([
             'status' => (int) $this->status,
