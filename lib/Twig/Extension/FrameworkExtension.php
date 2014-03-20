@@ -2,15 +2,17 @@
 
 namespace Perfumer\Twig\Extension;
 
-use Perfumer\Proxy\Core as Proxy;
+use Perfumer\Container\Core as Container;
 
 class FrameworkExtension extends \Twig_Extension
 {
+    protected $container;
     protected $proxy;
 
-    public function __construct(Proxy $proxy)
+    public function __construct(Container $container)
     {
-        $this->proxy = $proxy;
+        $this->container = $container;
+        $this->proxy = $container->s('proxy');
     }
 
     public function getName()
@@ -21,12 +23,18 @@ class FrameworkExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
+            new \Twig_SimpleFunction('param', [$this, 'param']),
             new \Twig_SimpleFunction('url', [$this, 'url']),
             new \Twig_SimpleFunction('prefix', [$this, 'prefix']),
             new \Twig_SimpleFunction('id', [$this, 'id']),
             new \Twig_SimpleFunction('query', [$this, 'query']),
             new \Twig_SimpleFunction('arg', [$this, 'arg'])
         ];
+    }
+
+    public function param($name)
+    {
+        return $this->container->p($name);
     }
 
     public function url($url, $id = null, $query = [], $ignore_prefixes = false)
