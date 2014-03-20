@@ -21,7 +21,7 @@ class Assets
         $array = [];
 
         foreach ($this->css as $css)
-            $array[] = $this->css_path . '/' . $css;
+            $array[] = $this->css_path . '/' . $css . '.css';
 
         return $array;
     }
@@ -31,7 +31,7 @@ class Assets
         $array = [];
 
         foreach ($this->js as $js)
-            $array[] = $this->js_path . '/' . $js;
+            $array[] = $this->js_path . '/' . $js . '.js';
 
         return $array;
     }

@@ -43,12 +43,13 @@ class CoreController
         if ($this->render_template)
         {
             if (!$this->template)
-                $this->template = $this->request->getUrl() . '/' . $this->request->getAction() . '.twig';
+                $this->template = $this->request->getUrl() . '/' . $this->request->getAction();
 
             $templating = $this->container->s('templating');
             $templating->addGlobal('app', $this->app_vars);
+            $templating_extension = $this->container->p('templating.extension');
 
-            $body = $templating->render($this->template, $this->view_vars);
+            $body = $templating->render($this->template . '.' . $templating_extension, $this->view_vars);
 
             $this->response->setBody($body);
         }
