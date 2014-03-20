@@ -4,6 +4,7 @@ namespace Perfumer\Proxy;
 
 use Perfumer\Container\Core as Container;
 use Perfumer\Proxy\Exception\ForwardException;
+use Perfumer\Proxy\Exception\ProxyException;
 
 class Core
 {
@@ -124,6 +125,14 @@ class Core
             return $this->http_prefixes;
 
         return isset($this->http_prefixes[$name]) ? $this->http_prefixes[$name] : $default;
+    }
+
+    public function setPrefix($name, $value)
+    {
+        if (!in_array($name, $this->container->p('proxy.prefixes')))
+            throw new ProxyException('Prefix "' . $name . '" is not registered in configuration');
+
+        $this->http_prefixes[$name] = $value;
     }
 
     public function i()
