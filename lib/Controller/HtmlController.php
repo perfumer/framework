@@ -30,8 +30,6 @@ class HtmlController extends CoreController
                 ->addJs($this->template);
 
             $this->addViewVars([
-                'css' => $this->assets->getCss(),
-                'js' => $this->assets->getJs(),
                 'vars' => $this->js_vars
             ]);
         }
