@@ -29,23 +29,6 @@ class Core
     // Parameters array, divided to groups
     protected $params = [];
 
-    /**
-     * __construct
-     * Defined:
-     *  - default service map
-     *  - default storage
-     *  - file storage
-     *
-     * @return void
-     * @access public
-     */
-    public function __construct()
-    {
-        $this->registerServiceMap('service_map.php');
-        $this->registerStorage('default', $this->getService('storage.default'));
-        $this->registerStorage('file', $this->getService('storage.file'));
-    }
-
     /*
      * s
      * Shortcut for getService() method
