@@ -22,15 +22,11 @@ class User extends BaseUser
         return $this;
     }
 
-    public function setPassword($v)
+    public function hashPassword($v)
     {
         $password = password_hash($v, PASSWORD_DEFAULT);
 
-        if ($this->password !== $password)
-        {
-            $this->password = $password;
-            $this->modifiedColumns[] = UserTableMap::PASSWORD;
-        }
+        $this->setPassword($password);
 
         return $this;
     }

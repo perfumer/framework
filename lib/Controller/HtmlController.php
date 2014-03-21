@@ -16,22 +16,11 @@ class HtmlController extends CoreController
 
     protected function after()
     {
-        if ($this->render_template)
-        {
-            if (!$this->template)
-                $this->template = $this->request->getUrl() . '/' . $this->request->getAction();
-
-            $this->addViewVars([
-                'vars' => $this->js_vars
-            ]);
-        }
+        $this->addViewVars([
+            'vars' => $this->js_vars
+        ]);
 
         parent::after();
-    }
-
-    protected function redirect($url)
-    {
-        $this->response->addHeader('Location', $url);
     }
 
     protected function addJsVars(array $vars)
