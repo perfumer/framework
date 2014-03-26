@@ -49,7 +49,7 @@ class Core
 
                 foreach ($prefixes as $key => $prefix)
                 {
-                    $this->http_prefixes[$prefix] = $prefix_values[$key];
+                    $this->http_prefixes[$prefix] = isset($prefix_values[$key]) ? $prefix_values[$key] : null;
                 }
 
                 if (count($prefixes) >= count($url))

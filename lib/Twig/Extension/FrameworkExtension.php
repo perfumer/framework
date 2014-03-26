@@ -37,12 +37,24 @@ class FrameworkExtension extends \Twig_Extension
         return $this->container->p($name);
     }
 
-    public function url($url, $id = null, $query = [], $ignore_prefixes = false)
+    public function url($url, $id = null, $query = [], $prefixes = [])
     {
         $generated_url = '/' . trim($url, '/');
 
-        if ($this->proxy->p() && !$ignore_prefixes)
-            $generated_url = '/' . implode('/', $this->proxy->p()) . $generated_url;
+        if ($this->container->p('proxy.prefixes'))
+        {
+            if ($prefixes)
+            {
+                $prefixes = $this->container->s('arr')->intersect($prefixes, $this->container->p('proxy.prefixes'));
+                $prefixes = array_merge($this->proxy->p(), $prefixes);
+            }
+            else
+            {
+                $prefixes = $this->proxy->p();
+            }
+
+            $generated_url = '/' . implode('/', $prefixes) . $generated_url;
+        }
 
         if ($id)
             $generated_url .= '-' . $id;

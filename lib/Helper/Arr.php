@@ -16,4 +16,10 @@ class Arr
 
         return $result;
     }
+
+    public function intersect(array $array1, array $array2)
+    {
+        $array2 = array_fill_keys($array2, true);
+        return array_intersect_key($array1, $array2);
+    }
 }
