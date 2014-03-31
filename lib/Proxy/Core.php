@@ -114,6 +114,11 @@ class Core
         throw new ForwardException();
     }
 
+    public function getRequestPool()
+    {
+        return $this->request_pool;
+    }
+
     public function p($name = null, $default = null)
     {
         return $this->getPrefix($name, $default);
