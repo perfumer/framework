@@ -170,4 +170,39 @@ class Core
 
         return isset($this->http_query[$name]) ? $this->http_query[$name] : $default;
     }
+
+    public function generateUrl($url, $id = null, $query = [], $prefixes = [])
+    {
+        $generated_url = '/' . trim($url, '/');
+
+        if ($this->container->p('proxy.prefixes'))
+        {
+            if ($prefixes)
+            {
+                $prefixes = $this->container->s('arr')->intersect($prefixes, $this->container->p('proxy.prefixes'));
+                $prefixes = array_merge($this->getPrefix(), $prefixes);
+            }
+            else
+            {
+                $prefixes = $this->getPrefix();
+            }
+
+            $generated_url = '/' . implode('/', $prefixes) . $generated_url;
+        }
+
+        if ($id)
+            $generated_url .= '-' . $id;
+
+        if ($query)
+        {
+            $query_parts = [];
+
+            foreach ($query as $key => $value)
+                $query_parts[] = $key . '=' . urlencode($value);
+
+            $generated_url .= '?' . implode('&', $query_parts);
+        }
+
+        return $generated_url;
+    }
 }

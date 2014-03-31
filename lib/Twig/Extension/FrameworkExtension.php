@@ -39,37 +39,7 @@ class FrameworkExtension extends \Twig_Extension
 
     public function url($url, $id = null, $query = [], $prefixes = [])
     {
-        $generated_url = '/' . trim($url, '/');
-
-        if ($this->container->p('proxy.prefixes'))
-        {
-            if ($prefixes)
-            {
-                $prefixes = $this->container->s('arr')->intersect($prefixes, $this->container->p('proxy.prefixes'));
-                $prefixes = array_merge($this->proxy->p(), $prefixes);
-            }
-            else
-            {
-                $prefixes = $this->proxy->p();
-            }
-
-            $generated_url = '/' . implode('/', $prefixes) . $generated_url;
-        }
-
-        if ($id)
-            $generated_url .= '-' . $id;
-
-        if ($query)
-        {
-            $query_parts = [];
-
-            foreach ($query as $key => $value)
-                $query_parts[] = $key . '=' . urlencode($value);
-
-            $generated_url .= '?' . implode('&', $query_parts);
-        }
-
-        return $generated_url;
+        return $this->proxy->generateUrl($url, $id, $query, $prefixes);
     }
 
     public function prefix($name)
