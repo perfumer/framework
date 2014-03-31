@@ -42,7 +42,7 @@ class FrameworkExtension extends \Twig_Extension
         return $this->proxy->generateUrl($url, $id, $query, $prefixes);
     }
 
-    public function prefix($name)
+    public function prefix($name = null)
     {
         return $this->proxy->getPrefix($name);
     }
@@ -52,12 +52,12 @@ class FrameworkExtension extends \Twig_Extension
         return $this->proxy->getId();
     }
 
-    public function query($name)
+    public function query($name = null)
     {
         return $this->proxy->getQuery($name);
     }
 
-    public function arg($name)
+    public function arg($name = null)
     {
         return $this->proxy->getArg($name);
     }
