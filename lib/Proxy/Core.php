@@ -31,7 +31,7 @@ class Core
         }
         else
         {
-            $url = $_SERVER['PATH_INFO'];
+            $url = trim($_SERVER['PATH_INFO'], '/');
             $hyphen_pos = strpos($url, '-');
 
             if ($hyphen_pos !== false)
@@ -43,7 +43,6 @@ class Core
             if ($prefixes = $this->container->p('proxy.prefixes'))
             {
                 $url = explode('/', $url);
-                array_shift($url);
 
                 $prefix_values = array_slice($url, 0, count($prefixes));
 
