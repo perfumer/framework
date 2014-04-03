@@ -3,6 +3,7 @@
 namespace Perfumer\Controller;
 
 use Perfumer\Container\Core as Container;
+use Perfumer\Controller\Exception\ExitActionException;
 use Perfumer\Proxy\Request;
 use Perfumer\Proxy\Response;
 
@@ -36,7 +37,14 @@ class CoreController
         $args = $this->request->getArgs();
 
         $reflection_class = new \ReflectionClass($this);
-        $reflection_class->getMethod($action)->invokeArgs($this, $args);
+
+        try
+        {
+            $reflection_class->getMethod($action)->invokeArgs($this, $args);
+        }
+        catch (ExitActionException $e)
+        {
+        }
 
         $this->after();
 
