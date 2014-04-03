@@ -33,7 +33,7 @@ class Core
         $this->session = $session;
         $this->user = new User();
 
-        $this->update_gap = isset($options['update_gap']) ? (int) $options['update_gap'] : 3600;
+        $this->update_gap = !empty($options['update_gap']) ? (int) $options['update_gap'] : 3600;
 
     }
 
