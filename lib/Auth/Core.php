@@ -23,30 +23,41 @@ class Core
     const STATUS_SIGNED_OUT = 10;
 
     protected $session;
-
     protected $status;
     protected $user;
 
-    protected $update_gap = 3600;
+    protected $update_gap;
 
-    public function __construct(Session $session)
+    public function __construct(Session $session, $options = [])
     {
         $this->session = $session;
         $this->user = new User();
+
+        $this->update_gap = isset($options['update_gap']) ? (int) $options['update_gap'] : 3600;
+
     }
 
     public function isLogged()
     {
+        if ($this->status === null)
+            $this->init();
+
         return $this->user->isLogged();
     }
 
     public function getUser()
     {
+        if ($this->status === null)
+            $this->init();
+
         return $this->user;
     }
 
     public function getStatus()
     {
+        if ($this->status === null)
+            $this->init();
+
         return $this->status;
     }
 
