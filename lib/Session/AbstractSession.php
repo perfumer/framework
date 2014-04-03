@@ -89,6 +89,9 @@ abstract class AbstractSession
 
     public function start($id = null)
     {
+        if ($this->is_started)
+            return;
+
         try
         {
             $this->_start($id);
