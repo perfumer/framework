@@ -7,41 +7,48 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class JsonController extends CoreController
 {
-    protected $status;
-    protected $error_message;
-    protected $default_error_message;
-    protected $success_message;
-    protected $default_success_message;
-    protected $content;
-    protected $errors = [];
-
     protected function before()
     {
         parent::before();
 
         if (!method_exists($this, $this->request->getAction()))
             $this->proxy->forward('exception/json', 'pageNotFound');
+
+        $this->framework_vars = [
+            'status' => null,
+            'error_message' => null,
+            'default_error_message' => null,
+            'success_message' => null,
+            'default_success_message' => null,
+            'errors' => [],
+            'content' => null
+        ];
     }
 
     protected function after()
     {
-        if ($this->status === null)
-            $this->status = !($this->error_message || count($this->errors) > 0);
+        if ($this->framework_vars['status'] === null)
+        {
+            $status = !($this->framework_vars['error_message'] || count($this->framework_vars['errors']) > 0);
+            $this->setStatus($status);
+        }
 
         if (!$this->template)
             $this->template = 'layout/json';
 
-        if ($this->status)
-            $message = $this->success_message ?: $this->default_success_message;
+        if ($this->framework_vars['status'])
+            $message = $this->framework_vars['success_message'] ?: $this->framework_vars['default_success_message'];
         else
-            $message = $this->error_message ?: $this->default_error_message;
+            $message = $this->framework_vars['error_message'] ?: $this->framework_vars['default_error_message'];
 
-        $this->addViewVars([
-            'status' => (int) $this->status,
-            'message' => $message,
-            'content' => $this->content,
-            'errors' => $this->errors
-        ]);
+        $this->framework_vars['message'] = $message;
+
+        unset($this->framework_vars['default_success_message']);
+        unset($this->framework_vars['success_message']);
+        unset($this->framework_vars['default_error_message']);
+        unset($this->framework_vars['error_message']);
+
+        $this->addViewVars($this->framework_vars);
 
         parent::after();
     }
@@ -51,34 +58,64 @@ class JsonController extends CoreController
         if ($errors instanceof ConstraintViolationList)
         {
             foreach ($errors as $error)
-                $this->errors[$error->getPropertyPath()] = $error->getMessage();
+                $this->framework_vars['errors'][$error->getPropertyPath()] = $error->getMessage();
         }
         else
         {
-            $this->errors = array_merge($this->errors, $errors);
+            $this->framework_vars['errors'] = array_merge($this->framework_vars['errors'], $errors);
         }
+    }
+
+    protected function setStatus($status)
+    {
+        $this->framework_vars['status'] = (bool) $status;
     }
 
     protected function setStatusAndExit($status)
     {
-        $this->status = (bool) $status;
+        $this->setStatus($status);
 
         throw new ExitActionException();
+    }
+
+    protected function setDefaultSuccessMessage($message)
+    {
+        $this->framework_vars['default_success_message'] = $message;
+    }
+
+    protected function setSuccessMessage($message)
+    {
+        $this->framework_vars['status'] = true;
+        $this->framework_vars['success_message'] = $message;
     }
 
     protected function setSuccessMessageAndExit($message)
     {
-        $this->status = true;
-        $this->success_message = $message;
+        $this->setSuccessMessage($message);
 
         throw new ExitActionException();
     }
 
+    protected function setDefaultErrorMessage($message)
+    {
+        $this->framework_vars['default_error_message'] = $message;
+    }
+
+    protected function setErrorMessage($message)
+    {
+        $this->framework_vars['status'] = false;
+        $this->framework_vars['success_message'] = $message;
+    }
+
     protected function setErrorMessageAndExit($message)
     {
-        $this->status = false;
-        $this->error_message = $message;
+        $this->setErrorMessage($message);
 
         throw new ExitActionException();
+    }
+
+    protected function setContent($content)
+    {
+        $this->framework_vars['content'] = $content;
     }
 }

@@ -14,6 +14,7 @@ class CoreController
     protected $request;
     protected $response;
 
+    protected $framework_vars = [];
     protected $view_vars = [];
     protected $app_vars = [];
 
@@ -23,10 +24,9 @@ class CoreController
     public function __construct(Container $container, Request $request, Response $response)
     {
         $this->container = $container;
+        $this->proxy = $container->s('proxy');
         $this->request = $request;
         $this->response = $response;
-
-        $this->proxy = $container->s('proxy');
     }
 
     public function execute()
@@ -53,8 +53,6 @@ class CoreController
             if (!$this->template)
                 $this->template = $this->request->getUrl() . '/' . $this->request->getAction();
 
-            $this->addAppVars([ 'proxy' => $this->proxy ]);
-
             $templating = $this->container->s('templating');
             $templating->addGlobal('app', $this->app_vars);
             $templating_extension = $this->container->p('templating.extension');
@@ -80,9 +78,19 @@ class CoreController
         $this->response->addHeader('Location', $url);
     }
 
+    protected function addViewVar($name, $value)
+    {
+        $this->view_vars[$name] = $value;
+    }
+
     protected function addViewVars(array $vars)
     {
         $this->view_vars = array_merge($this->view_vars, $vars);
+    }
+
+    protected function addAppVar($name, $value)
+    {
+        $this->app_vars[$name] = $value;
     }
 
     protected function addAppVars(array $vars)
