@@ -53,6 +53,11 @@ class CoreController
             if (!$this->template)
                 $this->template = $this->request->getUrl() . '/' . $this->request->getAction();
 
+            $this->addAppVars([
+                'initial' => $this->proxy->getRequestInitial(),
+                'current' => $this->proxy->getRequestCurrent()
+            ]);
+
             $templating = $this->container->s('templating');
             $templating->addGlobal('app', $this->app_vars);
             $templating_extension = $this->container->p('templating.extension');

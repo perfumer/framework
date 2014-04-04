@@ -11,6 +11,9 @@ class Core
     protected $container;
     protected $request_pool = [];
 
+    protected $request_initial;
+    protected $request_current;
+
     protected $request_url;
     protected $request_action;
     protected $request_args = [];
@@ -100,12 +103,18 @@ class Core
         $request = $this->container->s('request');
 
         $this->request_pool[] = $request;
+        $this->request_current = $request;
+
+        if ($this->request_initial === null)
+            $this->request_initial = $request;
 
         return $request->execute($url, $action, $args);
     }
 
     public function forward($url, $action, array $args = [])
     {
+        $this->request_initial = null;
+
         $this->request_url = $url;
         $this->request_action = $action;
         $this->request_args = $args;
@@ -116,6 +125,16 @@ class Core
     public function getRequestPool()
     {
         return $this->request_pool;
+    }
+
+    public function getRequestInitial()
+    {
+        return $this->request_initial;
+    }
+
+    public function getRequestCurrent()
+    {
+        return $this->request_current;
     }
 
     public function p($name = null, $default = null)
