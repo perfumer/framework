@@ -35,10 +35,8 @@ class NativeSession extends AbstractSession
 
     protected function _start($id = null)
     {
-        $session_id = $id ?: $this->cookie->get($this->cookie_name);
-
-        if ($session_id)
-            session_id($session_id);
+        if ($id)
+            session_id($id);
 
         session_start();
 
@@ -54,11 +52,7 @@ class NativeSession extends AbstractSession
 
     protected function _write()
     {
-        $id = $this->getId();
-
         session_write_close();
-
-        $this->cookie->set($this->cookie_name, $id);
 
         return true;
     }
