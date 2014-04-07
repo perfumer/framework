@@ -109,7 +109,7 @@ class JsonController extends CoreController
     protected function setErrorMessage($message)
     {
         $this->framework_vars['status'] = false;
-        $this->framework_vars['success_message'] = $message;
+        $this->framework_vars['error_message'] = $message;
     }
 
     protected function setErrorMessageAndExit($message)
