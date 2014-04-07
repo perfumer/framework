@@ -35,8 +35,10 @@ class NativeSession extends AbstractSession
 
     protected function _start($id = null)
     {
-        if ($id)
-            session_id($id);
+        $session_id = $id ?: $this->cookie->get($this->cookie_name);
+
+        if ($session_id)
+            session_id($session_id);
 
         session_start();
 
