@@ -52,7 +52,11 @@ class NativeSession extends AbstractSession
 
     protected function _write()
     {
+        $id = $this->getId();
+
         session_write_close();
+
+        $this->cookie->set($this->cookie_name, $id);
 
         return true;
     }

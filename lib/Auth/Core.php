@@ -8,6 +8,7 @@ use App\Model\User;
 use App\Model\UserQuery;
 use Perfumer\Auth\Exception\AuthException;
 use Perfumer\Session\AbstractSession as Session;
+use Perfumer\Session\Token\Provider\AbstractProvider as TokenProvider;
 
 class Core
 {
@@ -23,18 +24,25 @@ class Core
     const STATUS_SIGNED_OUT = 10;
 
     protected $session;
-    protected $status;
+    protected $token_provider;
     protected $user;
 
+    protected $status;
     protected $update_gap;
 
-    public function __construct(Session $session, $options = [])
+    public function __construct(Session $session, TokenProvider $token_provider, $options = [])
     {
         $this->session = $session;
+        $this->token_provider = $token_provider;
         $this->user = new User();
 
         $this->update_gap = !empty($options['update_gap']) ? (int) $options['update_gap'] : 3600;
 
+        if (!$session->isStarted())
+        {
+            $token = $this->token_provider->getToken();
+            $session->start($token);
+        }
     }
 
     public function isLogged()
@@ -67,7 +75,7 @@ class Core
 
         try
         {
-            if (!$this->session->isStarted())
+            if ($this->token_provider->getToken() === null)
                 throw new AuthException(self::STATUS_NO_TOKEN);
 
             $user = null;
