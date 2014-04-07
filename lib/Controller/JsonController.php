@@ -66,6 +66,11 @@ class JsonController extends CoreController
         }
     }
 
+    protected function hasErrors()
+    {
+        return count($this->framework_vars['errors']) > 0;
+    }
+
     protected function setStatus($status)
     {
         $this->framework_vars['status'] = (bool) $status;
