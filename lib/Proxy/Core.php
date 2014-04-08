@@ -202,7 +202,7 @@ class Core
         {
             if ($prefixes)
             {
-                $prefixes = $this->container->s('arr')->intersect($prefixes, $this->container->p('proxy.prefixes'));
+                $prefixes = $this->container->s('arr')->fetch($prefixes, $this->container->p('proxy.prefixes'));
                 $prefixes = array_merge($this->getPrefix(), $prefixes);
             }
             else
