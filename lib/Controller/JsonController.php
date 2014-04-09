@@ -53,6 +53,11 @@ class JsonController extends CoreController
         parent::after();
     }
 
+    protected function addError($key, $value)
+    {
+        $this->framework_vars['errors'][$key] = $value;
+    }
+
     protected function addErrors($errors)
     {
         if ($errors instanceof ConstraintViolationList)
