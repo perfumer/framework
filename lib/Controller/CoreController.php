@@ -13,13 +13,7 @@ class CoreController
     protected $proxy;
     protected $request;
     protected $response;
-
-    protected $framework_vars = [];
-    protected $view_vars = [];
-    protected $app_vars = [];
-
-    protected $template;
-    protected $render_template = true;
+    protected $view;
 
     public function __construct(Container $container, Request $request, Response $response)
     {
@@ -27,6 +21,7 @@ class CoreController
         $this->proxy = $container->s('proxy');
         $this->request = $request;
         $this->response = $response;
+        $this->view = $container->s('view');
     }
 
     public function execute()
@@ -48,21 +43,16 @@ class CoreController
 
         $this->after();
 
-        if ($this->render_template)
+        if ($this->view->needsRendering())
         {
-            if (!$this->template)
-                $this->template = $this->request->getUrl() . '/' . $this->request->getAction();
+            $this->view->setTemplateIfNotDefined($this->request->getUrl() . '/' . $this->request->getAction());
 
-            $this->addAppVars([
+            $this->view->addVars([
                 'initial' => $this->proxy->getRequestInitial(),
                 'current' => $this->request
-            ]);
+            ], 'app');
 
-            $templating = $this->container->s('templating');
-            $templating->addGlobal('app', $this->app_vars);
-            $templating_extension = $this->container->p('templating.extension');
-
-            $body = $templating->render($this->template . '.' . $templating_extension, $this->view_vars);
+            $body = $this->view->render();
 
             $this->response->setBody($body);
         }
@@ -72,6 +62,7 @@ class CoreController
 
     protected function before()
     {
+        $this->view->mapGroup('app');
     }
 
     protected function after()
@@ -81,25 +72,5 @@ class CoreController
     protected function redirect($url)
     {
         $this->response->addHeader('Location', $url);
-    }
-
-    protected function addViewVar($name, $value)
-    {
-        $this->view_vars[$name] = $value;
-    }
-
-    protected function addViewVars(array $vars)
-    {
-        $this->view_vars = array_merge($this->view_vars, $vars);
-    }
-
-    protected function addAppVar($name, $value)
-    {
-        $this->app_vars[$name] = $value;
-    }
-
-    protected function addAppVars(array $vars)
-    {
-        $this->app_vars = array_merge($this->app_vars, $vars);
     }
 }

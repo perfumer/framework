@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Twig\Extension;
+namespace Perfumer\View\Extension\Twig;
 
 use Perfumer\Container\Core as Container;
 
