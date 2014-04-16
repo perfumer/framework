@@ -70,7 +70,7 @@ class Core
             $base = &$this->groups[$parent][$name];
         }
 
-        $this->groups[$name] = $base;
+        $this->groups[$name] = &$base;
     }
 
     public function getTemplate()
