@@ -55,7 +55,7 @@ class CoreController
 
             $this->addAppVars([
                 'initial' => $this->proxy->getRequestInitial(),
-                'current' => $this->proxy->getRequestCurrent()
+                'current' => $this->request
             ]);
 
             $templating = $this->container->s('templating');
