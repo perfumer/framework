@@ -13,7 +13,6 @@ class CoreController
     protected $proxy;
     protected $request;
     protected $response;
-    protected $view;
 
     public function __construct(Container $container, Request $request, Response $response)
     {
@@ -21,7 +20,6 @@ class CoreController
         $this->proxy = $container->s('proxy');
         $this->request = $request;
         $this->response = $response;
-        $this->view = $container->s('view');
     }
 
     public function execute()
@@ -43,26 +41,11 @@ class CoreController
 
         $this->after();
 
-        if ($this->view->needsRendering())
-        {
-            $this->view->setTemplateIfNotDefined($this->request->getUrl() . '/' . $this->request->getAction());
-
-            $this->view->addVars([
-                'initial' => $this->proxy->getRequestInitial(),
-                'current' => $this->request
-            ], 'app');
-
-            $body = $this->view->render();
-
-            $this->response->setBody($body);
-        }
-
         return $this->response;
     }
 
     protected function before()
     {
-        $this->view->mapGroup('app');
     }
 
     protected function after()

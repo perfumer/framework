@@ -11,7 +11,6 @@ class Core
 
     protected $template;
     protected $templating_extension;
-    protected $rendering = true;
     protected $vars = [];
     protected $groups = [];
 
@@ -27,9 +26,6 @@ class Core
     {
         if (!$this->template)
             throw new ViewException('No template defined.');
-
-        if (!$this->rendering)
-            return null;
 
         $template = $this->template . '.' . $this->templating_extension;
 
@@ -87,15 +83,5 @@ class Core
     {
         if (!$this->template)
             $this->template = $template;
-    }
-
-    public function needsRendering()
-    {
-        return $this->rendering;
-    }
-
-    public function setRendering($rendering)
-    {
-        $this->rendering = $rendering;
     }
 }

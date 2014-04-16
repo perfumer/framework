@@ -2,7 +2,7 @@
 
 namespace Perfumer\Controller;
 
-class HtmlController extends CoreController
+class HtmlController extends TemplateController
 {
     protected function before()
     {

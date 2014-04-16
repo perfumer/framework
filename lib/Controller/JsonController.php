@@ -5,7 +5,7 @@ namespace Perfumer\Controller;
 use Perfumer\Controller\Exception\ExitActionException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class JsonController extends CoreController
+class JsonController extends TemplateController
 {
     protected $json = [];
 
