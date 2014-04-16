@@ -89,12 +89,12 @@ class Core
             $this->template = $template;
     }
 
-    protected function needsRendering()
+    public function needsRendering()
     {
         return $this->rendering;
     }
 
-    protected function setRendering($rendering)
+    public function setRendering($rendering)
     {
         $this->rendering = $rendering;
     }
