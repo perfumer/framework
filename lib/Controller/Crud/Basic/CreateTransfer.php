@@ -20,20 +20,24 @@ trait CreateTransfer
 
         $model = new $model_name();
 
-        $valid = $this->postValidate($model, $fields);
+        $this->postValidate($model, $fields);
 
-        if ($valid)
+        if ($this->hasErrors() || $this->getErrorMessage())
+        {
+            $this->setErrorMessage('Errors');
+        }
+        else
         {
             $this->postPreSave($model, $fields);
 
             $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
-            $model->save();
 
-            $this->setSuccessMessage('Created');
-        }
-        else
-        {
-            $this->setErrorMessage('Errors');
+            if ($model->save())
+            {
+                $this->postAfterSuccess($model, $fields);
+
+                $this->setSuccessMessage('Created');
+            }
         }
     }
 
@@ -48,10 +52,13 @@ trait CreateTransfer
 
     protected function postValidate($model, array $fields)
     {
-        return true;
     }
 
     protected function postPreSave($model, array $fields)
+    {
+    }
+
+    protected function postAfterSuccess($model, array $fields)
     {
     }
 }

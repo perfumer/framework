@@ -25,10 +25,19 @@ trait DeleteTransfer
 
         $model->delete();
 
-        $this->setSuccessMessage('Deleted');
+        if ($model->isDeleted())
+        {
+            $this->deleteAfterSuccess($model);
+
+            $this->setSuccessMessage('Deleted');
+        }
     }
 
     protected function deletePermission()
+    {
+    }
+
+    protected function deleteAfterSuccess($model)
     {
     }
 }
