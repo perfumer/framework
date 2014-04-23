@@ -2,16 +2,19 @@
 
 namespace Perfumer\Validator;
 
+use Perfumer\I18n\Core as I18n;
 use Perfumer\Validator\Constraint\AbstractConstraint;
 
 class Core
 {
+    protected $i18n;
+
     protected $rules = [];
     protected $messages = [];
 
-    public function __construct()
+    public function __construct(I18n $i18n)
     {
-
+        $this->i18n = $i18n;
     }
 
     public function addRule($field, AbstractConstraint $constraint)
@@ -37,7 +40,7 @@ class Core
                 foreach ($this->rules[$field] as $constraint)
                 {
                     if (!$constraint->validate($value))
-                        $this->messages[$field][] = $constraint->getMessage();
+                        $this->messages[$field][] = $this->i18n->translate($constraint->getMessage());
                 }
             }
         }

@@ -21,6 +21,9 @@ class Core
 
     public function translate($key)
     {
+        if ($this->locale === null)
+            throw new I18nException('Translation locale is not defined.');
+
         list($group, $name) = $this->extractTranslationKey($key);
 
         if (!isset($this->translations[$this->locale][$group]))
@@ -31,6 +34,9 @@ class Core
 
     public function t($name)
     {
+        if ($this->locale === null)
+            throw new I18nException('Translation locale is not defined.');
+
         if ($this->active_group === null)
             throw new I18nException('Active group not set for using short syntax.');
 
@@ -48,6 +54,9 @@ class Core
     public function setLocale($locale)
     {
         $this->locale = $locale;
+
+        if (!isset($this->translations[$this->locale]))
+            $this->translations[$this->locale] = [];
     }
 
     public function getActiveGroup()
@@ -62,12 +71,6 @@ class Core
 
     protected function loadGroup($group)
     {
-        if ($this->locale === null)
-            throw new I18nException('Locale is not defined.');
-
-        if (!isset($this->translations[$this->locale]))
-            $this->translations[$this->locale] = [];
-
         if (!isset($this->translations[$this->locale][$group]))
             $this->translations[$this->locale][$group] = [];
 
