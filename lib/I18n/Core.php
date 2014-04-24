@@ -14,9 +14,12 @@ class Core
     protected $locale;
     protected $active_group;
 
-    public function __construct(AbstractCache $cache)
+    public function __construct(AbstractCache $cache, array $options)
     {
         $this->cache = $cache;
+
+        if (isset($options['locale']))
+            $this->locale = (string) $options['locale'];
     }
 
     public function translate($key)
@@ -78,16 +81,12 @@ class Core
         {
             $translations = I18nQuery::create()
                 ->filterByGroup($group)
-                ->join('I18n')
-                ->withColumn('I18n.translation', 'translation')
-                ->useI18nQuery()
-                    ->filterByLocale($this->locale)
-                ->endUse()
+                ->joinWithI18n($this->locale)
                 ->find();
 
             foreach ($translations as $translation)
             {
-                $this->translations[$this->locale][$group][$translation->getName()] = $translation->getTranslation();
+                $this->translations[$this->locale][$group][$translation->getName()] = $translation->getText();
             }
 
             $this->cache->set('i18n.' . $this->locale . '.' . $group, serialize($this->translations[$this->locale][$group]));
