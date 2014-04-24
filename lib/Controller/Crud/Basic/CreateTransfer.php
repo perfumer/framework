@@ -20,10 +20,21 @@ trait CreateTransfer
 
         $model = new $model_name();
 
-        $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
-        $model->save();
+        $valid = $this->postValidate($model, $fields);
 
-        $this->setSuccessMessage('Created');
+        if ($valid)
+        {
+            $this->postPreSave($model, $fields);
+
+            $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
+            $model->save();
+
+            $this->setSuccessMessage('Created');
+        }
+        else
+        {
+            $this->setErrorMessage('Errors');
+        }
     }
 
     protected function postPermission()
@@ -33,5 +44,14 @@ trait CreateTransfer
     protected function postFields()
     {
         return [];
+    }
+
+    protected function postValidate($model, array $fields)
+    {
+        return true;
+    }
+
+    protected function postPreSave($model, array $fields)
+    {
     }
 }

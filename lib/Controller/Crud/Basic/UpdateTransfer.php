@@ -26,10 +26,21 @@ trait UpdateTransfer
         if (!$model)
             $this->setErrorMessageAndExit('Object not found');
 
-        $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
-        $model->save();
+        $valid = $this->putValidate($model, $fields);
 
-        $this->setSuccessMessage('Updated');
+        if ($valid)
+        {
+            $this->putPreSave($model, $fields);
+
+            $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
+            $model->save();
+
+            $this->setSuccessMessage('Created');
+        }
+        else
+        {
+            $this->setErrorMessage('Errors');
+        }
     }
 
     protected function putPermission()
@@ -39,5 +50,14 @@ trait UpdateTransfer
     protected function putFields()
     {
         return [];
+    }
+
+    protected function putValidate($model, array $fields)
+    {
+        return true;
+    }
+
+    protected function putPreSave($model, array $fields)
+    {
     }
 }
