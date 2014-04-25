@@ -5,8 +5,8 @@ namespace Perfumer;
 class Assets
 {
     protected $vendor_path;
-    protected $css_path;
-    protected $js_path;
+    protected $source_path;
+    protected $web_path;
 
     protected $vendor_css = [];
     protected $vendor_js = [];
@@ -15,9 +15,9 @@ class Assets
 
     public function __construct(array $params)
     {
-        $this->vendor_path = '/' . trim($params['vendor_path'], '/');
-        $this->css_path = '/' . trim($params['css_path'], '/');
-        $this->js_path = '/' . trim($params['js_path'], '/');
+        $this->vendor_path = '/' . trim($params['vendor_path'], '/') . '/';
+        $this->source_path = '/' . trim($params['source_path'], '/') . '/';
+        $this->web_path = '/' . trim($params['web_path'], '/') . '/';
     }
 
     public function getCss()
@@ -25,10 +25,10 @@ class Assets
         $array = [];
 
         foreach ($this->vendor_css as $css)
-            $array[] = $this->vendor_path . '/' . $css . '.css';
+            $array[] = '/vendor/' . $css . '.css';
 
         foreach ($this->css as $css)
-            $array[] = $this->css_path . '/' . $css . '.css';
+            $array[] = '/css/' . $css . '.css';
 
         return $array;
     }
@@ -38,10 +38,10 @@ class Assets
         $array = [];
 
         foreach ($this->vendor_js as $js)
-            $array[] = $this->vendor_path . '/' . $js . '.js';
+            $array[] = '/vendor/' . $js . '.js';
 
         foreach ($this->js as $js)
-            $array[] = $this->js_path . '/' . $js . '.js';
+            $array[] = '/js/' . $js . '.js';
 
         return $array;
     }
@@ -51,6 +51,12 @@ class Assets
         if (!in_array($css, $this->css))
             $this->css[] = $css;
 
+        $file = 'css/' . $css . '.css';
+
+        @unlink($this->web_path . $file);
+
+        $this->copyFile($file, $this->source_path, $this->web_path);
+
         return $this;
     }
 
@@ -58,6 +64,12 @@ class Assets
     {
         if (!in_array($js, $this->js))
             $this->js[] = $js;
+
+        $file = 'js/' . $js . '.js';
+
+        @unlink($this->web_path . $file);
+
+        $this->copyFile($file, $this->source_path, $this->web_path);
 
         return $this;
     }
@@ -67,6 +79,12 @@ class Assets
         if (!in_array($css, $this->vendor_css))
             $this->vendor_css[] = $css;
 
+        $file = $css . '.css';
+
+        @unlink($this->vendor_path . $file);
+
+        $this->copyFile($file, $this->vendor_path, $this->web_path . 'vendor/');
+
         return $this;
     }
 
@@ -75,6 +93,28 @@ class Assets
         if (!in_array($js, $this->vendor_js))
             $this->vendor_js[] = $js;
 
+        $file = $js . '.js';
+
+        @unlink($this->vendor_path . $file);
+
+        $this->copyFile($file, $this->vendor_path, $this->web_path . 'vendor/');
+
         return $this;
+    }
+
+    protected function copyFile($file, $source_dir, $target_dir)
+    {
+        $reversed_file = strrev($file);
+        $slash_pos = strpos($reversed_file, '/');
+
+        if ($slash_pos !== false)
+        {
+            $reversed_dir = substr($reversed_file, $slash_pos);
+            $dir = strrev($reversed_dir);
+
+            @mkdir($target_dir . $dir, 0777, true);
+        }
+
+        copy($source_dir . $file, $target_dir . $file);
     }
 }
