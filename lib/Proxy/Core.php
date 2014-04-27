@@ -66,19 +66,27 @@ class Core
             $this->request_url = $url;
         }
 
-        switch ($this->request_action)
+        if ($this->container->p('proxy.data_type') == 'query_string')
         {
-            case 'get':
-                $this->http_query = $_GET;
-                break;
-            case 'post':
-                $this->http_query = $_GET;
-                $this->http_args = $_POST;
-                break;
-            default:
-                $this->http_query = $_GET;
-                parse_str(file_get_contents("php://input"), $this->http_args);
-                break;
+            switch ($this->request_action)
+            {
+                case 'get':
+                    $this->http_query = $_GET;
+                    break;
+                case 'post':
+                    $this->http_query = $_GET;
+                    $this->http_args = $_POST;
+                    break;
+                default:
+                    $this->http_query = $_GET;
+                    parse_str(file_get_contents("php://input"), $this->http_args);
+                    break;
+            }
+        }
+        else if ($this->container->p('proxy.data_type') == 'json')
+        {
+            $this->http_query = $_GET;
+            $this->http_args = json_decode(file_get_contents("php://input"), true);
         }
     }
 
