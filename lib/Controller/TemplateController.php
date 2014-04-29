@@ -19,6 +19,7 @@ class TemplateController extends CoreController
         $this->view->setTemplateIfNotDefined($this->request->getUrl() . '/' . $this->request->getAction());
 
         $this->view->addVars([
+            'main' => $this->proxy->getRequestMain(),
             'initial' => $this->proxy->getRequestInitial(),
             'current' => $this->request
         ], 'app');

@@ -1,31 +1,21 @@
 <?php
 
-namespace Perfumer\Controller;
+namespace Perfumer\Controller\Helper;
 
 use Perfumer\Controller\Exception\ExitActionException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class JsonController extends TemplateController
+trait StatusResponseHelper
 {
-    protected $json = [];
+    protected $array = [
+        'status' => null,
+        'error_message' => null,
+        'success_message' => null,
+        'errors' => [],
+        'content' => null
+    ];
 
-    protected function before()
-    {
-        parent::before();
-
-        if (!method_exists($this, $this->request->getAction()))
-            $this->proxy->forward('exception/json', 'pageNotFound');
-
-        $this->json = [
-            'status' => null,
-            'error_message' => null,
-            'success_message' => null,
-            'errors' => [],
-            'content' => null
-        ];
-    }
-
-    protected function after()
+    protected function prepareStatusResponseViewVars()
     {
         if ($this->getStatus() === null)
         {
@@ -33,31 +23,27 @@ class JsonController extends TemplateController
             $this->setStatus($status);
         }
 
-        $this->view->setTemplateIfNotDefined('layout/json');
-
         $this->view->addVars([
             'status' => $this->getStatus(),
             'message' => $this->getStatus() ? $this->getSuccessMessage() : $this->getErrorMessage(),
             'content' => $this->getContent(),
             'errors' => $this->getErrors()
         ]);
-
-        parent::after();
     }
 
     protected function getErrors()
     {
-        return $this->json['errors'];
+        return $this->array['errors'];
     }
 
     protected function hasErrors()
     {
-        return count($this->json['errors']) > 0;
+        return count($this->array['errors']) > 0;
     }
 
     protected function addError($key, $value)
     {
-        $this->json['errors'][$key] = $value;
+        $this->array['errors'][$key] = $value;
     }
 
     protected function addErrors($errors)
@@ -65,22 +51,22 @@ class JsonController extends TemplateController
         if ($errors instanceof ConstraintViolationList)
         {
             foreach ($errors as $error)
-                $this->json['errors'][$error->getPropertyPath()] = $error->getMessage();
+                $this->array['errors'][$error->getPropertyPath()] = $error->getMessage();
         }
         else
         {
-            $this->json['errors'] = array_merge($this->json['errors'], $errors);
+            $this->array['errors'] = array_merge($this->array['errors'], $errors);
         }
     }
 
     protected function getStatus()
     {
-        return $this->json['status'];
+        return $this->array['status'];
     }
 
     protected function setStatus($status)
     {
-        $this->json['status'] = (bool) $status;
+        $this->array['status'] = (bool) $status;
     }
 
     protected function setStatusAndExit($status)
@@ -92,14 +78,14 @@ class JsonController extends TemplateController
 
     protected function getSuccessMessage()
     {
-        return $this->json['success_message'];
+        return $this->array['success_message'];
     }
 
     protected function setSuccessMessage($message)
     {
         $this->setStatus(true);
         
-        $this->json['success_message'] = $message;
+        $this->array['success_message'] = $message;
     }
 
     protected function setSuccessMessageAndExit($message)
@@ -111,14 +97,14 @@ class JsonController extends TemplateController
 
     protected function getErrorMessage()
     {
-        return $this->json['error_message'];
+        return $this->array['error_message'];
     }
 
     protected function setErrorMessage($message)
     {
         $this->setStatus(false);
 
-        $this->json['error_message'] = $message;
+        $this->array['error_message'] = $message;
     }
 
     protected function setErrorMessageAndExit($message)
@@ -130,11 +116,11 @@ class JsonController extends TemplateController
 
     protected function getContent()
     {
-        return $this->json['content'];
+        return $this->array['content'];
     }
 
     protected function setContent($content)
     {
-        $this->json['content'] = $content;
+        $this->array['content'] = $content;
     }
 }
