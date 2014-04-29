@@ -2,48 +2,82 @@
 
 namespace Perfumer;
 
+use Perfumer\Cache\AbstractCache;
+
 class Assets
 {
+    protected $cache;
+
     protected $vendor_path;
     protected $source_path;
     protected $web_path;
+    protected $combine;
 
     protected $vendor_css = [];
     protected $vendor_js = [];
     protected $css = [];
     protected $js = [];
 
-    public function __construct(array $params)
+    public function __construct(AbstractCache $cache, array $params)
     {
+        $this->cache = $cache;
+
         $this->vendor_path = '/' . trim($params['vendor_path'], '/') . '/';
         $this->source_path = '/' . trim($params['source_path'], '/') . '/';
         $this->web_path = '/' . trim($params['web_path'], '/') . '/';
+        $this->combine = (bool) $params['combine'];
     }
 
     public function getCss()
     {
-        $array = [];
+        $vendors = [];
 
         foreach ($this->vendor_css as $css)
-            $array[] = '/vendor/' . $css . '.css';
+            $vendors[] = '/vendor/' . $css . '.css';
+
+        $stylesheets = [];
 
         foreach ($this->css as $css)
-            $array[] = '/css/' . $css . '.css';
+            $stylesheets[] = '/css/' . $css . '.css';
 
-        return $array;
+        if ($this->combine)
+        {
+            $stylesheets = serialize($this->css);
+
+            $key = substr(md5($stylesheets), 0, 10);
+
+            $this->cache->set('assets.css.' . $key, $stylesheets);
+
+            $stylesheets = ['/css/' . $key . '.css'];
+        }
+
+        return array_merge($vendors, $stylesheets);
     }
 
     public function getJs()
     {
-        $array = [];
+        $vendors = [];
 
         foreach ($this->vendor_js as $js)
-            $array[] = '/vendor/' . $js . '.js';
+            $vendors[] = '/vendor/' . $js . '.js';
+
+        $javascripts = [];
 
         foreach ($this->js as $js)
-            $array[] = '/js/' . $js . '.js';
+            $javascripts[] = '/js/' . $js . '.js';
 
-        return $array;
+        if ($this->combine)
+        {
+            $javascripts = serialize($this->js);
+
+            $key = substr(md5($javascripts), 0, 10);
+
+            $this->cache->set('assets.js.' . $key, $javascripts);
+
+            $javascripts = ['/js/' . $key . '.js'];
+        }
+
+        return array_merge($vendors, $javascripts);
     }
 
     public function addCss($css)
@@ -51,11 +85,14 @@ class Assets
         if (!in_array($css, $this->css))
             $this->css[] = $css;
 
-        $file = 'css/' . $css . '.css';
+        if (!$this->combine)
+        {
+            $file = 'css/' . $css . '.css';
 
-        @unlink($this->web_path . $file);
+            @unlink($this->web_path . $file);
 
-        $this->copyFile($file, $this->source_path, $this->web_path);
+            $this->copyFile($file, $this->source_path, $this->web_path);
+        }
 
         return $this;
     }
@@ -65,11 +102,14 @@ class Assets
         if (!in_array($js, $this->js))
             $this->js[] = $js;
 
-        $file = 'js/' . $js . '.js';
+        if (!$this->combine)
+        {
+            $file = 'js/' . $js . '.js';
 
-        @unlink($this->web_path . $file);
+            @unlink($this->web_path . $file);
 
-        $this->copyFile($file, $this->source_path, $this->web_path);
+            $this->copyFile($file, $this->source_path, $this->web_path);
+        }
 
         return $this;
     }
