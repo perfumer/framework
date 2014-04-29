@@ -10,7 +10,9 @@ class Core
 {
     protected $container;
     protected $request_pool = [];
+    protected $request_main;
     protected $request_initial;
+    protected $request_body;
 
     protected $request_url;
     protected $request_action;
@@ -66,7 +68,11 @@ class Core
             $this->request_url = $url;
         }
 
-        if ($this->container->p('proxy.data_type') == 'query_string')
+        $this->request_body = file_get_contents("php://input");
+
+        $data_type = $this->container->p('proxy.data_type');
+
+        if ($data_type == 'query_string')
         {
             switch ($this->request_action)
             {
@@ -79,14 +85,14 @@ class Core
                     break;
                 default:
                     $this->http_query = $_GET;
-                    parse_str(file_get_contents("php://input"), $this->http_args);
+                    parse_str($this->getRequestBody(), $this->http_args);
                     break;
             }
         }
-        else if ($this->container->p('proxy.data_type') == 'json')
+        else if ($data_type == 'json')
         {
             $this->http_query = $_GET;
-            $this->http_args = json_decode(file_get_contents("php://input"), true);
+            $this->http_args = json_decode($this->getRequestBody(), true);
         }
     }
 
@@ -132,9 +138,19 @@ class Core
         return $this->request_pool;
     }
 
+    public function getRequestMain()
+    {
+        return $this->request_pool[0];
+    }
+
     public function getRequestInitial()
     {
         return $this->request_initial;
+    }
+
+    public function getRequestBody()
+    {
+        return $this->request_body;
     }
 
     public function p($name = null, $default = null)
@@ -168,6 +184,11 @@ class Core
         return $this->http_id;
     }
 
+    public function setId($id)
+    {
+        $this->http_id = $id;
+    }
+
     public function a($name = null, $default = null)
     {
         return $this->getArg($name, $default);
@@ -181,6 +202,11 @@ class Core
         return isset($this->http_args[$name]) ? $this->http_args[$name] : $default;
     }
 
+    public function setArg($name, $value)
+    {
+        $this->http_args[$name] = $value;
+    }
+
     public function q($name = null, $default = null)
     {
         return $this->getQuery($name, $default);
@@ -192,6 +218,11 @@ class Core
             return $this->http_query;
 
         return isset($this->http_query[$name]) ? $this->http_query[$name] : $default;
+    }
+
+    public function setQuery($name, $value)
+    {
+        $this->http_query[$name] = $value;
     }
 
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])

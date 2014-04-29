@@ -26,6 +26,9 @@ class Core
 
     public function addRules($field, array $constraints)
     {
+        if (!isset($this->rules[$field]))
+            $this->rules[$field] = [];
+
         $this->rules[$field] = array_merge($this->rules[$field], $constraints);
 
         return $this;
