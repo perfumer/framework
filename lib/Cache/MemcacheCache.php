@@ -60,6 +60,11 @@ class MemcacheCache extends AbstractCache
         return $this->memcache->set($this->sanitize($name), $value, false, $lifetime);
     }
 
+    public function has($name)
+    {
+        return $this->get($name) !== null;
+    }
+
     public function delete($name)
     {
         return $this->memcache->delete($this->sanitize($name));
@@ -70,20 +75,5 @@ class MemcacheCache extends AbstractCache
         $this->memcache->flush();
 
         sleep(1);
-    }
-
-    public function has($name)
-    {
-        return $this->get($name) !== null;
-    }
-
-    public function increment($name, $step = 1)
-    {
-        $this->memcache->increment($name, $step);
-    }
-
-    public function decrement($name, $step = 1)
-    {
-        $this->memcache->decrement($name, $step);
     }
 }

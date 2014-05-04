@@ -19,6 +19,8 @@ abstract class AbstractCache
 
     abstract public function delete($name);
 
+    abstract public function deleteAll();
+
     protected function sanitize($value)
     {
         return str_replace(array('/', '\\', ' '), '_', $value);

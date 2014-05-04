@@ -37,4 +37,11 @@ class PhpCache extends AbstractCache
 
         return true;
     }
+
+    public function deleteAll()
+    {
+        $this->data = [];
+
+        return true;
+    }
 }

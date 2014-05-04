@@ -27,4 +27,9 @@ class DummyCache extends AbstractCache
     {
         return true;
     }
+
+    public function deleteAll()
+    {
+        return true;
+    }
 }
