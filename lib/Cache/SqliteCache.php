@@ -8,11 +8,11 @@ class SqliteCache extends AbstractCache
 {
     protected $pdo;
 
-    public function __construct($database, $schema, $lifetime)
+    public function __construct(array $options)
     {
-        parent::__construct($lifetime);
+        parent::__construct($options['lifetime']);
 
-        $this->pdo = new \PDO('sqlite:' . $database);
+        $this->pdo = new \PDO('sqlite:' . $options['database']);
 
         $result = $this->pdo->query("SELECT * FROM sqlite_master WHERE name = 'caches' AND type = 'table'")->fetchAll();
 
@@ -20,7 +20,7 @@ class SqliteCache extends AbstractCache
         {
             try
             {
-                $this->pdo->query($schema);
+                $this->pdo->query($options['schema']);
             }
             catch (\PDOException $e)
             {
