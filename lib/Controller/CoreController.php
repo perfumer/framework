@@ -13,6 +13,7 @@ class CoreController
     protected $proxy;
     protected $request;
     protected $response;
+    protected $_framework_vars = [];
 
     public function __construct(Container $container, Request $request, Response $response)
     {
