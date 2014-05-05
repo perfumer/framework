@@ -8,7 +8,6 @@ class Assets
 {
     protected $cache;
 
-    protected $vendor_path;
     protected $source_path;
     protected $web_path;
     protected $combine;
@@ -22,7 +21,6 @@ class Assets
     {
         $this->cache = $cache;
 
-        $this->vendor_path = '/' . trim($params['vendor_path'], '/') . '/';
         $this->source_path = '/' . trim($params['source_path'], '/') . '/';
         $this->web_path = '/' . trim($params['web_path'], '/') . '/';
         $this->combine = (bool) $params['combine'];
@@ -119,12 +117,6 @@ class Assets
         if (!in_array($css, $this->vendor_css))
             $this->vendor_css[] = $css;
 
-        $file = $css . '.css';
-
-        @unlink($this->vendor_path . $file);
-
-        $this->copyFile($file, $this->vendor_path, $this->web_path . 'vendor/');
-
         return $this;
     }
 
@@ -132,12 +124,6 @@ class Assets
     {
         if (!in_array($js, $this->vendor_js))
             $this->vendor_js[] = $js;
-
-        $file = $js . '.js';
-
-        @unlink($this->vendor_path . $file);
-
-        $this->copyFile($file, $this->vendor_path, $this->web_path . 'vendor/');
 
         return $this;
     }
