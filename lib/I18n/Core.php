@@ -22,7 +22,7 @@ class Core
             $this->locale = (string) $options['locale'];
     }
 
-    public function translate($key)
+    public function translate($key, $placeholders = [])
     {
         if ($this->locale === null)
             throw new I18nException('Translation locale is not defined.');
@@ -32,10 +32,12 @@ class Core
         if (!isset($this->translations[$this->locale][$group]))
             $this->loadGroup($group);
 
-        return isset($this->translations[$this->locale][$group][$name]) ? $this->translations[$this->locale][$group][$name] : $key;
+        $translation = isset($this->translations[$this->locale][$group][$name]) ? $this->translations[$this->locale][$group][$name] : $key;
+
+        return $placeholders ? strtr($translation, $placeholders) : $translation;
     }
 
-    public function t($name)
+    public function t($name, $placeholders = [])
     {
         if ($this->locale === null)
             throw new I18nException('Translation locale is not defined.');
@@ -46,7 +48,9 @@ class Core
         if (!isset($this->translations[$this->locale][$this->active_group]))
             $this->loadGroup($this->active_group);
 
-        return isset($this->translations[$this->locale][$this->active_group][$name]) ? $this->translations[$this->locale][$this->active_group][$name] : $name;
+        $translation = isset($this->translations[$this->locale][$this->active_group][$name]) ? $this->translations[$this->locale][$this->active_group][$name] : $name;
+
+        return $placeholders ? strtr($translation, $placeholders) : $translation;
     }
 
     public function getLocale()

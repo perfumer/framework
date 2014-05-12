@@ -43,7 +43,14 @@ class Core
                 foreach ($this->rules[$field] as $constraint)
                 {
                     if (!$constraint->validate($value))
-                        $this->messages[$field][] = $this->i18n->translate($constraint->getMessage());
+                    {
+                        $message = $constraint->getMessage();
+
+                        if (is_array($message))
+                            $this->messages[$field][] = $this->i18n->translate($message[0], $message[1]);
+                        else
+                            $this->messages[$field][] = $this->i18n->translate($message);
+                    }
                 }
             }
         }
