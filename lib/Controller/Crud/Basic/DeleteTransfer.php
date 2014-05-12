@@ -23,6 +23,8 @@ trait DeleteTransfer
         if (!$model)
             $this->setErrorMessageAndExit('Object not found');
 
+        $this->deleteValidate($model);
+
         $model->delete();
 
         if ($model->isDeleted())
@@ -31,6 +33,10 @@ trait DeleteTransfer
 
             $this->setSuccessMessage('Deleted');
         }
+    }
+
+    protected function deleteValidate($model)
+    {
     }
 
     protected function deletePermission()
