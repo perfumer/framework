@@ -9,6 +9,8 @@ trait CreateTransfer
 {
     public function post()
     {
+        $i18n = $this->container->s('i18n');
+
         $this->postPermission();
 
         $fields = $this->container->s('arr')->fetch($this->proxy->a(), $this->postFields());
@@ -24,7 +26,7 @@ trait CreateTransfer
 
         if ($this->hasErrors() || $this->getErrorMessage())
         {
-            $this->setErrorMessage('Errors');
+            $this->setErrorMessage($i18n->translate('crud.create_errors'));
         }
         else
         {
@@ -36,7 +38,7 @@ trait CreateTransfer
             {
                 $this->postAfterSuccess($model, $fields);
 
-                $this->setSuccessMessage('Created');
+                $this->setSuccessMessage($i18n->translate('crud.created'));
             }
         }
     }

@@ -9,10 +9,12 @@ trait UpdateTransfer
 {
     public function put()
     {
+        $i18n = $this->container->s('i18n');
+
         $this->putPermission();
 
         if ($this->proxy->a('id') === null)
-            $this->setErrorMessageAndExit('Object not found');
+            $this->setErrorMessageAndExit($i18n->translate('crud.object_not_found'));
 
         $fields = $this->container->s('arr')->fetch($this->proxy->a(), $this->putFields());
 
@@ -24,13 +26,13 @@ trait UpdateTransfer
         $model = $model_query::create()->findPk($this->proxy->a('id'));
 
         if (!$model)
-            $this->setErrorMessageAndExit('Object not found');
+            $this->setErrorMessageAndExit($i18n->translate('crud.object_not_found'));
 
         $this->putValidate($model, $fields);
 
         if ($this->hasErrors() || $this->getErrorMessage())
         {
-            $this->setErrorMessage('Errors');
+            $this->setErrorMessage($i18n->translate('crud.update_errors'));
         }
         else
         {
@@ -38,11 +40,11 @@ trait UpdateTransfer
 
             $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
 
-            if ($model->save())
+            if ($model->save() || count($model->getModifiedColumns()) == 0)
             {
                 $this->putAfterSuccess($model, $fields);
 
-                $this->setSuccessMessage('Updated');
+                $this->setSuccessMessage($i18n->translate('crud.updated'));
             }
         }
     }

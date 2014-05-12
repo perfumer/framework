@@ -8,10 +8,12 @@ trait DeleteTransfer
 {
     public function delete()
     {
+        $i18n = $this->container->s('i18n');
+
         $this->deletePermission();
 
         if ($this->proxy->a('id') === null)
-            $this->setErrorMessageAndExit('Object not found');
+            $this->setErrorMessageAndExit($i18n->translate('crud.object_not_found'));
 
         if (!$model_name = $this->modelName())
             throw new CrudException('Model name for CRUD delete transfer is not defined');
@@ -21,7 +23,7 @@ trait DeleteTransfer
         $model = $model_query::create()->findPk($this->proxy->a('id'));
 
         if (!$model)
-            $this->setErrorMessageAndExit('Object not found');
+            $this->setErrorMessageAndExit($i18n->translate('crud.object_not_found'));
 
         $this->deleteValidate($model);
 
@@ -31,7 +33,7 @@ trait DeleteTransfer
         {
             $this->deleteAfterSuccess($model);
 
-            $this->setSuccessMessage('Deleted');
+            $this->setSuccessMessage($i18n->translate('crud.deleted'));
         }
     }
 
