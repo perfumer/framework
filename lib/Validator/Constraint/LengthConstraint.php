@@ -23,6 +23,23 @@ class LengthConstraint extends AbstractConstraint
 
         if ($this->exact === null && $this->min === null && $this->max === null)
             throw new ConstraintException('You did not specified neither "exact", nor "min" or "max" parameters for LengthConstraint.');
+
+        if ($this->exact !== null)
+        {
+            $this->setMessage('validator.length.exact')->addPlaceholders([':exact' => $this->exact]);
+        }
+        elseif ($this->min !== null && $this->max !== null)
+        {
+            $this->setMessage('validator.length.minmax')->addPlaceholders([':min' => $this->min, ':max' => $this->max]);
+        }
+        elseif ($this->min !== null)
+        {
+            $this->setMessage('validator.length.min')->addPlaceholders([':min' => $this->min]);
+        }
+        elseif ($this->max !== null)
+        {
+            $this->setMessage('validator.length.max')->addPlaceholders([':max' => $this->max]);
+        }
     }
 
     public function validate($value)
@@ -41,20 +58,5 @@ class LengthConstraint extends AbstractConstraint
             $status = false;
 
         return $status;
-    }
-
-    public function getMessage()
-    {
-        if ($this->exact !== null)
-            return ['validator.length.exact', [':exact' => $this->exact]];
-
-        if ($this->min !== null && $this->max !== null)
-            return ['validator.length.minmax', [':min' => $this->min, ':max' => $this->max]];
-
-        if ($this->min !== null)
-            return ['validator.length.min', [':min' => $this->min]];
-
-        if ($this->max !== null)
-            return ['validator.length.max', [':max' => $this->max]];
     }
 }

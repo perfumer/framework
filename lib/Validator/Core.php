@@ -44,10 +44,11 @@ class Core
                 {
                     if (!$constraint->validate($value))
                     {
+                        $placeholders = $constraint->getPlaceholders();
                         $message = $constraint->getMessage();
 
-                        if (is_array($message))
-                            $this->messages[$field][] = $this->i18n->translate($message[0], $message[1]);
+                        if (count($placeholders) > 0)
+                            $this->messages[$field][] = $this->i18n->translate($message, $placeholders);
                         else
                             $this->messages[$field][] = $this->i18n->translate($message);
                     }
