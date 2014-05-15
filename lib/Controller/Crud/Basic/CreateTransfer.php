@@ -13,7 +13,7 @@ trait CreateTransfer
 
         $fields = $this->container->s('arr')->fetch($this->proxy->a(), $this->postFields());
 
-        if (!$model_name = $this->modelName())
+        if (!$model_name = $this->getModelName())
             throw new CrudException('Model name for CRUD actions is not defined');
 
         $model_name = '\\App\\Model\\' . $model_name;

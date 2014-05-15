@@ -6,14 +6,14 @@ use Perfumer\Controller\Exception\CrudException;
 
 trait CrudSettings
 {
-    protected function modelName()
+    protected function getModelName()
     {
         return null;
     }
 
     protected function getModel()
     {
-        if (!$model_name = $this->modelName())
+        if (!$model_name = $this->getModelName())
             throw new CrudException('Model name for CRUD actions is not defined');
 
         $model_query = '\\App\\Model\\' . $model_name . 'Query';
