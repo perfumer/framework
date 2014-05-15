@@ -5,6 +5,7 @@ namespace Perfumer\Controller;
 class TemplateController extends CoreController
 {
     protected $view;
+    protected $i18n;
 
     protected function before()
     {
@@ -12,6 +13,8 @@ class TemplateController extends CoreController
 
         $this->view = $this->container->s('view');
         $this->view->mapGroup('app');
+
+        $this->i18n = $this->container->s('i18n');
     }
 
     protected function after()

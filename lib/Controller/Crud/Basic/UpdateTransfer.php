@@ -9,30 +9,20 @@ trait UpdateTransfer
 {
     public function put()
     {
-        $i18n = $this->container->s('i18n');
-
         $this->putPermission();
 
         if ($this->proxy->a('id') === null)
-            $this->setErrorMessageAndExit($i18n->translate('crud.object_not_found'));
+            $this->setErrorMessageAndExit($this->i18n->translate('crud.object_not_found'));
 
         $fields = $this->container->s('arr')->fetch($this->proxy->a(), $this->putFields());
 
-        if (!$model_name = $this->modelName())
-            throw new CrudException('Model name for CRUD update transfer is not defined');
-
-        $model_query = '\\App\\Model\\' . $model_name . 'Query';
-
-        $model = $model_query::create()->findPk($this->proxy->a('id'));
-
-        if (!$model)
-            $this->setErrorMessageAndExit($i18n->translate('crud.object_not_found'));
+        $model = $this->getModel();
 
         $this->putValidate($model, $fields);
 
         if ($this->hasErrors() || $this->getErrorMessage())
         {
-            $this->setErrorMessage($i18n->translate('crud.update_errors'));
+            $this->setErrorMessage($this->i18n->translate('crud.update_errors'));
         }
         else
         {
@@ -44,7 +34,7 @@ trait UpdateTransfer
             {
                 $this->putAfterSuccess($model, $fields);
 
-                $this->setSuccessMessage($i18n->translate('crud.updated'));
+                $this->setSuccessMessage($this->i18n->translate('crud.updated'));
             }
         }
     }

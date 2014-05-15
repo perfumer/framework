@@ -9,14 +9,12 @@ trait CreateTransfer
 {
     public function post()
     {
-        $i18n = $this->container->s('i18n');
-
         $this->postPermission();
 
         $fields = $this->container->s('arr')->fetch($this->proxy->a(), $this->postFields());
 
         if (!$model_name = $this->modelName())
-            throw new CrudException('Model name for CRUD create transfer is not defined');
+            throw new CrudException('Model name for CRUD actions is not defined');
 
         $model_name = '\\App\\Model\\' . $model_name;
 
@@ -26,7 +24,7 @@ trait CreateTransfer
 
         if ($this->hasErrors() || $this->getErrorMessage())
         {
-            $this->setErrorMessage($i18n->translate('crud.create_errors'));
+            $this->setErrorMessage($this->i18n->translate('crud.create_errors'));
         }
         else
         {
@@ -38,7 +36,7 @@ trait CreateTransfer
             {
                 $this->postAfterSuccess($model, $fields);
 
-                $this->setSuccessMessage($i18n->translate('crud.created'));
+                $this->setSuccessMessage($this->i18n->translate('crud.created'));
             }
         }
     }
