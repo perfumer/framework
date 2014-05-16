@@ -32,9 +32,10 @@ trait UpdateTransfer
 
             if ($model->save() || count($model->getModifiedColumns()) == 0)
             {
-                $this->putAfterSuccess($model, $fields);
-
+                $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
                 $this->setSuccessMessage($this->i18n->translate('crud.updated'));
+
+                $this->putAfterSuccess($model, $fields);
             }
         }
     }

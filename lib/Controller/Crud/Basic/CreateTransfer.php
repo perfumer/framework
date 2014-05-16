@@ -34,9 +34,10 @@ trait CreateTransfer
 
             if ($model->save())
             {
-                $this->postAfterSuccess($model, $fields);
-
+                $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
                 $this->setSuccessMessage($this->i18n->translate('crud.created'));
+
+                $this->postAfterSuccess($model, $fields);
             }
         }
     }
