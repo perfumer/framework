@@ -26,9 +26,9 @@ trait UpdateTransfer
         }
         else
         {
-            $this->putPreSave($model, $fields);
-
             $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
+
+            $this->putPreSave($model, $fields);
 
             if ($model->save() || count($model->getModifiedColumns()) == 0)
             {

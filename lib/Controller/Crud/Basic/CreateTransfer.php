@@ -28,9 +28,9 @@ trait CreateTransfer
         }
         else
         {
-            $this->postPreSave($model, $fields);
-
             $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
+
+            $this->postPreSave($model, $fields);
 
             if ($model->save())
             {
