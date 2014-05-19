@@ -28,6 +28,8 @@ trait CreateTransfer
         }
         else
         {
+            $this->postPrePersist($model, $fields);
+
             $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
 
             $this->postPreSave($model, $fields);
@@ -52,6 +54,10 @@ trait CreateTransfer
     }
 
     protected function postValidate($model, array $fields)
+    {
+    }
+
+    protected function postPrePersist($model, array $fields)
     {
     }
 

@@ -26,6 +26,8 @@ trait UpdateTransfer
         }
         else
         {
+            $this->putPrePersist($model, $fields);
+
             $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
 
             $this->putPreSave($model, $fields);
@@ -50,6 +52,10 @@ trait UpdateTransfer
     }
 
     protected function putValidate($model, array $fields)
+    {
+    }
+
+    protected function putPrePersist($model, array $fields)
     {
     }
 
