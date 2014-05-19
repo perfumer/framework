@@ -8,14 +8,14 @@ trait StatusHelper
 {
     protected function statusBeforeFilter()
     {
-        $this->_framework_vars['status'] = null;
+        $this->_vars['status'] = null;
     }
 
     protected function statusAfterFilter()
     {
         $status = (bool) $this->getStatus();
 
-        $this->view->addVar('status', $status);
+        $this->getView()->addVar('status', $status);
     }
 
     protected function errorStatusAfterFilter()
@@ -31,12 +31,12 @@ trait StatusHelper
 
     protected function getStatus()
     {
-        return $this->_framework_vars['status'];
+        return $this->_vars['status'];
     }
 
     protected function setStatus($status)
     {
-        $this->_framework_vars['status'] = (bool) $status;
+        $this->_vars['status'] = (bool) $status;
     }
 
     protected function setStatusAndExit($status)

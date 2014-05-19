@@ -8,22 +8,22 @@ trait ContentHelper
 {
     protected function contentBeforeFilter()
     {
-        $this->_framework_vars['content'] = null;
+        $this->_vars['content'] = null;
     }
 
     protected function contentAfterFilter()
     {
-        $this->view->addVar('content', $this->getContent());
+        $this->getView()->addVar('content', $this->getContent());
     }
 
     protected function getContent()
     {
-        return $this->_framework_vars['content'];
+        return $this->_vars['content'];
     }
 
     protected function setContent($content)
     {
-        $this->_framework_vars['content'] = $content;
+        $this->_vars['content'] = $content;
     }
 
     protected function setContentAndExit($content)

@@ -4,33 +4,45 @@ namespace Perfumer\Controller;
 
 class TemplateController extends CoreController
 {
-    protected $view;
-    protected $i18n;
+    protected $_view;
+    protected $_i18n;
 
     protected function before()
     {
         parent::before();
 
-        $this->view = $this->container->s('view');
-        $this->view->mapGroup('app');
+        $this->_view = $this->getContainer()->s('view');
+        $this->_i18n = $this->getContainer()->s('i18n');
 
-        $this->i18n = $this->container->s('i18n');
+        $this->getView()->mapGroup('app');
     }
 
     protected function after()
     {
-        $this->view->setTemplateIfNotDefined($this->request->getUrl() . '/' . $this->request->getAction());
+        $current = $this->getCurrent();
 
-        $this->view->addVars([
-            'main' => $this->proxy->getRequestMain(),
-            'initial' => $this->proxy->getRequestInitial(),
-            'current' => $this->request
+        $this->getView()->setTemplateIfNotDefined($current->getUrl() . '/' . $current->getAction());
+
+        $this->getView()->addVars([
+            'main' => $this->getMain(),
+            'initial' => $this->getInitial(),
+            'current' => $current
         ], 'app');
 
-        $body = $this->view->render();
+        $body = $this->getView()->render();
 
-        $this->response->setBody($body);
+        $this->getResponse()->setBody($body);
 
         parent::after();
+    }
+
+    protected function getView()
+    {
+        return $this->_view;
+    }
+
+    protected function getI18n()
+    {
+        return $this->_i18n;
     }
 }

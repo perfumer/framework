@@ -8,31 +8,31 @@ trait MessageHelper
 {
     protected function messageBeforeFilter()
     {
-        $this->_framework_vars['message'] = null;
-        $this->_framework_vars['error_message'] = null;
-        $this->_framework_vars['success_message'] = null;
+        $this->_vars['message'] = null;
+        $this->_vars['error_message'] = null;
+        $this->_vars['success_message'] = null;
     }
 
     protected function messageAfterFilter()
     {
-        $this->view->addVar('message', $this->getMessage());
+        $this->getView()->addVar('message', $this->getMessage());
     }
 
     protected function statusMessageAfterFilter()
     {
         $message = $this->getStatus() ? $this->getSuccessMessage() : $this->getErrorMessage();
 
-        $this->view->addVar('message', $message);
+        $this->getView()->addVar('message', $message);
     }
 
     protected function getMessage()
     {
-        return $this->_framework_vars['message'];
+        return $this->_vars['message'];
     }
 
     protected function setMessage($message)
     {
-        $this->_framework_vars['message'] = $message;
+        $this->_vars['message'] = $message;
     }
 
     protected function setMessageAndExit($message)
@@ -44,14 +44,14 @@ trait MessageHelper
 
     protected function getSuccessMessage()
     {
-        return $this->_framework_vars['success_message'];
+        return $this->_vars['success_message'];
     }
 
     protected function setSuccessMessage($message)
     {
         $this->setStatus(true);
 
-        $this->_framework_vars['success_message'] = $message;
+        $this->_vars['success_message'] = $message;
     }
 
     protected function setSuccessMessageAndExit($message)
@@ -63,14 +63,14 @@ trait MessageHelper
 
     protected function getErrorMessage()
     {
-        return $this->_framework_vars['error_message'];
+        return $this->_vars['error_message'];
     }
 
     protected function setErrorMessage($message)
     {
         $this->setStatus(false);
 
-        $this->_framework_vars['error_message'] = $message;
+        $this->_vars['error_message'] = $message;
     }
 
     protected function setErrorMessageAndExit($message)

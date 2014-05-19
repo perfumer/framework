@@ -11,7 +11,7 @@ trait CreateTransfer
     {
         $this->postPermission();
 
-        $fields = $this->container->s('arr')->fetch($this->proxy->a(), $this->postFields());
+        $fields = $this->getContainer()->s('arr')->fetch($this->getProxy()->a(), $this->postFields());
 
         if (!$model_name = $this->getModelName())
             throw new CrudException('Model name for CRUD actions is not defined');
@@ -24,7 +24,7 @@ trait CreateTransfer
 
         if ($this->hasErrors() || $this->getErrorMessage())
         {
-            $this->setErrorMessage($this->i18n->translate('crud.create_errors'));
+            $this->setErrorMessage($this->getI18n()->translate('crud.create_errors'));
         }
         else
         {
@@ -35,7 +35,7 @@ trait CreateTransfer
             if ($model->save())
             {
                 $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                $this->setSuccessMessage($this->i18n->translate('crud.created'));
+                $this->setSuccessMessage($this->getI18n()->translate('crud.created'));
 
                 $this->postAfterSuccess($model, $fields);
             }

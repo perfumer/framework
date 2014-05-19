@@ -10,8 +10,8 @@ trait DeleteTransfer
     {
         $this->deletePermission();
 
-        if ($this->proxy->a('id') === null)
-            $this->setErrorMessageAndExit($this->i18n->translate('crud.object_not_found'));
+        if ($this->getProxy()->a('id') === null)
+            $this->setErrorMessageAndExit($this->getI18n()->translate('crud.object_not_found'));
 
         $model = $this->getModel();
 
@@ -23,7 +23,7 @@ trait DeleteTransfer
         {
             $this->deleteAfterSuccess($model);
 
-            $this->setSuccessMessage($this->i18n->translate('crud.deleted'));
+            $this->setSuccessMessage($this->getI18n()->translate('crud.deleted'));
         }
     }
 

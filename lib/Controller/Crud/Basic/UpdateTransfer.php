@@ -11,10 +11,10 @@ trait UpdateTransfer
     {
         $this->putPermission();
 
-        if ($this->proxy->a('id') === null)
-            $this->setErrorMessageAndExit($this->i18n->translate('crud.object_not_found'));
+        if ($this->getProxy()->a('id') === null)
+            $this->setErrorMessageAndExit($this->getI18n()->translate('crud.object_not_found'));
 
-        $fields = $this->container->s('arr')->fetch($this->proxy->a(), $this->putFields());
+        $fields = $this->getContainer()->s('arr')->fetch($this->getProxy()->a(), $this->putFields());
 
         $model = $this->getModel();
 
@@ -22,7 +22,7 @@ trait UpdateTransfer
 
         if ($this->hasErrors() || $this->getErrorMessage())
         {
-            $this->setErrorMessage($this->i18n->translate('crud.update_errors'));
+            $this->setErrorMessage($this->getI18n()->translate('crud.update_errors'));
         }
         else
         {
@@ -33,7 +33,7 @@ trait UpdateTransfer
             if ($model->save() || count($model->getModifiedColumns()) == 0)
             {
                 $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                $this->setSuccessMessage($this->i18n->translate('crud.updated'));
+                $this->setSuccessMessage($this->getI18n()->translate('crud.updated'));
 
                 $this->putAfterSuccess($model, $fields);
             }

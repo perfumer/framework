@@ -9,26 +9,28 @@ use Perfumer\Proxy\Response;
 
 class CoreController
 {
-    protected $container;
-    protected $proxy;
-    protected $request;
-    protected $response;
-    protected $_framework_vars = [];
+    protected $_container;
+    protected $_proxy;
+    protected $_initial;
+    protected $_current;
+    protected $_response;
+    protected $_vars = [];
 
     public function __construct(Container $container, Request $request, Response $response)
     {
-        $this->container = $container;
-        $this->proxy = $container->s('proxy');
-        $this->request = $request;
-        $this->response = $response;
+        $this->_container = $container;
+        $this->_proxy = $container->s('proxy');
+        $this->_initial = $this->_proxy->getRequestInitial();
+        $this->_current = $request;
+        $this->_response = $response;
     }
 
     public function execute()
     {
         $this->before();
 
-        $action = $this->request->getAction();
-        $args = $this->request->getArgs();
+        $action = $this->getCurrent()->getAction();
+        $args = $this->getCurrent()->getArgs();
 
         $reflection_class = new \ReflectionClass($this);
 
@@ -42,7 +44,7 @@ class CoreController
 
         $this->after();
 
-        return $this->response;
+        return $this->getResponse();
     }
 
     protected function before()
@@ -55,6 +57,36 @@ class CoreController
 
     protected function redirect($url)
     {
-        $this->response->addHeader('Location', $url);
+        $this->getResponse()->addHeader('Location', $url);
+    }
+
+    protected function getContainer()
+    {
+        return $this->_container;
+    }
+
+    protected function getProxy()
+    {
+        return $this->_proxy;
+    }
+
+    protected function getMain()
+    {
+        return $this->_proxy->getRequestMain();
+    }
+
+    protected function getInitial()
+    {
+        return $this->_initial;
+    }
+
+    protected function getCurrent()
+    {
+        return $this->_current;
+    }
+
+    protected function getResponse()
+    {
+        return $this->_response;
     }
 }
