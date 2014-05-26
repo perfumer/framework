@@ -15,6 +15,9 @@ class ExistenceConstraint extends AbstractConstraint
 
     public function validate($value)
     {
+        if ($value == '')
+            return true;
+
         $model = '\\App\\Model\\' . $this->model_name . 'Query';
 
         $model = $model::create()->findPk($value);
