@@ -72,6 +72,7 @@ class Core
 
         $data_type = $this->container->p('proxy.data_type');
 
+        // Get query parameters and args depending from type of data in the http request body
         if ($data_type == 'query_string')
         {
             switch ($this->request_action)
@@ -93,6 +94,18 @@ class Core
         {
             $this->http_query = $_GET;
             $this->http_args = json_decode($this->getRequestBody(), true);
+        }
+
+        // Trim all args if auto_trim setting enabled
+        if ($this->container->p('proxy.auto_trim'))
+        {
+            $this->http_args = $this->container->s('arr')->trim($this->http_args);
+        }
+
+        // Convert empty strings to null values if auto_null setting enabled
+        if ($this->container->p('proxy.auto_null'))
+        {
+            $this->http_args = $this->container->s('arr')->convertValues($this->http_args, '', null);
         }
     }
 
