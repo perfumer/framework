@@ -86,14 +86,14 @@ class Core
                     break;
                 default:
                     $this->http_query = $_GET;
-                    $this->http_args = $this->getRequestBody() ? json_decode($this->getRequestBody(), true) : [];
+                    parse_str($this->getRequestBody(), $this->http_args);
                     break;
             }
         }
         else if ($data_type == 'json')
         {
             $this->http_query = $_GET;
-            $this->http_args = json_decode($this->getRequestBody(), true);
+            $this->http_args = $this->getRequestBody() ? json_decode($this->getRequestBody(), true) : [];
         }
 
         // Trim all args if auto_trim setting enabled
