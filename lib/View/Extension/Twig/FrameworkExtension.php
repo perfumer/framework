@@ -8,11 +8,13 @@ class FrameworkExtension extends \Twig_Extension
 {
     protected $container;
     protected $proxy;
+    protected $i18n;
 
     public function __construct(Container $container)
     {
         $this->container = $container;
         $this->proxy = $container->s('proxy');
+        $this->i18n = $container->s('i18n');
     }
 
     public function getName()
@@ -28,7 +30,8 @@ class FrameworkExtension extends \Twig_Extension
             new \Twig_SimpleFunction('prefix', [$this, 'prefix']),
             new \Twig_SimpleFunction('id', [$this, 'id']),
             new \Twig_SimpleFunction('query', [$this, 'query']),
-            new \Twig_SimpleFunction('arg', [$this, 'arg'])
+            new \Twig_SimpleFunction('arg', [$this, 'arg']),
+            new \Twig_SimpleFunction('t', [$this, 't'])
         ];
     }
 
@@ -60,5 +63,10 @@ class FrameworkExtension extends \Twig_Extension
     public function arg($name = null)
     {
         return $this->proxy->getArg($name);
+    }
+
+    public function t($key, $placeholders = [])
+    {
+        return $this->i18n->translate($key, $placeholders);
     }
 }

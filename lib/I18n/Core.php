@@ -29,6 +29,15 @@ class Core
 
         list($group, $name) = $this->extractTranslationKey($key);
 
+        if ($name === null && $this->active_group === null)
+            throw new I18nException('Active group is not set for using short syntax or you have forgotten to specify name of translation phrase.');
+
+        if ($name === null)
+        {
+            $name = $group;
+            $group = $this->active_group;
+        }
+
         if (!isset($this->translations[$this->locale][$group]))
             $this->loadGroup($group);
 
@@ -37,20 +46,12 @@ class Core
         return $placeholders ? strtr($translation, $placeholders) : $translation;
     }
 
-    public function t($name, $placeholders = [])
+    /*
+     * Shortcut for translate method
+     */
+    public function t($key, $placeholders = [])
     {
-        if ($this->locale === null)
-            throw new I18nException('Translation locale is not defined.');
-
-        if ($this->active_group === null)
-            throw new I18nException('Active group not set for using short syntax.');
-
-        if (!isset($this->translations[$this->locale][$this->active_group]))
-            $this->loadGroup($this->active_group);
-
-        $translation = isset($this->translations[$this->locale][$this->active_group][$name]) ? $this->translations[$this->locale][$this->active_group][$name] : $name;
-
-        return $placeholders ? strtr($translation, $placeholders) : $translation;
+        return $this->translate($key, $placeholders);
     }
 
     public function getLocale()
@@ -106,10 +107,7 @@ class Core
         $parts = explode('.', $key, 2);
 
         if (!$parts[0])
-            throw new I18nException('Translation group can not be empty.');
-
-        if ($parts[1] === null)
-            throw new I18nException('Translation name can not be null.');
+            throw new I18nException('Translation group can not be empty. This usually happens when you try to translate empty string or a string starting with dot.');
 
         return $parts;
     }
