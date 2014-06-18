@@ -124,16 +124,26 @@ class Core
         if (isset($definition['arguments']))
             $arguments = $this->resolveArrayOfArguments($definition['arguments']);
 
-        try
+        if (isset($definition['static_init']))
         {
-            $reflection_class = new \ReflectionClass($definition['class']);
-        }
-        catch (\ReflectionException $e)
-        {
-            throw new ContainerException('Class for service "' . $name . '" was not found.');
-        }
+            $service_class = call_user_func_array([$definition['class'], $definition['static_init']], $arguments);
 
-        $service_class = $reflection_class->newInstanceArgs($arguments);
+            if ($service_class === false)
+                throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+        }
+        else
+        {
+            try
+            {
+                $reflection_class = new \ReflectionClass($definition['class']);
+            }
+            catch (\ReflectionException $e)
+            {
+                throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+            }
+
+            $service_class = $reflection_class->newInstanceArgs($arguments);
+        }
 
         if (isset($definition['after']) && is_callable($definition['after']))
         {
