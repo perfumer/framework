@@ -4,9 +4,13 @@ namespace Perfumer\Helper;
 
 class Arr
 {
-    public function fetch(array $array, array $keys)
+    public function fetch(array $array, array $keys, $add_defaults = false, $default_value = null)
     {
-        $keys = array_fill_keys($keys, true);
+        $keys = array_fill_keys($keys, $default_value);
+
+        if ($add_defaults)
+            $array = array_merge($keys, $array);
+
         return array_intersect_key($array, $keys);
     }
 
