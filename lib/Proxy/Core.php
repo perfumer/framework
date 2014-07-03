@@ -220,6 +220,16 @@ class Core
         $this->http_args[$name] = $value;
     }
 
+    public function setArgsArray($array)
+    {
+        $this->http_args = array_merge($this->http_args, $array);
+    }
+
+    public function hasArgs()
+    {
+        return count($this->http_args) > 0;
+    }
+
     public function q($name = null, $default = null)
     {
         return $this->getQuery($name, $default);
@@ -236,6 +246,16 @@ class Core
     public function setQuery($name, $value)
     {
         $this->http_query[$name] = $value;
+    }
+
+    public function setQueryArray($array)
+    {
+        $this->http_query = array_merge($this->http_query, $array);
+    }
+
+    public function hasQuery()
+    {
+        return count($this->http_query) > 0;
     }
 
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])
