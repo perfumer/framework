@@ -185,6 +185,8 @@ class Core
             throw new ProxyException('Prefix "' . $name . '" is not registered in configuration');
 
         $this->http_prefixes[$name] = $value;
+
+        return $this;
     }
 
     public function i()
@@ -200,6 +202,8 @@ class Core
     public function setId($id)
     {
         $this->http_id = $id;
+
+        return $this;
     }
 
     public function a($name = null, $default = null)
@@ -215,19 +219,48 @@ class Core
         return isset($this->http_args[$name]) ? $this->http_args[$name] : $default;
     }
 
+    public function hasArgs()
+    {
+        return count($this->http_args) > 0;
+    }
+
     public function setArg($name, $value)
     {
         $this->http_args[$name] = $value;
+
+        return $this;
     }
 
     public function setArgsArray($array)
     {
-        $this->http_args = array_merge($this->http_args, $array);
+        $this->http_args = $array;
+
+        return $this;
     }
 
-    public function hasArgs()
+    public function addArgsArray($array)
     {
-        return count($this->http_args) > 0;
+        $this->http_args = array_merge($this->http_args, $array);
+
+        return $this;
+    }
+
+    public function deleteArgs(array $keys = [])
+    {
+        if ($keys)
+        {
+            foreach ($keys as $key)
+            {
+                if (isset($this->http_args[$key]))
+                    unset($this->http_args[$key]);
+            }
+        }
+        else
+        {
+            $this->http_args = [];
+        }
+
+        return $this;
     }
 
     public function q($name = null, $default = null)
@@ -243,19 +276,48 @@ class Core
         return isset($this->http_query[$name]) ? $this->http_query[$name] : $default;
     }
 
+    public function hasQuery()
+    {
+        return count($this->http_query) > 0;
+    }
+
     public function setQuery($name, $value)
     {
         $this->http_query[$name] = $value;
+
+        return $this;
     }
 
     public function setQueryArray($array)
     {
-        $this->http_query = array_merge($this->http_query, $array);
+        $this->http_query = $array;
+
+        return $this;
     }
 
-    public function hasQuery()
+    public function addQueryArray($array)
     {
-        return count($this->http_query) > 0;
+        $this->http_query = array_merge($this->http_query, $array);
+
+        return $this;
+    }
+
+    public function deleteQuery(array $keys = [])
+    {
+        if ($keys)
+        {
+            foreach ($keys as $key)
+            {
+                if (isset($this->http_query[$key]))
+                    unset($this->http_query[$key]);
+            }
+        }
+        else
+        {
+            $this->http_query = [];
+        }
+
+        return $this;
     }
 
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])
