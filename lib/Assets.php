@@ -2,7 +2,7 @@
 
 namespace Perfumer;
 
-use Perfumer\Cache\AbstractCache;
+use Stash\Pool;
 
 class Assets
 {
@@ -17,7 +17,7 @@ class Assets
     protected $css = [];
     protected $js = [];
 
-    public function __construct(AbstractCache $cache, array $params)
+    public function __construct(Pool $cache, array $params)
     {
         $this->cache = $cache;
 
@@ -40,11 +40,9 @@ class Assets
 
         if ($this->combine)
         {
-            $stylesheets = serialize($this->css);
+            $key = substr(md5(serialize($stylesheets)), 0, 10);
 
-            $key = substr(md5($stylesheets), 0, 10);
-
-            $this->cache->set('assets.css.' . $key, $stylesheets);
+            $this->cache->getItem('assets/css/' . $key)->set($stylesheets);
 
             $stylesheets = ['/css/' . $key . '.css'];
         }
@@ -66,11 +64,9 @@ class Assets
 
         if ($this->combine)
         {
-            $javascripts = serialize($this->js);
+            $key = substr(md5(serialize($javascripts)), 0, 10);
 
-            $key = substr(md5($javascripts), 0, 10);
-
-            $this->cache->set('assets.js.' . $key, $javascripts);
+            $this->cache->getItem('assets/js/' . $key)->set($javascripts);
 
             $javascripts = ['/js/' . $key . '.js'];
         }

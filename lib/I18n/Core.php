@@ -3,8 +3,8 @@
 namespace Perfumer\I18n;
 
 use App\Model\I18nQuery;
-use Perfumer\Cache\AbstractCache;
 use Perfumer\I18n\Exception\I18nException;
+use Stash\Pool;
 
 class Core
 {
@@ -14,7 +14,7 @@ class Core
     protected $locale;
     protected $active_group;
 
-    public function __construct(AbstractCache $cache, array $options)
+    public function __construct(Pool $cache, array $options)
     {
         $this->cache = $cache;
 
@@ -82,7 +82,9 @@ class Core
         if (!isset($this->translations[$this->locale][$group]))
             $this->translations[$this->locale][$group] = [];
 
-        if (!$translations = $this->cache->get('i18n.' . $this->locale . '.' . $group))
+        $cache = $this->cache->getItem('i18n/' . $this->locale . '/' . $group);
+
+        if ($cache->isMiss())
         {
             $translations = I18nQuery::create()
                 ->filterByGroup($group)
@@ -94,11 +96,11 @@ class Core
                 $this->translations[$this->locale][$group][$translation->getName()] = $translation->getText();
             }
 
-            $this->cache->set('i18n.' . $this->locale . '.' . $group, serialize($this->translations[$this->locale][$group]));
+            $cache->set($this->translations[$this->locale][$group]);
         }
         else
         {
-            $this->translations[$this->locale][$group] = unserialize($translations);
+            $this->translations[$this->locale][$group] = $cache->get();
         }
     }
 
