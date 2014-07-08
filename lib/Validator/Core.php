@@ -44,9 +44,11 @@ class Core
                 {
                     if (!$constraint->validate($value))
                     {
-                        $this->messages[$field][] = $message = $constraint->getReadyMessage();
-
-                        if (!$message)
+                        if ($message = $constraint->getReadyMessage())
+                        {
+                            $this->messages[$field][] = $message;
+                        }
+                        else
                         {
                             $placeholders = $constraint->getPlaceholders();
                             $message = $constraint->getMessage();
