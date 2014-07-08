@@ -4,7 +4,8 @@ namespace Perfumer\Validator\Constraint;
 
 abstract class AbstractConstraint
 {
-    protected $message = 'constraint_message';
+    protected $message = 'constraint.message';
+    protected $ready_message;
     protected $placeholders = [];
 
     abstract public function validate($value);
@@ -17,6 +18,18 @@ abstract class AbstractConstraint
     public function setMessage($message)
     {
         $this->message = $message;
+
+        return $this;
+    }
+
+    public function getReadyMessage()
+    {
+        return $this->ready_message;
+    }
+
+    public function setReadyMessage($ready_message)
+    {
+        $this->ready_message = $ready_message;
 
         return $this;
     }

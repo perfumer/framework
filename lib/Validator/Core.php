@@ -44,13 +44,18 @@ class Core
                 {
                     if (!$constraint->validate($value))
                     {
-                        $placeholders = $constraint->getPlaceholders();
-                        $message = $constraint->getMessage();
+                        $this->messages[$field][] = $message = $constraint->getReadyMessage();
 
-                        if (count($placeholders) > 0)
-                            $this->messages[$field][] = $this->i18n->translate($message, $placeholders);
-                        else
-                            $this->messages[$field][] = $this->i18n->translate($message);
+                        if (!$message)
+                        {
+                            $placeholders = $constraint->getPlaceholders();
+                            $message = $constraint->getMessage();
+
+                            if (count($placeholders) > 0)
+                                $this->messages[$field][] = $this->i18n->translate($message, $placeholders);
+                            else
+                                $this->messages[$field][] = $this->i18n->translate($message);
+                        }
                     }
                 }
             }
