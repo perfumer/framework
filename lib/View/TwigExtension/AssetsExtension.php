@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\View\Extension\Twig;
+namespace Perfumer\View\TwigExtension;
 
 use Perfumer\Assets;
 

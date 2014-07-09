@@ -3,23 +3,18 @@
 namespace Perfumer\View;
 
 use Perfumer\View\Exception\ViewException;
-use Perfumer\View\Templating\AbstractTemplating;
 
 class Core
 {
-    protected $templating;
+    protected $twig;
 
     protected $template;
-    protected $templating_extension;
     protected $vars = [];
     protected $groups = [];
 
-    public function __construct(AbstractTemplating $templating, array $options = [])
+    public function __construct(\Twig_Environment $twig)
     {
-        $this->templating = $templating;
-
-        if (isset($options['templating_extension']))
-            $this->templating_extension = $options['templating_extension'];
+        $this->twig = $twig;
     }
 
     public function render()
@@ -27,9 +22,7 @@ class Core
         if (!$this->template)
             throw new ViewException('No template defined.');
 
-        $template = $this->template . '.' . $this->templating_extension;
-
-        return $this->templating->render($template, $this->vars);
+        return $this->twig->render($this->template . '.twig', $this->vars);
     }
 
     public function addVar($name, $value, $group = null)
