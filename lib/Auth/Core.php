@@ -7,8 +7,7 @@ use App\Model\TokenQuery;
 use App\Model\User;
 use App\Model\UserQuery;
 use Perfumer\Auth\Exception\AuthException;
-use Perfumer\Session\AbstractSession as Session;
-use Perfumer\Session\Token\Provider\AbstractProvider as TokenProvider;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class Core
 {
@@ -24,25 +23,15 @@ class Core
     const STATUS_SIGNED_OUT = 10;
 
     protected $session;
-    protected $token_provider;
     protected $user;
 
     protected $status;
-    protected $update_gap;
+    protected $update_gap = 3600;
 
-    public function __construct(Session $session, TokenProvider $token_provider, $options = [])
+    public function __construct(Session $session, $options = [])
     {
         $this->session = $session;
-        $this->token_provider = $token_provider;
         $this->user = new User();
-
-        $this->update_gap = !empty($options['update_gap']) ? (int) $options['update_gap'] : 3600;
-
-        if (!$session->isStarted())
-        {
-            $token = $this->token_provider->getToken();
-            $session->start($token);
-        }
     }
 
     public function isLogged()
@@ -75,7 +64,7 @@ class Core
 
         try
         {
-            if ($this->token_provider->getToken() === null)
+            if ($this->session->get('auth.user') === null)
                 throw new AuthException(self::STATUS_NO_TOKEN);
 
             $user = null;
@@ -83,7 +72,7 @@ class Core
             if ($data = $this->session->get('auth.user'))
             {
                 $user = new User();
-                $user->fromArray(unserialize($data));
+                $user->fromArray($data);
                 $user->setNew(false);
             }
 
@@ -157,7 +146,7 @@ class Core
 
     public function logout()
     {
-        $this->session->restart();
+        $this->session->invalidate();
         $this->user = new User();
         $this->status = self::STATUS_SIGNED_OUT;
     }
@@ -165,10 +154,11 @@ class Core
     protected function updateToken()
     {
         $this->session->set('auth.updated', time());
-        $this->session->set('auth.user', serialize($this->user->toArray()));
+        $this->session->set('auth.user', $this->user->toArray());
+        $this->session->migrate();
 
         $token = new Token();
-        $token->setToken($this->session->regenerate());
+        $token->setToken($this->session->getId());
         $token->setUser($this->user);
         $token->save();
     }
