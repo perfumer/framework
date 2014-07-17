@@ -2,28 +2,31 @@
 
 namespace Perfumer;
 
-use Stash\Pool;
+use Assetic\Asset\AssetCollection;
+use Assetic\Asset\FileAsset;
+use Assetic\AssetManager;
+use Assetic\AssetWriter;
+use Assetic\Filter\CssMinFilter;
+use Assetic\Filter\JSMinPlusFilter;
 
 class Assets
 {
-    protected $cache;
-
     protected $source_path;
     protected $web_path;
     protected $combine;
+    protected $minify;
 
     protected $vendor_css = [];
     protected $vendor_js = [];
     protected $css = [];
     protected $js = [];
 
-    public function __construct(Pool $cache, array $params)
+    public function __construct(array $params)
     {
-        $this->cache = $cache;
-
-        $this->source_path = '/' . trim($params['source_path'], '/') . '/';
-        $this->web_path = '/' . trim($params['web_path'], '/') . '/';
+        $this->source_path = '/' . trim($params['source_path'], '/');
+        $this->web_path = '/' . trim($params['web_path'], '/');
         $this->combine = (bool) $params['combine'];
+        $this->minify = (bool) $params['minify'];
     }
 
     public function getCss()
@@ -40,11 +43,15 @@ class Assets
 
         if ($this->combine)
         {
-            $key = substr(md5(serialize($stylesheets)), 0, 10);
+            $combined_file_path = '/css/' . substr(md5(serialize($stylesheets)), 0, 10) . '.css';
 
-            $this->cache->getItem('assets/css/' . $key)->set($stylesheets);
+            $this->combineFiles($stylesheets, $combined_file_path, 'css');
 
-            $stylesheets = ['/css/' . $key . '.css'];
+            $stylesheets = [$combined_file_path];
+        }
+        else
+        {
+            $this->copyFiles($stylesheets, 'css');
         }
 
         return array_merge($vendors, $stylesheets);
@@ -64,11 +71,15 @@ class Assets
 
         if ($this->combine)
         {
-            $key = substr(md5(serialize($javascripts)), 0, 10);
+            $combined_file_path = '/js/' . substr(md5(serialize($javascripts)), 0, 10) . '.js';
 
-            $this->cache->getItem('assets/js/' . $key)->set($javascripts);
+            $this->combineFiles($javascripts, $combined_file_path, 'js');
 
-            $javascripts = ['/js/' . $key . '.js'];
+            $javascripts = [$combined_file_path];
+        }
+        else
+        {
+            $this->copyFiles($javascripts, 'js');
         }
 
         return array_merge($vendors, $javascripts);
@@ -79,15 +90,6 @@ class Assets
         if (!in_array($css, $this->css))
             $this->css[] = $css;
 
-        if (!$this->combine)
-        {
-            $file = 'css/' . $css . '.css';
-
-            @unlink($this->web_path . $file);
-
-            $this->copyFile($file, $this->source_path, $this->web_path);
-        }
-
         return $this;
     }
 
@@ -95,15 +97,6 @@ class Assets
     {
         if (!in_array($js, $this->js))
             $this->js[] = $js;
-
-        if (!$this->combine)
-        {
-            $file = 'js/' . $js . '.js';
-
-            @unlink($this->web_path . $file);
-
-            $this->copyFile($file, $this->source_path, $this->web_path);
-        }
 
         return $this;
     }
@@ -124,19 +117,65 @@ class Assets
         return $this;
     }
 
-    protected function copyFile($file, $source_dir, $target_dir)
+    protected function copyFiles(array $files, $type)
     {
-        $reversed_file = strrev($file);
-        $slash_pos = strpos($reversed_file, '/');
+        $asset_manager = new AssetManager();
 
-        if ($slash_pos !== false)
+        foreach ($files as $i => $file)
         {
-            $reversed_dir = substr($reversed_file, $slash_pos);
-            $dir = strrev($reversed_dir);
+            $asset = new FileAsset($this->source_path . $file);
+            $asset->setTargetPath($file);
 
-            @mkdir($target_dir . $dir, 0777, true);
+            if ($this->minify)
+            {
+                switch ($type)
+                {
+                    case 'css':
+                        $asset->ensureFilter(new CssMinFilter());
+                        break;
+                    case 'js':
+                        $asset->ensureFilter(new JSMinPlusFilter());
+                        break;
+                }
+            }
+
+            $asset_manager->set('asset' . $i, $asset);
         }
 
-        copy($source_dir . $file, $target_dir . $file);
+        $writer = new AssetWriter($this->web_path);
+        $writer->writeManagerAssets($asset_manager);
+    }
+
+    protected function combineFiles(array $files, $target_path, $type)
+    {
+        if (!file_exists($this->web_path . $target_path))
+        {
+            $asset_collection = new AssetCollection();
+
+            foreach ($files as $file)
+            {
+                $asset = new FileAsset($this->source_path . $file);
+
+                $asset_collection->add($asset);
+            }
+
+            // Set minify filters if this option activated
+            if ($this->minify)
+            {
+                switch ($type)
+                {
+                    case 'css':
+                        $asset_collection->ensureFilter(new CssMinFilter());
+                        break;
+                    case 'js':
+                        $asset_collection->ensureFilter(new JSMinPlusFilter());
+                        break;
+                }
+            }
+
+            $content = $asset_collection->dump();
+
+            file_put_contents($this->web_path . $target_path, $content);
+        }
     }
 }
