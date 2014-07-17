@@ -57,7 +57,7 @@ class CoreController
 
     protected function redirect($url)
     {
-        $this->getResponse()->addHeader('Location', $url);
+        $this->getResponse()->addHeader('Location', '/' . ltrim($url, '/'));
     }
 
     protected function getContainer()
