@@ -14,6 +14,13 @@ class Arr
         return array_intersect_key($array, $keys);
     }
 
+    public function deleteKeys(array $array, array $keys)
+    {
+        $keys = array_fill_keys($keys, true);
+
+        return array_diff_key($array, $keys);
+    }
+
     public function trim(array $array, $char = ' ')
     {
         foreach ($array as &$value)

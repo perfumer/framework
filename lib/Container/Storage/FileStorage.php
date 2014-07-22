@@ -35,19 +35,6 @@ class FileStorage extends AbstractStorage
     }
 
     /**
-     * getParamGroup
-     * Get array with whole group of parameters. Returns key-value array.
-     *
-     * @param string $group
-     * @return array
-     * @access public
-     */
-    public function getParamGroup($group)
-    {
-        return isset($this->params[$group]) ? $this->params[$group] : [];
-    }
-
-    /**
      * setParam
      * File storage doesn't support setting parameters.
      *
@@ -63,6 +50,19 @@ class FileStorage extends AbstractStorage
     }
 
     /**
+     * getParamGroup
+     * Get array with whole group of parameters. Returns key-value array.
+     *
+     * @param string $group
+     * @return array
+     * @access public
+     */
+    public function getParamGroup($group)
+    {
+        return isset($this->params[$group]) ? $this->params[$group] : [];
+    }
+
+    /**
      * setParamGroup
      * File storage doesn't support setting parameters.
      *
@@ -72,6 +72,16 @@ class FileStorage extends AbstractStorage
      * @access public
      */
     public function setParamGroup($group, array $values)
+    {
+        return false;
+    }
+
+    public function addParamGroup($group, array $values)
+    {
+        return false;
+    }
+
+    public function deleteParamGroup($group, array $keys = [])
     {
         return false;
     }

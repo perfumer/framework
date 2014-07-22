@@ -282,9 +282,38 @@ class Core
         $saved = $this->storages[$storage]->setParamGroup($group, $values);
 
         if ($saved && isset($this->params[$group]))
+            $this->params[$group] = $values;
+
+        return $saved;
+    }
+
+    public function addParamGroup($group, array $values, $storage = 'default')
+    {
+        $saved = $this->storages[$storage]->addParamGroup($group, $values);
+
+        if ($saved && isset($this->params[$group]))
             $this->params[$group] = array_merge($this->params[$group], $values);
 
         return $saved;
+    }
+
+    public function deleteParamGroup($group, array $keys = [], $storage = 'default')
+    {
+        $deleted = $this->storages[$storage]->deleteParamGroup($group, $keys);
+
+        if ($deleted && isset($this->params[$group]))
+        {
+            if ($keys)
+            {
+                $this->params[$group] = $this->getService('arr')->deleteKeys($this->params[$group], $keys);
+            }
+            else
+            {
+                unset($this->params[$group]);
+            }
+        }
+
+        return $deleted;
     }
 
     /**

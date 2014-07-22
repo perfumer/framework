@@ -31,17 +31,6 @@ abstract class AbstractStorage
     protected $params = [];
 
     /**
-     * getParamGroup
-     * Get array with whole group of parameters. Returns key-value array.
-     *
-     * @param string $group
-     * @return array
-     * @access public
-     * @abstract
-     */
-    public abstract function getParamGroup($group);
-
-    /**
      * setParam
      * Save one parameter
      *
@@ -55,8 +44,18 @@ abstract class AbstractStorage
     public abstract function setParam($group, $name, $value);
 
     /**
+     * getParamGroup
+     * Get array with whole group of parameters. Returns key-value array.
+     *
+     * @param string $group
+     * @return array
+     * @access public
+     * @abstract
+     */
+    public abstract function getParamGroup($group);
+
+    /**
      * setParamGroup
-     * Save a bunch of parameters. This method is not expected to replace whole group.
      *
      * @param string $group
      * @param array $values
@@ -64,13 +63,9 @@ abstract class AbstractStorage
      * @access public
      * @abstract
      */
-    public function setParamGroup($group, array $values)
-    {
-        foreach ($values as $name => $value)
-        {
-            $this->setParam($group, $name, $value);
-        }
+    public abstract function setParamGroup($group, array $values);
 
-        return true;
-    }
+    public abstract function addParamGroup($group, array $values);
+
+    public abstract function deleteParamGroup($group, array $keys = []);
 }
