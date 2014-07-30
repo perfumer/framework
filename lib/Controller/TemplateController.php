@@ -4,7 +4,14 @@ namespace Perfumer\Controller;
 
 class TemplateController extends CoreController
 {
+    /**
+     * @var \Perfumer\View\Core
+     */
     protected $_view;
+
+    /**
+     * @var \Perfumer\I18n\Core
+     */
     protected $_i18n;
 
     protected function before()

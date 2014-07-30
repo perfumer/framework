@@ -9,11 +9,36 @@ use Perfumer\Proxy\Response;
 
 class CoreController
 {
+    /**
+     * @var \Perfumer\Container\Core
+     */
     protected $_container;
+
+    /**
+     * @var \Perfumer\Proxy\Core
+     */
     protected $_proxy;
+
+    /**
+     * @var \Perfumer\Proxy\Request
+     */
     protected $_initial;
+
+    /**
+     * @var \Perfumer\Proxy\Request
+     */
     protected $_current;
+
+    /**
+     * @var \Perfumer\Proxy\Response
+     */
     protected $_response;
+
+    /**
+     * @var \App\Model\User
+     */
+    protected $_user;
+
     protected $_vars = [];
 
     public function __construct(Container $container, Request $request, Response $response)
@@ -88,5 +113,10 @@ class CoreController
     protected function getResponse()
     {
         return $this->_response;
+    }
+
+    protected function getUser()
+    {
+        return $this->_user;
     }
 }
