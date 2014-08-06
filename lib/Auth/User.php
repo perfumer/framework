@@ -3,12 +3,13 @@
 namespace Perfumer\Auth;
 
 use App\Model\Base\User as BaseUser;
-use App\Model\Map\UserTableMap;
+use Propel\Runtime\Collection\ArrayCollection;
 
 class User extends BaseUser
 {
     protected $is_logged = false;
     protected $permissions = [];
+    protected $delegations = [];
 
     public function isLogged()
     {
@@ -41,7 +42,7 @@ class User extends BaseUser
         if (!$this->isLogged())
             return false;
 
-        if ($this->getIsAdmin())
+        if ($this->isAdmin())
             return true;
 
         if (!is_array($permissions))
@@ -80,6 +81,45 @@ class User extends BaseUser
                         $this->permissions[] = $sub_token;
                 }
             }
+
+            $delegations = $role->getDelegations();
+
+            foreach ($delegations as $delegation)
+            {
+                $key = $delegation->getModelName();
+
+                if (!isset($this->delegations[$key]))
+                    $this->delegations[$key] = [];
+
+                $this->delegations[$key] = array_merge($this->delegations[$key], $delegation->getModelIds());
+                $this->delegations[$key] = array_unique($this->delegations[$key]);
+            }
         }
+    }
+
+    public function getDelegatedIds($model)
+    {
+        if (is_object($model))
+            $model = get_class($model);
+
+        if (!isset($this->delegations[$model]))
+            return [];
+
+        return $this->delegations[$model];
+    }
+
+    public function getDelegatedObjects($model)
+    {
+        if (is_object($model))
+            $model = get_class($model);
+
+        $ids = $this->getDelegatedIds($model);
+
+        if (!$ids)
+            return new ArrayCollection();
+
+        $model = $model . 'Query';
+
+        return $model::create()->findPks($ids);
     }
 }
