@@ -96,7 +96,7 @@ class Core
                 $this->translations[$this->locale][$group][$translation->getName()] = $translation->getText();
             }
 
-            $cache->set($this->translations[$this->locale][$group]);
+            $cache->set($this->translations[$this->locale][$group], 3600);
         }
         else
         {
