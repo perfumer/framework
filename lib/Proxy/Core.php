@@ -94,6 +94,9 @@ class Core
         {
             $this->http_query = $_GET;
             $this->http_args = $this->getRequestBody() ? json_decode($this->getRequestBody(), true) : [];
+
+            if (!is_array($this->http_args))
+                $this->http_args = [];
         }
 
         // Trim all args if auto_trim setting enabled
