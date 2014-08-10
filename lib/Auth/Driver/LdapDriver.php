@@ -11,6 +11,7 @@ class LdapDriver extends DatabaseDriver
 {
     protected $ldap_hostname;
     protected $ldap_domain;
+    protected $pull_user = false;
 
     public function __construct(Session $session, $options = [])
     {
@@ -21,30 +22,47 @@ class LdapDriver extends DatabaseDriver
 
         if (isset($options['ldap_domain']))
             $this->ldap_domain = $options['ldap_domain'];
+
+        if (isset($options['pull_user']))
+            $this->pull_user = $options['pull_user'];
     }
 
     public function login($username, $password, $force_login = false)
     {
+        $user = new User();
+
         try
         {
-            $user = UserQuery::create()->findOneByUsername($username);
+            if (!$this->pull_user)
+            {
+                $user = UserQuery::create()->findOneByUsername($username);
 
-            if (!$user)
-                throw new AuthException(self::STATUS_INVALID_USERNAME);
+                if (!$user)
+                    throw new AuthException(self::STATUS_INVALID_USERNAME);
+            }
 
-            $connection = ldap_connect($this->ldap_hostname);
+            if (!$force_login)
+            {
+                $connection = ldap_connect($this->ldap_hostname);
 
-            if (!$connection)
-                throw new AuthException(self::STATUS_REMOTE_SERVER_ERROR);
+                if (!$connection)
+                    throw new AuthException(self::STATUS_REMOTE_SERVER_ERROR);
 
-            if (!@ldap_bind($connection, $this->ldap_domain . '\\' . $username, $password))
-                throw new AuthException(self::STATUS_INVALID_CREDENTIALS);
+                if (!@ldap_bind($connection, $this->ldap_domain . '\\' . $username, $password))
+                    throw new AuthException(self::STATUS_INVALID_CREDENTIALS);
+            }
         }
         catch(AuthException $e)
         {
-            $this->user = new User();
+            $this->user = $user;
             $this->status = $e->getMessage();
             return;
+        }
+
+        if ($this->pull_user)
+        {
+            $user->setUsername($username);
+            $user->hashPassword($password);
         }
 
         $this->user = $user;
