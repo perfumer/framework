@@ -6,8 +6,8 @@ use Perfumer\Helper\Arr;
 use Propel\Runtime\ActiveQuery\Criteria;
 
 /**
- * MysqlStorage
- * Uses MySQL Database to store parameters.
+ * DatabaseStorage
+ * Uses RDBMS to store parameters.
  *
  * @package    perfumer/container
  * @category   storage
@@ -16,7 +16,7 @@ use Propel\Runtime\ActiveQuery\Criteria;
  * @copyright  (c) 2014 Ilyas Makashev
  * @license    MIT
  */
-class MysqlStorage extends AbstractStorage
+class DatabaseStorage extends AbstractStorage
 {
     protected $arr;
 
