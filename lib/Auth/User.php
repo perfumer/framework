@@ -3,7 +3,7 @@
 namespace Perfumer\Auth;
 
 use App\Model\Base\User as BaseUser;
-use Propel\Runtime\Collection\ObjectCollection;
+use Propel\Runtime\Collection\ArrayCollection;
 
 class User extends BaseUser
 {
@@ -116,7 +116,7 @@ class User extends BaseUser
         $ids = $this->getDelegatedIds($model);
 
         if (!$ids)
-            return new ObjectCollection();
+            return new ArrayCollection();
 
         $model = $model . 'Query';
 

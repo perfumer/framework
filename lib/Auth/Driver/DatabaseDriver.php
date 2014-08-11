@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Auth;
+namespace Perfumer\Auth\Driver;
 
 use App\Model\Token;
 use App\Model\TokenQuery;
@@ -9,20 +9,29 @@ use App\Model\UserQuery;
 use Perfumer\Auth\Exception\AuthException;
 use Symfony\Component\HttpFoundation\Session\Session;
 
-class Core
+class DatabaseDriver
 {
     const STATUS_ACCOUNT_BANNED = 1;
     const STATUS_ACCOUNT_DISABLED = 2;
     const STATUS_AUTHENTICATED = 3;
-    const STATUS_INVALID_PASSWORD = 4;
-    const STATUS_INVALID_USERNAME = 5;
-    const STATUS_NO_TOKEN = 6;
-    const STATUS_NON_EXISTING_TOKEN = 7;
-    const STATUS_NON_EXISTING_USER = 8;
-    const STATUS_SIGNED_IN = 9;
-    const STATUS_SIGNED_OUT = 10;
+    const STATUS_INVALID_CREDENTIALS = 4;
+    const STATUS_INVALID_PASSWORD = 5;
+    const STATUS_INVALID_USERNAME = 6;
+    const STATUS_NO_TOKEN = 7;
+    const STATUS_NON_EXISTING_TOKEN = 8;
+    const STATUS_NON_EXISTING_USER = 9;
+    const STATUS_REMOTE_SERVER_ERROR = 10;
+    const STATUS_SIGNED_IN = 11;
+    const STATUS_SIGNED_OUT = 12;
 
+    /**
+     * @var \Symfony\Component\HttpFoundation\Session\Session;
+     */
     protected $session;
+
+    /**
+     * @var \App\Model\User
+     */
     protected $user;
 
     protected $status;
@@ -32,6 +41,9 @@ class Core
     {
         $this->session = $session;
         $this->user = new User();
+
+        if (isset($options['update_gap']))
+            $this->update_gap = $options['update_gap'];
     }
 
     public function isLogged()
