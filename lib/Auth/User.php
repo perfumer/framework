@@ -91,29 +91,36 @@ class User extends BaseUser
                 if (!isset($this->delegations[$key]))
                     $this->delegations[$key] = [];
 
-                $this->delegations[$key] = array_merge($this->delegations[$key], $delegation->getModelIds());
-                $this->delegations[$key] = array_unique($this->delegations[$key]);
+                $array = &$this->delegations[$key];
+
+                if (!isset($array[$delegation->getType()]))
+                    $array[$delegation->getType()] = [];
+
+                $array = &$array[$delegation->getType()];
+
+                $array = array_merge($array, $delegation->getModelIds());
+                $array = array_unique($array);
             }
         }
     }
 
-    public function getDelegatedIds($model)
+    public function getDelegatedIds($model, $type = Delegation::DELEGATION_COMMON)
     {
         if (is_object($model))
             $model = get_class($model);
 
-        if (!isset($this->delegations[$model]))
+        if (!isset($this->delegations[$model][$type]))
             return [];
 
-        return $this->delegations[$model];
+        return $this->delegations[$model][$type];
     }
 
-    public function getDelegatedObjects($model)
+    public function getDelegatedObjects($model, $type = Delegation::DELEGATION_COMMON)
     {
         if (is_object($model))
             $model = get_class($model);
 
-        $ids = $this->getDelegatedIds($model);
+        $ids = $this->getDelegatedIds($model, $type);
 
         if (!$ids)
             return new ArrayCollection();
