@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Auth;
+namespace Perfumer\Model;
 
 use App\Model\Base\User as BaseUser;
 use Propel\Runtime\Collection\ArrayCollection;
@@ -104,7 +104,7 @@ class User extends BaseUser
         }
     }
 
-    public function getDelegatedIds($model, $type = Delegation::DELEGATION_COMMON)
+    public function getDelegatedIds($model, $type = Delegation::TYPE_COMMON)
     {
         if (is_object($model))
             $model = get_class($model);
@@ -115,7 +115,7 @@ class User extends BaseUser
         return $this->delegations[$model][$type];
     }
 
-    public function getDelegatedObjects($model, $type = Delegation::DELEGATION_COMMON)
+    public function getDelegatedObjects($model, $type = Delegation::TYPE_COMMON)
     {
         if (is_object($model))
             $model = get_class($model);
