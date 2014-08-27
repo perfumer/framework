@@ -2,8 +2,6 @@
 
 namespace Perfumer\Controller\Crud\Basic;
 
-use Perfumer\Controller\Exception\CrudException;
-
 trait DeleteTransfer
 {
     public function delete()
@@ -16,6 +14,7 @@ trait DeleteTransfer
         $model = $this->getModel();
 
         $this->deleteValidate($model);
+        $this->deletePreRemove($model);
 
         $model->delete();
 
@@ -27,11 +26,15 @@ trait DeleteTransfer
         }
     }
 
+    protected function deletePermission()
+    {
+    }
+
     protected function deleteValidate($model)
     {
     }
 
-    protected function deletePermission()
+    protected function deletePreRemove($model)
     {
     }
 
