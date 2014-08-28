@@ -18,6 +18,10 @@ trait CreateTransfer
     {
     }
 
+    protected function postPrePersist(Attachment $attachment)
+    {
+    }
+
     protected function postPreSave(Attachment $attachment)
     {
     }
@@ -50,6 +54,9 @@ trait CreateTransfer
             $path = $this->digestPath($digest);
 
             $attachment = new Attachment();
+
+            $this->postPrePersist($attachment);
+
             $attachment->setName($name);
             $attachment->setExtension($file->getExtension());
             $attachment->setDigest($digest);
