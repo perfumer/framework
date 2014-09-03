@@ -6,6 +6,9 @@ use Perfumer\Assets;
 
 class AssetsExtension extends \Twig_Extension
 {
+    /**
+     * @var \Perfumer\Assets
+     */
     protected $assets;
 
     public function __construct(Assets $assets)

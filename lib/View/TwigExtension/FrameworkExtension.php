@@ -6,8 +6,19 @@ use Perfumer\Container\Core as Container;
 
 class FrameworkExtension extends \Twig_Extension
 {
+    /**
+     * @var \Perfumer\Container\Core
+     */
     protected $container;
+
+    /**
+     * @var \Perfumer\Proxy\Core
+     */
     protected $proxy;
+
+    /**
+     * @var \Perfumer\I18n\Core
+     */
     protected $i18n;
 
     public function __construct(Container $container)
