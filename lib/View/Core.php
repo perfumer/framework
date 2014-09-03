@@ -2,7 +2,6 @@
 
 namespace Perfumer\View;
 
-use Perfumer\Controller\Exception\ExitActionException;
 use Perfumer\View\Exception\ViewException;
 
 class Core
@@ -63,13 +62,6 @@ class Core
         return $this;
     }
 
-    public function addVarAndExit($name, $value, $group = null)
-    {
-        $this->addVar($name, $value, $group);
-
-        throw new ExitActionException;
-    }
-
     public function addVars(array $vars, $group = null)
     {
         if ($group === null)
@@ -80,11 +72,24 @@ class Core
         return $this;
     }
 
-    public function addVarsAndExit(array $vars, $group = null)
+    public function hasVar($name, $group = null)
     {
-        $this->addVars($vars, $group);
+        if ($group === null)
+            $status = isset($this->vars[$name]);
+        else
+            $status = isset($this->groups[$group][$name]);
 
-        throw new ExitActionException;
+        return $status;
+    }
+
+    public function hasVars($group = null)
+    {
+        if ($group === null)
+            $status = count($this->vars) > 0;
+        else
+            $status = count($this->groups[$group]) > 0;
+
+        return $status;
     }
 
     public function deleteVar($name, $group = null)
