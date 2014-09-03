@@ -11,7 +11,7 @@ class JsonController extends CoreController
         parent::before();
 
         $this->getView()->addVars([
-            'status' => false,
+            'status' => true,
             'message' => '',
             'content' => ''
         ]);

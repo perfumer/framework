@@ -20,9 +20,10 @@ trait UpdateTransfer
 
         $this->putValidate($model, $fields);
 
-        if ($this->hasErrors() || $this->getErrorMessage())
+        if ($this->getView()->getVar('status') === false)
         {
-            $this->setErrorMessage($this->getI18n()->translate('crud.update_errors'));
+            if (!$this->getView()->getVar('message'))
+                $this->setErrorMessage($this->getI18n()->translate('crud.update_errors'));
         }
         else
         {

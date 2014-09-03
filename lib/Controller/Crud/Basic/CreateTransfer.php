@@ -22,9 +22,10 @@ trait CreateTransfer
 
         $this->postValidate($model, $fields);
 
-        if ($this->hasErrors() || $this->getErrorMessage())
+        if ($this->getView()->getVar('status') === false)
         {
-            $this->setErrorMessage($this->getI18n()->translate('crud.create_errors'));
+            if (!$this->getView()->getVar('message'))
+                $this->setErrorMessage($this->getI18n()->t('crud.create_errors'));
         }
         else
         {
@@ -37,7 +38,7 @@ trait CreateTransfer
             if ($model->save())
             {
                 $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                $this->setSuccessMessage($this->getI18n()->translate('crud.created'));
+                $this->setSuccessMessage($this->getI18n()->t('crud.created'));
 
                 $this->postAfterSuccess($model, $fields);
             }

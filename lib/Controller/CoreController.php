@@ -107,7 +107,7 @@ class CoreController
 
     protected function getMain()
     {
-        return $this->_proxy->getRequestMain();
+        return $this->getProxy()->getRequestMain();
     }
 
     protected function getInitial()
