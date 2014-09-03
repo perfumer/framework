@@ -35,6 +35,16 @@ class CoreController
     protected $_response;
 
     /**
+     * @var \Perfumer\View\Core
+     */
+    protected $_view;
+
+    /**
+     * @var \Perfumer\I18n\Core
+     */
+    protected $_i18n;
+
+    /**
      * @var \App\Model\User
      */
     protected $_user;
@@ -113,6 +123,22 @@ class CoreController
     protected function getResponse()
     {
         return $this->_response;
+    }
+
+    protected function getView()
+    {
+        if ($this->_view === null)
+            $this->_view = $this->getContainer()->s('view');
+
+        return $this->_view;
+    }
+
+    protected function getI18n()
+    {
+        if ($this->_i18n === null)
+            $this->_i18n = $this->getContainer()->s('i18n');
+
+        return $this->_i18n;
     }
 
     protected function getUser()
