@@ -110,6 +110,8 @@ class DatabaseDriver
             {
                 $user = new User();
                 $user->fromArray($data);
+                $user->setPermissions($this->session->get('_user_permissions'));
+                $user->setDelegations($this->session->get('_user_delegations'));
                 $user->setNew(false);
             }
 
@@ -139,7 +141,6 @@ class DatabaseDriver
 
             $this->user = $user;
             $this->user->setLogged(true);
-            $this->user->loadPermissions();
 
             if ($start_session)
                 $this->startSession();
@@ -171,7 +172,6 @@ class DatabaseDriver
 
             $this->user = $user;
             $this->user->setLogged(true);
-            $this->user->loadPermissions();
 
             $this->startSession();
 
@@ -192,8 +192,13 @@ class DatabaseDriver
 
     public function updateSession()
     {
-        $this->session->set('_last_updated', time());
-        $this->session->set('_user', $this->user->toArray());
+        $this->user->revealRoles();
+
+        $this->session
+            ->set('_last_updated', time())
+            ->set('_user', $this->user->toArray())
+            ->set('_user_permissions', $this->user->getPermissions())
+            ->set('_user_delegations', $this->user->getDelegations());
     }
 
     protected function startSession()

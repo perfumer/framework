@@ -72,7 +72,6 @@ class LdapDriver extends DatabaseDriver
 
         $this->user = $user;
         $this->user->setLogged(true);
-        $this->user->loadPermissions();
 
         $this->startSession();
 

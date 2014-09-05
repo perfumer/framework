@@ -57,10 +57,8 @@ class User extends BaseUser
         return false;
     }
 
-    public function loadPermissions()
+    public function revealRoles()
     {
-        $this->permissions = [];
-
         $roles = $this->getRoles();
 
         foreach ($roles as $role)
@@ -102,6 +100,30 @@ class User extends BaseUser
                 $array = array_unique($array);
             }
         }
+    }
+
+    public function getPermissions()
+    {
+        return $this->permissions;
+    }
+
+    public function setPermissions($permissions)
+    {
+        $this->permissions = (array) $permissions;
+
+        return $this;
+    }
+
+    public function getDelegations()
+    {
+        return $this->delegations;
+    }
+
+    public function setDelegations($delegations)
+    {
+        $this->delegations = (array) $delegations;
+
+        return $this;
     }
 
     public function getDelegatedIds($model, $type = Delegation::TYPE_COMMON)
