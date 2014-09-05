@@ -8,9 +8,12 @@ class CookieHandler extends AbstractHandler
 {
     protected $cookie;
 
-    public function __construct(Cookie $cookie)
+    protected $cookie_lifetime;
+
+    public function __construct(Cookie $cookie, $cookie_lifetime = 3600)
     {
         $this->cookie = $cookie;
+        $this->cookie_lifetime = (int) $cookie_lifetime;
     }
 
     public function getToken()
@@ -20,7 +23,7 @@ class CookieHandler extends AbstractHandler
 
     public function setToken($token)
     {
-        $this->cookie->set('_session', $token);
+        $this->cookie->set('_session', $token, $this->cookie_lifetime);
     }
 
     public function deleteToken()
