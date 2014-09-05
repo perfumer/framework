@@ -7,7 +7,9 @@ use App\Model\TokenQuery;
 use App\Model\User;
 use App\Model\UserQuery;
 use Perfumer\Auth\Exception\AuthException;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Perfumer\Auth\TokenHandler\AbstractHandler as TokenHandler;
+use Perfumer\Session\Core as SessionService;
+use Perfumer\Session\Item as Session;
 
 class DatabaseDriver
 {
@@ -25,25 +27,42 @@ class DatabaseDriver
     const STATUS_SIGNED_OUT = 12;
 
     /**
-     * @var \Symfony\Component\HttpFoundation\Session\Session;
+     * @var SessionService
      */
-    protected $session;
+    protected $session_service;
+
+    /**
+     * @var TokenHandler
+     */
+    protected $token_handler;
 
     /**
      * @var \App\Model\User
      */
     protected $user;
 
+    /**
+     * @var Session
+     */
+    protected $session;
+
+    protected $token;
     protected $status;
     protected $update_gap = 3600;
 
-    public function __construct(Session $session, $options = [])
+    public function __construct(SessionService $session_service, TokenHandler $token_handler, $options = [])
     {
-        $this->session = $session;
+        $this->session_service = $session_service;
+        $this->token_handler = $token_handler;
         $this->user = new User();
 
+        $this->token = $this->token_handler->getToken();
+
+        if ($this->token !== null)
+            $this->session = $this->session_service->get($this->token);
+
         if (isset($options['update_gap']))
-            $this->update_gap = $options['update_gap'];
+            $this->update_gap = (int) $options['update_gap'];
     }
 
     public function isLogged()
@@ -70,18 +89,24 @@ class DatabaseDriver
         return $this->status;
     }
 
+    public function getSession()
+    {
+        return $this->session;
+    }
+
     public function init()
     {
-        $update_token = false;
+        $start_session = false;
+        $update_session = false;
 
         try
         {
-            if ($this->session->get('auth.user') === null)
+            if ($this->token === null)
                 throw new AuthException(self::STATUS_NO_TOKEN);
 
             $user = null;
 
-            if ($data = $this->session->get('auth.user'))
+            if ($data = $this->session->get('_user'))
             {
                 $user = new User();
                 $user->fromArray($data);
@@ -90,42 +115,45 @@ class DatabaseDriver
 
             if ($user)
             {
-                if(time() - $this->session->get('auth.updated') >= $this->update_gap)
+                if(time() - $this->session->get('_last_updated') >= $this->update_gap)
                 {
                     $user = UserQuery::create()->findPk($user->getId());
 
                     if (!$user)
                         throw new AuthException(self::STATUS_NON_EXISTING_USER);
 
-                    $update_token = true;
+                    $update_session = true;
                 }
             }
             else
             {
-                $token = TokenQuery::create()->findOneByToken($this->session->getId());
+                $token = TokenQuery::create()->findOneByToken($this->token);
 
                 if (!$token)
                     throw new AuthException(self::STATUS_NON_EXISTING_TOKEN);
 
                 $user = $token->getUser();
 
-                $update_token = true;
+                $start_session = true;
             }
 
             $this->user = $user;
             $this->user->setLogged(true);
             $this->user->loadPermissions();
+
+            if ($start_session)
+                $this->startSession();
+
+            if ($update_session)
+                $this->updateSession();
+
             $this->status = self::STATUS_AUTHENTICATED;
 
-            if ($update_token)
-            {
-                $this->updateToken();
-            }
+            $this->token_handler->setToken($this->token);
         }
         catch (AuthException $e)
         {
-            $this->user = new User();
-            $this->status = $e->getMessage();
+            $this->reset($e->getMessage());
         }
     }
 
@@ -140,38 +168,61 @@ class DatabaseDriver
 
             if (!$force_login && !$user->validatePassword($password))
                 throw new AuthException(self::STATUS_INVALID_PASSWORD);
+
+            $this->user = $user;
+            $this->user->setLogged(true);
+            $this->user->loadPermissions();
+
+            $this->startSession();
+
+            $this->status = self::STATUS_SIGNED_IN;
+
+            $this->token_handler->setToken($this->token);
         }
-        catch(AuthException $e)
+        catch (AuthException $e)
         {
-            $this->user = new User();
-            $this->status = $e->getMessage();
-            return;
+            $this->reset($e->getMessage());
         }
-
-        $this->user = $user;
-        $this->user->setLogged(true);
-        $this->user->loadPermissions();
-        $this->status = self::STATUS_SIGNED_IN;
-
-        $this->updateToken();
     }
 
     public function logout()
     {
-        $this->session->invalidate();
-        $this->user = new User();
-        $this->status = self::STATUS_SIGNED_OUT;
+        $this->reset(self::STATUS_SIGNED_OUT);
     }
 
-    protected function updateToken()
+    public function updateSession()
     {
-        $this->session->set('auth.updated', time());
-        $this->session->set('auth.user', $this->user->toArray());
-        $this->session->migrate();
+        $this->session->set('_last_updated', time());
+        $this->session->set('_user', $this->user->toArray());
+    }
+
+    protected function startSession()
+    {
+        if ($this->session !== null)
+            $this->session->destroy();
+
+        $this->session = $this->session_service->get();
+
+        $this->updateSession();
+
+        $this->token = $this->session->getId();
 
         $token = new Token();
-        $token->setToken($this->session->getId());
+        $token->setToken($this->token);
         $token->setUser($this->user);
         $token->save();
+    }
+
+    protected function reset($status)
+    {
+        $this->user = new User();
+
+        $this->status = $status;
+
+        if ($this->session !== null)
+            $this->session->destroy();
+
+        if ($this->token !== null)
+            $this->token_handler->deleteToken();
     }
 }

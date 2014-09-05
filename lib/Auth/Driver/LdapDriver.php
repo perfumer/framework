@@ -5,7 +5,8 @@ namespace Perfumer\Auth\Driver;
 use App\Model\User;
 use App\Model\UserQuery;
 use Perfumer\Auth\Exception\AuthException;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Perfumer\Auth\TokenHandler\AbstractHandler as TokenHandler;
+use Perfumer\Session\Core as SessionService;
 
 class LdapDriver extends DatabaseDriver
 {
@@ -14,9 +15,9 @@ class LdapDriver extends DatabaseDriver
     protected $ldap_domain;
     protected $pull_user = false;
 
-    public function __construct(Session $session, $options = [])
+    public function __construct(SessionService $session_service, TokenHandler $token_handler, $options = [])
     {
-        parent::__construct($session, $options);
+        parent::__construct($session_service, $token_handler, $options);
 
         if (isset($options['ldap_hostname']))
             $this->ldap_hostname = $options['ldap_hostname'];
@@ -56,9 +57,9 @@ class LdapDriver extends DatabaseDriver
                     throw new AuthException(self::STATUS_INVALID_CREDENTIALS);
             }
         }
-        catch(AuthException $e)
+        catch (AuthException $e)
         {
-            $this->user = $user;
+            $this->user = new User();
             $this->status = $e->getMessage();
             return;
         }
@@ -72,8 +73,11 @@ class LdapDriver extends DatabaseDriver
         $this->user = $user;
         $this->user->setLogged(true);
         $this->user->loadPermissions();
+
+        $this->startSession();
+
         $this->status = self::STATUS_SIGNED_IN;
 
-        $this->updateToken();
+        $this->token_handler->setToken($this->token);
     }
 }
