@@ -49,7 +49,12 @@ class CoreController
      */
     protected $_user;
 
-    protected $_vars = [];
+    /**
+     * Default name of Auth service
+     *
+     * @var string
+     */
+    protected $_auth_service_name = 'auth';
 
     public function __construct(Container $container, Request $request, Response $response)
     {
@@ -95,36 +100,68 @@ class CoreController
         $this->getResponse()->addHeader('Location', '/' . ltrim($url, '/'));
     }
 
+    /**
+     * Shortcut for DI Container getService() method
+     *
+     * @param $name
+     * @return mixed
+     */
+    protected function s($name)
+    {
+        return $this->getContainer()->getService($name);
+    }
+
+    /**
+     * @return Container
+     */
     protected function getContainer()
     {
         return $this->_container;
     }
 
+    /**
+     * @return \Perfumer\Proxy\Core
+     */
     protected function getProxy()
     {
         return $this->_proxy;
     }
 
+    /**
+     * @return \Perfumer\Proxy\Request
+     */
     protected function getMain()
     {
         return $this->getProxy()->getRequestMain();
     }
 
+    /**
+     * @return \Perfumer\Proxy\Request
+     */
     protected function getInitial()
     {
         return $this->_initial;
     }
 
+    /**
+     * @return \Perfumer\Proxy\Request
+     */
     protected function getCurrent()
     {
         return $this->_current;
     }
 
+    /**
+     * @return \Perfumer\Proxy\Response
+     */
     protected function getResponse()
     {
         return $this->_response;
     }
 
+    /**
+     * @return \Perfumer\View\Core
+     */
     protected function getView()
     {
         if ($this->_view === null)
@@ -133,6 +170,9 @@ class CoreController
         return $this->_view;
     }
 
+    /**
+     * @return \Perfumer\I18n\Core
+     */
     protected function getI18n()
     {
         if ($this->_i18n === null)
@@ -141,8 +181,14 @@ class CoreController
         return $this->_i18n;
     }
 
+    /**
+     * @return \App\Model\User
+     */
     protected function getUser()
     {
+        if ($this->_user === null)
+            $this->_user = $this->getContainer()->s($this->_auth_service_name)->getUser();
+
         return $this->_user;
     }
 }

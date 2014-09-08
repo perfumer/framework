@@ -8,7 +8,7 @@ class TemplateController extends CoreController
     {
         parent::before();
 
-        $this->getView()->mapGroup('app');
+        $this->getView()->mapGroup('app')->addVar('user', $this->getUser(), 'app');
     }
 
     protected function after()

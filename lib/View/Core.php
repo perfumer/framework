@@ -131,6 +131,8 @@ class Core
         }
 
         $this->groups[$name] = &$base;
+
+        return $this;
     }
 
     public function getTemplate()
@@ -141,12 +143,16 @@ class Core
     public function setTemplate($template)
     {
         $this->template = $template;
+
+        return $this;
     }
 
     public function setTemplateIfNotDefined($template)
     {
         if (!$this->template)
             $this->template = $template;
+
+        return $this;
     }
 
     public function serializeVars($serializer)
