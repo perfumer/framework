@@ -59,7 +59,7 @@ class CoreController
     public function __construct(Container $container, Request $request, Response $response)
     {
         $this->_container = $container;
-        $this->_proxy = $container->s('proxy');
+        $this->_proxy = $container->getService('proxy');
         $this->_initial = $this->_proxy->getRequestInitial();
         $this->_current = $request;
         $this->_response = $response;
@@ -109,6 +109,38 @@ class CoreController
     protected function s($name)
     {
         return $this->getContainer()->getService($name);
+    }
+
+    /**
+     * Shortcut for Proxy getId() method
+     *
+     * @return mixed
+     */
+    protected function i()
+    {
+        return $this->getProxy()->getId();
+    }
+
+    /**
+     * Shortcut for Proxy getQuery() method
+     *
+     * @param $name
+     * @return mixed
+     */
+    protected function q($name)
+    {
+        return $this->getProxy()->getQuery($name);
+    }
+
+    /**
+     * Shortcut for Proxy getArg() method
+     *
+     * @param $name
+     * @return mixed
+     */
+    protected function a($name)
+    {
+        return $this->getProxy()->getArg($name);
     }
 
     /**
@@ -165,7 +197,7 @@ class CoreController
     protected function getView()
     {
         if ($this->_view === null)
-            $this->_view = $this->getContainer()->s('view');
+            $this->_view = $this->getContainer()->getService('view');
 
         return $this->_view;
     }
@@ -176,7 +208,7 @@ class CoreController
     protected function getI18n()
     {
         if ($this->_i18n === null)
-            $this->_i18n = $this->getContainer()->s('i18n');
+            $this->_i18n = $this->getContainer()->getService('i18n');
 
         return $this->_i18n;
     }
@@ -187,7 +219,7 @@ class CoreController
     protected function getUser()
     {
         if ($this->_user === null)
-            $this->_user = $this->getContainer()->s($this->_auth_service_name)->getUser();
+            $this->_user = $this->getContainer()->getService($this->_auth_service_name)->getUser();
 
         return $this->_user;
     }
