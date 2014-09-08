@@ -34,11 +34,11 @@ class Request
         }
         catch (\ReflectionException $e)
         {
-            $this->container->s('proxy')->forward('exception/page', 'controllerNotFound');
+            $this->container->getService('proxy')->forward('exception/page', 'controllerNotFound');
         }
 
         $request = $this;
-        $response = $this->container->s('response');
+        $response = $this->container->getService('response');
         $controller = $reflection_class->newInstance($this->container, $request, $response);
 
         return $reflection_class->getMethod('execute')->invoke($controller);

@@ -30,7 +30,7 @@ class Core
 
         if ($_SERVER['PATH_INFO'] == '/')
         {
-            $this->request_url = $this->container->p('proxy.default_url');
+            $this->request_url = $this->container->getParam('proxy.default_url');
         }
         else
         {
@@ -43,7 +43,7 @@ class Core
                 $url = substr($url, 0, $hyphen_pos);
             }
 
-            if ($prefixes = $this->container->p('proxy.prefixes'))
+            if ($prefixes = $this->container->getParam('proxy.prefixes'))
             {
                 $url = explode('/', $url);
 
@@ -56,7 +56,7 @@ class Core
 
                 if (count($prefixes) >= count($url))
                 {
-                    $url = $this->container->p('proxy.default_url');
+                    $url = $this->container->getParam('proxy.default_url');
                 }
                 else
                 {
@@ -70,7 +70,7 @@ class Core
 
         $this->request_body = file_get_contents("php://input");
 
-        $data_type = $this->container->p('proxy.data_type');
+        $data_type = $this->container->getParam('proxy.data_type');
 
         // Get query parameters and args depending from type of data in the http request body
         if ($data_type == 'query_string')
@@ -100,15 +100,15 @@ class Core
         }
 
         // Trim all args if auto_trim setting enabled
-        if ($this->container->p('proxy.auto_trim'))
+        if ($this->container->getParam('proxy.auto_trim'))
         {
-            $this->http_args = $this->container->s('arr')->trim($this->http_args);
+            $this->http_args = $this->container->getService('arr')->trim($this->http_args);
         }
 
         // Convert empty strings to null values if auto_null setting enabled
-        if ($this->container->p('proxy.auto_null'))
+        if ($this->container->getParam('proxy.auto_null'))
         {
-            $this->http_args = $this->container->s('arr')->convertValues($this->http_args, '', null);
+            $this->http_args = $this->container->getService('arr')->convertValues($this->http_args, '', null);
         }
     }
 
@@ -128,7 +128,7 @@ class Core
 
     public function execute($url, $action, array $args = [])
     {
-        $request = $this->container->s('request');
+        $request = $this->container->getService('request');
 
         $this->request_pool[] = $request;
 
@@ -184,7 +184,7 @@ class Core
 
     public function setPrefix($name, $value)
     {
-        if (!in_array($name, $this->container->p('proxy.prefixes')))
+        if (!in_array($name, $this->container->getParam('proxy.prefixes')))
             throw new ProxyException('Prefix "' . $name . '" is not registered in configuration');
 
         $this->http_prefixes[$name] = $value;
@@ -327,11 +327,11 @@ class Core
     {
         $generated_url = '/' . trim($url, '/');
 
-        if ($this->container->p('proxy.prefixes'))
+        if ($this->container->getParam('proxy.prefixes'))
         {
             if ($prefixes)
             {
-                $prefixes = $this->container->s('arr')->fetch($prefixes, $this->container->p('proxy.prefixes'));
+                $prefixes = $this->container->getService('arr')->fetch($prefixes, $this->container->getParam('proxy.prefixes'));
                 $prefixes = array_merge($this->getPrefix(), $prefixes);
             }
             else

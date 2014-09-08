@@ -14,7 +14,7 @@ trait UpdateTransfer
         if ($this->getProxy()->a('id') === null)
             $this->setErrorMessageAndExit($this->getI18n()->translate('crud.object_not_found'));
 
-        $fields = $this->getContainer()->s('arr')->fetch($this->getProxy()->a(), $this->putFields(), true);
+        $fields = $this->getContainer()->getService('arr')->fetch($this->getProxy()->a(), $this->putFields(), true);
 
         $model = $this->getModel();
 

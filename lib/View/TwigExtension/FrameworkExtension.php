@@ -24,8 +24,8 @@ class FrameworkExtension extends \Twig_Extension
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->proxy = $container->s('proxy');
-        $this->i18n = $container->s('i18n');
+        $this->proxy = $container->getService('proxy');
+        $this->i18n = $container->getService('i18n');
     }
 
     public function getName()
@@ -48,7 +48,7 @@ class FrameworkExtension extends \Twig_Extension
 
     public function param($name)
     {
-        return $this->container->p($name);
+        return $this->container->getParam($name);
     }
 
     public function url($url, $id = null, $query = [], $prefixes = [])

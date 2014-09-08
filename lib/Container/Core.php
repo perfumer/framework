@@ -29,45 +29,6 @@ class Core
     // Parameters array, divided to groups
     protected $params = [];
 
-    /*
-     * s
-     * Shortcut for getService() method
-     *
-     * @param string $name
-     * @return mixed
-     * @access public
-     */
-    public function s($name)
-    {
-        return $this->getService($name);
-    }
-
-    /*
-     * p
-     * Shortcut for getParam() method
-     *
-     * @param string $key
-     * @return mixed
-     * @access public
-     */
-    public function p($key)
-    {
-        return $this->getParam($key);
-    }
-
-    /*
-     * pg
-     * Shortcut for getParamGroup() method
-     *
-     * @param string $group
-     * @return array
-     * @access public
-     */
-    public function pg($group)
-    {
-        return $this->getParamGroup($group);
-    }
-
     /**
      * registerServiceMap
      * Register files containing service definitions.
