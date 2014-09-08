@@ -30,4 +30,9 @@ class CookieHandler extends AbstractHandler
     {
         $this->cookie->delete('_session');
     }
+
+    public function getTokenLifetime()
+    {
+        return $this->cookie_lifetime;
+    }
 }

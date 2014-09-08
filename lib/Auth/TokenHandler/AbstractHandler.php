@@ -9,4 +9,6 @@ abstract class AbstractHandler
     abstract public function setToken($token);
 
     abstract public function deleteToken();
+
+    abstract public function getTokenLifetime();
 }

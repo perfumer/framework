@@ -190,7 +190,39 @@ class DatabaseDriver
         $this->reset(self::STATUS_SIGNED_OUT);
     }
 
-    public function updateSession()
+    protected function startSession()
+    {
+        if ($this->session !== null)
+            $this->session->destroy();
+
+        $this->session = $this->session_service->get();
+
+        $this->updateSessionData();
+
+        $this->token = $this->session->getId();
+
+        $token = new Token();
+        $token->setToken($this->token);
+        $token->setUser($this->user);
+        $token->save();
+
+        // Clear old tokens in the database
+        $old_date = (new \DateTime())->modify('-' . $this->token_handler->getTokenLifetime() . ' second');
+
+        TokenQuery::create()->filterByUpdatedAt($old_date, '<')->delete();
+    }
+
+    protected function updateSession()
+    {
+        $token = TokenQuery::create()->findOneByToken($this->token);
+
+        if ($token)
+            $token->setUpdatedAt(new \DateTime())->save();
+
+        $this->updateSessionData();
+    }
+
+    protected function updateSessionData()
     {
         $this->user->revealRoles();
 
@@ -201,21 +233,25 @@ class DatabaseDriver
             ->set('_user_delegations', $this->user->getDelegations());
     }
 
-    protected function startSession()
+    public function invalidateSessions($user = null)
     {
-        if ($this->session !== null)
-            $this->session->destroy();
+        if ($user === null)
+            $user = $this->user;
 
-        $this->session = $this->session_service->get();
+        $old_date = (new \DateTime())->modify('-' . $this->token_handler->getTokenLifetime() . ' second');
 
-        $this->updateSession();
+        $tokens = TokenQuery::create()
+            ->filterByUser($user)
+            ->filterByUpdatedAt($old_date, '>=')
+            ->find();
 
-        $this->token = $this->session->getId();
+        foreach ($tokens as $token)
+        {
+            $session = $this->session_service->get($token->getToken());
 
-        $token = new Token();
-        $token->setToken($this->token);
-        $token->setUser($this->user);
-        $token->save();
+            if ($session->has('_last_updated'))
+                $session->set('_last_updated', 0);
+        }
     }
 
     protected function reset($status)
