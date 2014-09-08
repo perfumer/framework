@@ -9,7 +9,7 @@ class TemplateController extends CoreController
         parent::before();
 
         if (!method_exists($this, $this->getCurrent()->getAction()))
-            $this->getProxy()->forward('exception/html', 'actionNotFound');
+            $this->getProxy()->forward('exception/page', 'actionNotFound');
 
         $this->getView()->mapGroup('app')->addVar('user', $this->getUser(), 'app');
     }

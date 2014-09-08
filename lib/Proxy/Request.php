@@ -34,7 +34,7 @@ class Request
         }
         catch (\ReflectionException $e)
         {
-            $this->container->s('proxy')->forward('exception/html', 'controllerNotFound');
+            $this->container->s('proxy')->forward('exception/page', 'controllerNotFound');
         }
 
         $request = $this;
