@@ -209,7 +209,7 @@ class DatabaseDriver
         // Clear old tokens in the database
         $old_date = (new \DateTime())->modify('-' . $this->token_handler->getTokenLifetime() . ' second');
 
-        TokenQuery::create()->filterByUpdatedAt($old_date, '<')->delete();
+        TokenQuery::create()->filterByUser($this->user)->filterByUpdatedAt($old_date, '<')->delete();
     }
 
     protected function updateSession()
