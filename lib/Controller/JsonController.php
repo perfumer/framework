@@ -10,6 +10,9 @@ class JsonController extends CoreController
     {
         parent::before();
 
+        if (!method_exists($this, $this->getCurrent()->getAction()))
+            $this->getProxy()->forward('exception/json', 'actionNotFound');
+
         $this->getView()->addVars([
             'status' => true,
             'message' => '',
