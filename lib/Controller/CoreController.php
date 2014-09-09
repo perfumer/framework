@@ -39,6 +39,8 @@ class CoreController
      */
     protected $_view;
 
+    protected $_auth;
+
     /**
      * @var \Perfumer\I18n\Core
      */
@@ -202,6 +204,14 @@ class CoreController
         return $this->_view;
     }
 
+    protected function getAuth()
+    {
+        if ($this->_auth === null)
+            $this->_auth = $this->getContainer()->getService($this->_auth_service_name);
+
+        return $this->_auth;
+    }
+
     /**
      * @return \Perfumer\I18n\Core
      */
@@ -219,7 +229,7 @@ class CoreController
     protected function getUser()
     {
         if ($this->_user === null)
-            $this->_user = $this->getContainer()->getService($this->_auth_service_name)->getUser();
+            $this->_user = $this->getAuth()->getUser();
 
         return $this->_user;
     }
