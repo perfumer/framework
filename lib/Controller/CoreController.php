@@ -146,6 +146,18 @@ class CoreController
     }
 
     /**
+     * Shortcut for I18n translate() method
+     *
+     * @param $key
+     * @param $placeholders
+     * @return string
+     */
+    public function t($key, $placeholders = [])
+    {
+        return $this->getI18n()->translate($key, $placeholders);
+    }
+
+    /**
      * @return Container
      */
     protected function getContainer()

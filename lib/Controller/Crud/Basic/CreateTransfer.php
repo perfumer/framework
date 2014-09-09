@@ -25,7 +25,7 @@ trait CreateTransfer
         if ($this->getView()->getVar('status') === false)
         {
             if (!$this->getView()->getVar('message'))
-                $this->setErrorMessage($this->getI18n()->t('crud.create_errors'));
+                $this->setErrorMessage($this->getI18n()->translate('crud.create_errors'));
         }
         else
         {
@@ -38,7 +38,7 @@ trait CreateTransfer
             if ($model->save())
             {
                 $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                $this->setSuccessMessage($this->getI18n()->t('crud.created'));
+                $this->setSuccessMessage($this->getI18n()->translate('crud.created'));
 
                 $this->postAfterSuccess($model, $fields);
             }

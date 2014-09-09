@@ -46,14 +46,6 @@ class Core
         return $placeholders ? strtr($translation, $placeholders) : $translation;
     }
 
-    /*
-     * Shortcut for translate method
-     */
-    public function t($key, $placeholders = [])
-    {
-        return $this->translate($key, $placeholders);
-    }
-
     public function getLocale()
     {
         return $this->locale;
