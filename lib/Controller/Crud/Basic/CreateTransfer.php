@@ -11,7 +11,7 @@ trait CreateTransfer
     {
         $this->postPermission();
 
-        $fields = $this->getContainer()->getService('arr')->fetch($this->getProxy()->a(), $this->postFields(), true);
+        $fields = $this->getContainer()->getService('arr')->fetch($this->getProxy()->getArg(), $this->postFields(), true);
 
         if (!$model_name = $this->getModelName())
             throw new CrudException('Model name for CRUD actions is not defined');

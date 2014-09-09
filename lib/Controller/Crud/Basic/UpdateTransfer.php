@@ -11,10 +11,10 @@ trait UpdateTransfer
     {
         $this->putPermission();
 
-        if ($this->getProxy()->a('id') === null)
+        if ($this->getProxy()->getArg('id') === null)
             $this->setErrorMessageAndExit($this->getI18n()->translate('crud.object_not_found'));
 
-        $fields = $this->getContainer()->getService('arr')->fetch($this->getProxy()->a(), $this->putFields(), true);
+        $fields = $this->getContainer()->getService('arr')->fetch($this->getProxy()->getArg(), $this->putFields(), true);
 
         $model = $this->getModel();
 

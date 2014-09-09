@@ -169,11 +169,6 @@ class Core
         return $this->request_body;
     }
 
-    public function p($name = null, $default = null)
-    {
-        return $this->getPrefix($name, $default);
-    }
-
     public function getPrefix($name = null, $default = null)
     {
         if ($name === null)
@@ -192,11 +187,6 @@ class Core
         return $this;
     }
 
-    public function i()
-    {
-        return $this->http_id;
-    }
-
     public function getId()
     {
         return $this->http_id;
@@ -207,11 +197,6 @@ class Core
         $this->http_id = $id;
 
         return $this;
-    }
-
-    public function a($name = null, $default = null)
-    {
-        return $this->getArg($name, $default);
     }
 
     public function getArg($name = null, $default = null)
@@ -264,11 +249,6 @@ class Core
         }
 
         return $this;
-    }
-
-    public function q($name = null, $default = null)
-    {
-        return $this->getQuery($name, $default);
     }
 
     public function getQuery($name = null, $default = null)
