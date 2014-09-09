@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer;
+namespace Perfumer\Assets;
 
 use Assetic\Asset\AssetCollection;
 use Assetic\Asset\FileAsset;
@@ -9,7 +9,7 @@ use Assetic\AssetWriter;
 use Assetic\Filter\CssMinFilter;
 use Assetic\Filter\JSMinPlusFilter;
 
-class Assets
+class Core
 {
     protected $source_path;
     protected $web_path;

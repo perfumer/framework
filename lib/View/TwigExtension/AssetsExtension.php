@@ -2,12 +2,12 @@
 
 namespace Perfumer\View\TwigExtension;
 
-use Perfumer\Assets;
+use Perfumer\Assets\Core as Assets;
 
 class AssetsExtension extends \Twig_Extension
 {
     /**
-     * @var \Perfumer\Assets
+     * @var Assets
      */
     protected $assets;
 
