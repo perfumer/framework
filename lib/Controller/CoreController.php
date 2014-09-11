@@ -129,9 +129,9 @@ class CoreController
      * @param $name
      * @return mixed
      */
-    protected function q($name)
+    protected function q($name = null, $default = null)
     {
-        return $this->getProxy()->getQuery($name);
+        return $this->getProxy()->getQuery($name, $default);
     }
 
     /**
@@ -140,9 +140,9 @@ class CoreController
      * @param $name
      * @return mixed
      */
-    protected function a($name)
+    protected function a($name = null, $default = null)
     {
-        return $this->getProxy()->getArg($name);
+        return $this->getProxy()->getArg($name, $default);
     }
 
     /**
