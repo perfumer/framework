@@ -15,6 +15,9 @@ class Core
     public function __construct(I18n $i18n)
     {
         $this->i18n = $i18n;
+
+        class_alias('Perfumer\Validation\Rules\Model', 'Respect\Validation\Rules\Model');
+        class_alias('Perfumer\Validation\Exceptions\ModelException', 'Respect\Validation\Exceptions\ModelException');
     }
 
     public function addRule($field, Validator $validator)
@@ -47,10 +50,7 @@ class Core
 
                         foreach ($validator->getRules() as $rule)
                         {
-                            $name = $rule->getName();
-
-                            if (!$name)
-                                $name = lcfirst(preg_replace('/.*\\\/', '', get_class($rule)));
+                            $name = lcfirst(preg_replace('/.*\\\/', '', get_class($rule)));
 
                             $messages[$name] = $this->i18n->translate('_validation.' . $name);
                         }
