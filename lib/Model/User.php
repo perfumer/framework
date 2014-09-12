@@ -129,7 +129,13 @@ class User extends BaseUser
     public function getDelegatedIds($model, $type = Delegation::TYPE_COMMON)
     {
         if (is_object($model))
+        {
             $model = get_class($model);
+        }
+        else
+        {
+            $model = 'App\\Model\\' . $model;
+        }
 
         if (!isset($this->delegations[$model][$type]))
             return [];
@@ -139,15 +145,19 @@ class User extends BaseUser
 
     public function getDelegatedObjects($model, $type = Delegation::TYPE_COMMON)
     {
-        if (is_object($model))
-            $model = get_class($model);
-
         $ids = $this->getDelegatedIds($model, $type);
 
         if (!$ids)
             return new ObjectCollection();
 
-        $model = $model . 'Query';
+        if (is_object($model))
+        {
+            $model = get_class($model);
+        }
+        else
+        {
+            $model = '\\App\\Model\\' . $model . 'Query';
+        }
 
         return $model::create()->findPks($ids);
     }
