@@ -5,16 +5,16 @@ use Respect\Validation\Rules\AbstractRule;
 
 class Model extends AbstractRule
 {
-    protected $model_name;
+    protected $modelName;
 
-    public function __construct($model_name)
+    public function __construct($modelName)
     {
-        $this->model_name = (string) $model_name;
+        $this->modelName = (string) $modelName;
     }
 
     public function validate($input)
     {
-        $model = '\\App\\Model\\' . $this->model_name . 'Query';
+        $model = '\\App\\Model\\' . $this->modelName . 'Query';
 
         $model = $model::create()->findPk($input);
 
