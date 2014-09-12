@@ -18,6 +18,8 @@ class Core
 
         class_alias('Perfumer\Validation\Rules\Model', 'Respect\Validation\Rules\Model');
         class_alias('Perfumer\Validation\Exceptions\ModelException', 'Respect\Validation\Exceptions\ModelException');
+        class_alias('Perfumer\Validation\Rules\Unique', 'Respect\Validation\Rules\Unique');
+        class_alias('Perfumer\Validation\Exceptions\UniqueException', 'Respect\Validation\Exceptions\UniqueException');
     }
 
     public function addRule($field, Validator $validator)
