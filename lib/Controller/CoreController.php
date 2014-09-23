@@ -97,9 +97,9 @@ class CoreController
     {
     }
 
-    protected function redirect($url)
+    protected function redirect($url, $status_code = 302)
     {
-        $this->getResponse()->addHeader('Location', '/' . ltrim($url, '/'));
+        $this->getResponse()->setStatusCode($status_code)->addHeader('Location', '/' . ltrim($url, '/'));
     }
 
     /**
