@@ -125,6 +125,8 @@ class User extends BaseUser
 
     public function getDelegatedObjects($model, $type = Delegation::TYPE_COMMON)
     {
+        $delegated_ids = $this->getDelegatedIds($model, $type);
+
         if (is_object($model))
         {
             $model = get_class($model);
@@ -134,10 +136,8 @@ class User extends BaseUser
             $model = 'App\\Model\\' . $model;
         }
 
-        return DelegationQuery::create()
-            ->filterByRoleId($this->role_ids)
-            ->filterByModelName($model)
-            ->filterByType($type)
-            ->find();
+        $model .= 'Query';
+
+        return $model::create()->findPks($delegated_ids);
     }
 }
