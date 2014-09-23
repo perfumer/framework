@@ -28,22 +28,20 @@ class Core
         if ($id === null)
             $id = $this->generateId();
 
-        $item = new Item($this, $this->cache, [
+        if (isset($this->items[$id]))
+            return $this->items[$id];
+
+        $this->items[$id] = new Item($this, $this->cache, [
             'id' => $id,
             'lifetime' => $this->lifetime
         ]);
 
-        $this->items[$id] = $item;
-
-        return $item;
+        return $this->items[$id];
     }
 
     public function destroy($id)
     {
-        if (!isset($this->items[$id]))
-            $this->get($id);
-
-        $this->items[$id]->destroy();
+        $this->get($id)->destroy();
     }
 
     protected function generateId()
@@ -56,7 +54,7 @@ class Core
 
             $item = $this->cache->getItem('_session/' . $id);
         }
-        while (!$item->isMiss());
+        while (!$item->isMiss() || isset($this->items[$id]));
 
         return $id;
     }
