@@ -111,7 +111,7 @@ class DatabaseDriver
                 $user = new User();
                 $user->fromArray($data);
                 $user->setPermissions($this->session->get('_user_permissions'));
-                $user->setDelegations($this->session->get('_user_delegations'));
+                $user->setRoleIds($this->session->get('_user_role_ids'));
                 $user->setNew(false);
             }
 
@@ -230,7 +230,7 @@ class DatabaseDriver
             ->set('_last_updated', time())
             ->set('_user', $this->user->toArray())
             ->set('_user_permissions', $this->user->getPermissions())
-            ->set('_user_delegations', $this->user->getDelegations());
+            ->set('_user_role_ids', $this->user->getRoleIds());
     }
 
     public function invalidateSessions($user = null)

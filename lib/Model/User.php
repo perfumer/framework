@@ -3,13 +3,14 @@
 namespace Perfumer\Model;
 
 use App\Model\Base\User as BaseUser;
+use App\Model\DelegationQuery;
 use Propel\Runtime\Collection\ObjectCollection;
 
 class User extends BaseUser
 {
     protected $is_logged = false;
+    protected $role_ids = [];
     protected $permissions = [];
-    protected $delegations = [];
 
     public function isLogged()
     {
@@ -48,13 +49,7 @@ class User extends BaseUser
         if (!is_array($permissions))
             $permissions = [$permissions];
 
-        foreach ($permissions as $permission)
-        {
-            if (in_array($permission, $this->permissions))
-                return true;
-        }
-
-        return false;
+        return array_intersect($this->permissions, $permissions);
     }
 
     public function revealRoles()
@@ -79,27 +74,21 @@ class User extends BaseUser
                         $this->permissions[] = $sub_token;
                 }
             }
-
-            $delegations = $role->getDelegations();
-
-            foreach ($delegations as $delegation)
-            {
-                $key = $delegation->getModelName();
-
-                if (!isset($this->delegations[$key]))
-                    $this->delegations[$key] = [];
-
-                $array = &$this->delegations[$key];
-
-                if (!isset($array[$delegation->getType()]))
-                    $array[$delegation->getType()] = [];
-
-                $array = &$array[$delegation->getType()];
-
-                $array = array_merge($array, $delegation->getModelIds());
-                $array = array_unique($array);
-            }
         }
+
+        $this->role_ids = $roles->getPrimaryKeys();
+    }
+
+    public function getRoleIds()
+    {
+        return $this->role_ids;
+    }
+
+    public function setRoleIds($role_ids)
+    {
+        $this->role_ids = (array) $role_ids;
+
+        return $this;
     }
 
     public function getPermissions()
@@ -110,18 +99,6 @@ class User extends BaseUser
     public function setPermissions($permissions)
     {
         $this->permissions = (array) $permissions;
-
-        return $this;
-    }
-
-    public function getDelegations()
-    {
-        return $this->delegations;
-    }
-
-    public function setDelegations($delegations)
-    {
-        $this->delegations = (array) $delegations;
 
         return $this;
     }
@@ -137,28 +114,30 @@ class User extends BaseUser
             $model = 'App\\Model\\' . $model;
         }
 
-        if (!isset($this->delegations[$model][$type]))
-            return [];
-
-        return $this->delegations[$model][$type];
+        return DelegationQuery::create()
+            ->filterByRoleId($this->role_ids)
+            ->filterByModelName($model)
+            ->filterByType($type)
+            ->select('model_id')
+            ->find()
+            ->getData();
     }
 
     public function getDelegatedObjects($model, $type = Delegation::TYPE_COMMON)
     {
-        $ids = $this->getDelegatedIds($model, $type);
-
-        if (!$ids)
-            return new ObjectCollection();
-
         if (is_object($model))
         {
             $model = get_class($model);
         }
         else
         {
-            $model = '\\App\\Model\\' . $model . 'Query';
+            $model = 'App\\Model\\' . $model;
         }
 
-        return $model::create()->findPks($ids);
+        return DelegationQuery::create()
+            ->filterByRoleId($this->role_ids)
+            ->filterByModelName($model)
+            ->filterByType($type)
+            ->find();
     }
 }
