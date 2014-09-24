@@ -26,7 +26,7 @@ class JsonController extends CoreController
     {
         $body = $this->getView()->serializeVars('json');
 
-        $this->getResponse()->setBody($body);
+        $this->getResponse()->setContent($body);
 
         parent::after();
     }

@@ -28,7 +28,7 @@ class TemplateController extends CoreController
 
         $body = $this->getView()->render();
 
-        $this->getResponse()->setBody($body);
+        $this->getResponse()->setContent($body);
 
         parent::after();
     }

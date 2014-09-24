@@ -5,7 +5,7 @@ namespace Perfumer\Controller;
 use Perfumer\Container\Core as Container;
 use Perfumer\Controller\Exception\ExitActionException;
 use Perfumer\Proxy\Request;
-use Perfumer\Proxy\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class CoreController
 {
@@ -30,7 +30,7 @@ class CoreController
     protected $_current;
 
     /**
-     * @var \Perfumer\Proxy\Response
+     * @var \Symfony\Component\HttpFoundation\Response
      */
     protected $_response;
 
@@ -99,7 +99,7 @@ class CoreController
 
     protected function redirect($url, $status_code = 302)
     {
-        $this->getResponse()->setStatusCode($status_code)->addHeader('Location', '/' . ltrim($url, '/'));
+        $this->getResponse()->setStatusCode($status_code)->headers->set('Location', '/' . ltrim($url, '/'));
     }
 
     /**
@@ -198,7 +198,7 @@ class CoreController
     }
 
     /**
-     * @return \Perfumer\Proxy\Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     protected function getResponse()
     {
