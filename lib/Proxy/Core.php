@@ -112,18 +112,9 @@ class Core
         }
     }
 
-    public function start()
+    public function process()
     {
-        try
-        {
-            $response = $this->execute($this->request_url, $this->request_action, $this->request_args);
-        }
-        catch (ForwardException $e)
-        {
-            return $this->start();
-        }
-
-        return $response;
+        $this->start()->send();
     }
 
     public function execute($url, $action, array $args = [])
@@ -336,5 +327,22 @@ class Core
         }
 
         return $generated_url;
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function start()
+    {
+        try
+        {
+            $response = $this->execute($this->request_url, $this->request_action, $this->request_args);
+        }
+        catch (ForwardException $e)
+        {
+            return $this->start();
+        }
+
+        return $response;
     }
 }
