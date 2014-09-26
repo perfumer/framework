@@ -18,7 +18,7 @@ class Core
     /**
      * @var Request
      */
-    protected $initial;
+    protected $current_initial;
 
     /**
      * @var Request
@@ -135,7 +135,7 @@ class Core
 
     public function forward($url, $action, array $args = [])
     {
-        $this->initial = null;
+        $this->current_initial = null;
 
         $this->next = $this->container->getService('request')->init($url, $action, $args);
 
@@ -150,11 +150,6 @@ class Core
     public function getMain()
     {
         return $this->request_pool[0];
-    }
-
-    public function getInitial()
-    {
-        return $this->initial;
     }
 
     public function getInput()
@@ -352,8 +347,14 @@ class Core
     {
         $this->request_pool[] = $request;
 
-        if ($this->initial === null)
-            $this->initial = $request;
+        if ($this->current_initial === null)
+        {
+            $this->current_initial = $request;
+        }
+        else
+        {
+            $request->setInitial($this->current_initial);
+        }
 
         try
         {

@@ -4,6 +4,11 @@ namespace Perfumer\Proxy;
 
 class Request
 {
+    /**
+     * @var Request
+     */
+    protected $initial;
+
     protected $url;
     protected $args;
     protected $controller;
@@ -19,6 +24,23 @@ class Request
         $this->controller = 'App\\Controller\\' . implode('\\', array_map('ucfirst', $path)) . 'Controller';
 
         return $this;
+    }
+
+    public function setInitial(Request $request)
+    {
+        $this->initial = $request;
+
+        return $this;
+    }
+
+    public function getInitial()
+    {
+        return $this->initial;
+    }
+
+    public function isInitial()
+    {
+        return $this->initial !== null;
     }
 
     public function getUrl()

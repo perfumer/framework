@@ -22,11 +22,6 @@ class CoreController
     /**
      * @var \Perfumer\Proxy\Request
      */
-    protected $_initial;
-
-    /**
-     * @var \Perfumer\Proxy\Request
-     */
     protected $_current;
 
     /**
@@ -62,7 +57,6 @@ class CoreController
     {
         $this->_container = $container;
         $this->_proxy = $container->getService('proxy');
-        $this->_initial = $this->_proxy->getInitial();
         $this->_current = $request;
         $this->_response = $response;
     }
@@ -186,7 +180,9 @@ class CoreController
      */
     protected function getInitial()
     {
-        return $this->_initial;
+        $current = $this->getCurrent();
+
+        return $current->isInitial() ? $current : $current->getInitial();
     }
 
     /**
