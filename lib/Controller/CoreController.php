@@ -47,18 +47,24 @@ class CoreController
     protected $_user;
 
     /**
+     * @var \ReflectionClass
+     */
+    protected $_reflection_class;
+
+    /**
      * Default name of Auth service
      *
      * @var string
      */
     protected $_auth_service_name = 'auth';
 
-    public function __construct(Container $container, Request $request, Response $response)
+    public function __construct(Container $container, Request $request, Response $response, \ReflectionClass $reflection_class)
     {
         $this->_container = $container;
         $this->_proxy = $container->getService('proxy');
         $this->_current = $request;
         $this->_response = $response;
+        $this->_reflection_class = $reflection_class;
     }
 
     public function execute()
@@ -68,11 +74,9 @@ class CoreController
         $action = $this->getCurrent()->getAction();
         $args = $this->getCurrent()->getArgs();
 
-        $reflection_class = new \ReflectionClass($this);
-
         try
         {
-            $reflection_class->getMethod($action)->invokeArgs($this, $args);
+            $this->_reflection_class->getMethod($action)->invokeArgs($this, $args);
         }
         catch (ExitActionException $e)
         {

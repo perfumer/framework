@@ -367,7 +367,7 @@ class Core
 
         $response = $this->container->getService('response');
 
-        $controller = $reflection_class->newInstance($this->container, $request, $response);
+        $controller = $reflection_class->newInstance($this->container, $request, $response, $reflection_class);
 
         return $reflection_class->getMethod('execute')->invoke($controller);
     }
