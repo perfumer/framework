@@ -8,15 +8,24 @@ use Perfumer\Proxy\Exception\ProxyException;
 
 class Core
 {
+    /**
+     * @var Container
+     */
     protected $container;
-    protected $request_pool = [];
-    protected $request_main;
-    protected $request_initial;
-    protected $request_body;
 
-    protected $request_url;
-    protected $request_action;
-    protected $request_args = [];
+    protected $request_pool = [];
+
+    /**
+     * @var Request
+     */
+    protected $initial;
+
+    /**
+     * @var Request
+     */
+    protected $next;
+
+    protected $input;
 
     protected $http_prefixes = [];
     protected $http_id;
@@ -26,11 +35,11 @@ class Core
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->request_action = strtolower($_SERVER['REQUEST_METHOD']);
+        $action = strtolower($_SERVER['REQUEST_METHOD']);
 
         if ($_SERVER['PATH_INFO'] == '/')
         {
-            $this->request_url = $this->container->getParam('proxy.default_url');
+            $url = $container->getParam('proxy.default_url');
         }
         else
         {
@@ -43,7 +52,7 @@ class Core
                 $url = substr($url, 0, $hyphen_pos);
             }
 
-            if ($prefixes = $this->container->getParam('proxy.prefixes'))
+            if ($prefixes = $container->getParam('proxy.prefixes'))
             {
                 $url = explode('/', $url);
 
@@ -56,7 +65,7 @@ class Core
 
                 if (count($prefixes) >= count($url))
                 {
-                    $url = $this->container->getParam('proxy.default_url');
+                    $url = $container->getParam('proxy.default_url');
                 }
                 else
                 {
@@ -64,18 +73,18 @@ class Core
                     $url = implode('/', $url);
                 }
             }
-
-            $this->request_url = $url;
         }
 
-        $this->request_body = file_get_contents("php://input");
+        $this->next = $container->getService('request')->init($url, $action);
 
-        $data_type = $this->container->getParam('proxy.data_type');
+        $this->input = file_get_contents("php://input");
+
+        $data_type = $container->getParam('proxy.data_type');
 
         // Get query parameters and args depending from type of data in the http request body
         if ($data_type == 'query_string')
         {
-            switch ($this->request_action)
+            switch ($action)
             {
                 case 'get':
                     $this->http_query = $_GET;
@@ -86,14 +95,14 @@ class Core
                     break;
                 default:
                     $this->http_query = $_GET;
-                    parse_str($this->getRequestBody(), $this->http_args);
+                    parse_str($this->getInput(), $this->http_args);
                     break;
             }
         }
         else if ($data_type == 'json')
         {
             $this->http_query = $_GET;
-            $this->http_args = $this->getRequestBody() ? json_decode($this->getRequestBody(), true) : [];
+            $this->http_args = $this->getInput() ? json_decode($this->getInput(), true) : [];
 
             if (!is_array($this->http_args))
                 $this->http_args = [];
@@ -102,13 +111,13 @@ class Core
         // Trim all args if auto_trim setting enabled
         if ($this->container->getParam('proxy.auto_trim'))
         {
-            $this->http_args = $this->container->getService('arr')->trim($this->http_args);
+            $this->http_args = $container->getService('arr')->trim($this->http_args);
         }
 
         // Convert empty strings to null values if auto_null setting enabled
         if ($this->container->getParam('proxy.auto_null'))
         {
-            $this->http_args = $this->container->getService('arr')->convertValues($this->http_args, '', null);
+            $this->http_args = $container->getService('arr')->convertValues($this->http_args, '', null);
         }
     }
 
@@ -119,23 +128,16 @@ class Core
 
     public function execute($url, $action, array $args = [])
     {
-        $request = $this->container->getService('request');
+        $request = $this->container->getService('request')->init($url, $action, $args);
 
-        $this->request_pool[] = $request;
-
-        if ($this->request_initial === null)
-            $this->request_initial = $request;
-
-        return $request->execute($url, $action, $args);
+        return $this->executeController($request);
     }
 
     public function forward($url, $action, array $args = [])
     {
-        $this->request_initial = null;
+        $this->initial = null;
 
-        $this->request_url = $url;
-        $this->request_action = $action;
-        $this->request_args = $args;
+        $this->next = $this->container->getService('request')->init($url, $action, $args);
 
         throw new ForwardException();
     }
@@ -145,19 +147,19 @@ class Core
         return $this->request_pool;
     }
 
-    public function getRequestMain()
+    public function getMain()
     {
         return $this->request_pool[0];
     }
 
-    public function getRequestInitial()
+    public function getInitial()
     {
-        return $this->request_initial;
+        return $this->initial;
     }
 
-    public function getRequestBody()
+    public function getInput()
     {
-        return $this->request_body;
+        return $this->input;
     }
 
     public function getPrefix($name = null, $default = null)
@@ -336,7 +338,7 @@ class Core
     {
         try
         {
-            $response = $this->execute($this->request_url, $this->request_action, $this->request_args);
+            $response = $this->executeRequest($this->next);
         }
         catch (ForwardException $e)
         {
@@ -344,5 +346,33 @@ class Core
         }
 
         return $response;
+    }
+
+    protected function executeRequest(Request $request)
+    {
+        return $this->executeController($request);
+    }
+
+    protected function executeController(Request $request)
+    {
+        $this->request_pool[] = $request;
+
+        if ($this->initial === null)
+            $this->initial = $request;
+
+        try
+        {
+            $reflection_class = new \ReflectionClass($request->getController());
+        }
+        catch (\ReflectionException $e)
+        {
+            $this->forward('exception/page', 'controllerNotFound');
+        }
+
+        $response = $this->container->getService('response');
+
+        $controller = $reflection_class->newInstance($this->container, $request, $response);
+
+        return $reflection_class->getMethod('execute')->invoke($controller);
     }
 }

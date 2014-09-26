@@ -62,7 +62,7 @@ class CoreController
     {
         $this->_container = $container;
         $this->_proxy = $container->getService('proxy');
-        $this->_initial = $this->_proxy->getRequestInitial();
+        $this->_initial = $this->_proxy->getInitial();
         $this->_current = $request;
         $this->_response = $response;
     }
@@ -178,7 +178,7 @@ class CoreController
      */
     protected function getMain()
     {
-        return $this->getProxy()->getRequestMain();
+        return $this->getProxy()->getMain();
     }
 
     /**

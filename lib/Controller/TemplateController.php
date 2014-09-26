@@ -26,9 +26,9 @@ class TemplateController extends CoreController
             'current' => $current
         ], 'app');
 
-        $body = $this->getView()->render();
+        $content = $this->getView()->render();
 
-        $this->getResponse()->setContent($body);
+        $this->getResponse()->setContent($content);
 
         parent::after();
     }

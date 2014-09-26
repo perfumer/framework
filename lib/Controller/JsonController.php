@@ -24,9 +24,9 @@ class JsonController extends CoreController
 
     protected function after()
     {
-        $body = $this->getView()->serializeVars('json');
+        $content = $this->getView()->serializeVars('json');
 
-        $this->getResponse()->setContent($body);
+        $this->getResponse()->setContent($content);
 
         parent::after();
     }
