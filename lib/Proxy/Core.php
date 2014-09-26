@@ -338,7 +338,7 @@ class Core
     {
         try
         {
-            $response = $this->executeRequest($this->next);
+            $response = $this->executeController($this->next);
         }
         catch (ForwardException $e)
         {
@@ -346,11 +346,6 @@ class Core
         }
 
         return $response;
-    }
-
-    protected function executeRequest(Request $request)
-    {
-        return $this->executeController($request);
     }
 
     protected function executeController(Request $request)
