@@ -97,7 +97,7 @@ class CoreController
 
     protected function redirect($url, $status_code = 302)
     {
-        $this->getProxy()->forward('exception/page', 'redirect', [$url, $status_code]);
+        $this->getProxy()->forward('exception/page', 'location', [$url, $status_code]);
     }
 
     /**
