@@ -121,7 +121,7 @@ class Core
         }
     }
 
-    public function process()
+    public function run()
     {
         $this->start()->send();
     }
