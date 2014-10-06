@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CoreCommand
 {
     /**
-     * @var \Perfumer\Container\Core
+     * @var Container
      */
     protected $_container;
 
@@ -25,21 +25,15 @@ class CoreCommand
     protected $_current;
 
     /**
-     * @var OutputInterface
-     */
-    protected $_output;
-
-    /**
      * @var \ReflectionClass
      */
     protected $_reflection_class;
 
-    public function __construct(Container $container, Request $request, OutputInterface $output, \ReflectionClass $reflection_class)
+    public function __construct(Container $container, Request $request, \ReflectionClass $reflection_class)
     {
         $this->_container = $container;
         $this->_proxy = $container->getService('console.proxy');
         $this->_current = $request;
-        $this->_output = $output;
         $this->_reflection_class = $reflection_class;
     }
 
@@ -127,6 +121,6 @@ class CoreCommand
      */
     protected function getOutput()
     {
-        return $this->_output;
+        return $this->getProxy()->getOutput();
     }
 }

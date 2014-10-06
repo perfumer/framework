@@ -67,6 +67,16 @@ class Proxy
         throw new ForwardException();
     }
 
+    public function getInput()
+    {
+        return $this->input;
+    }
+
+    public function getOutput()
+    {
+        return $this->output;
+    }
+
     public function getRequestPool()
     {
         return $this->request_pool;
@@ -77,9 +87,6 @@ class Proxy
         return $this->request_pool[0];
     }
 
-    /**
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
     public function start()
     {
         try
@@ -114,7 +121,7 @@ class Proxy
             $this->forward('exception', 'commandNotFound');
         }
 
-        $command = $reflection_class->newInstance($this->container, $request, $this->output, $reflection_class);
+        $command = $reflection_class->newInstance($this->container, $request, $reflection_class);
 
         return $reflection_class->getMethod('execute')->invoke($command);
     }
