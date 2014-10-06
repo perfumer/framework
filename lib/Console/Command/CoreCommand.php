@@ -75,6 +75,17 @@ class CoreCommand
     }
 
     /**
+     * Shortcut for Symfony Command class getHelper() method
+     *
+     * @param $name
+     * @return mixed
+     */
+    protected function getHelper($name)
+    {
+        return $this->getContainer()->getService('console.single_application_command')->getHelper($name);
+    }
+
+    /**
      * @return Container
      */
     protected function getContainer()
