@@ -5,7 +5,6 @@ namespace Perfumer\Console\Command;
 use Perfumer\Container\Core as Container;
 use Perfumer\Console\Exception\ExitActionException;
 use Perfumer\Console\Request;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class CoreCommand
 {
@@ -128,7 +127,15 @@ class CoreCommand
     }
 
     /**
-     * @return OutputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface
+     */
+    protected function getInput()
+    {
+        return $this->getProxy()->getInput();
+    }
+
+    /**
+     * @return \Symfony\Component\Console\Output\OutputInterface
      */
     protected function getOutput()
     {
