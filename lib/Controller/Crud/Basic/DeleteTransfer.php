@@ -16,9 +16,7 @@ trait DeleteTransfer
         $this->deleteValidate($model);
         $this->deletePreRemove($model);
 
-        $model->delete();
-
-        if ($model->isDeleted())
+        if ($this->deleteAction($model))
         {
             $this->deleteAfterSuccess($model);
 
@@ -36,6 +34,13 @@ trait DeleteTransfer
 
     protected function deletePreRemove($model)
     {
+    }
+
+    protected function deleteAction($model)
+    {
+        $model->delete();
+
+        return $model->isDeleted();
     }
 
     protected function deleteAfterSuccess($model)
