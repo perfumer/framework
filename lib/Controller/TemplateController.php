@@ -4,6 +4,8 @@ namespace Perfumer\Controller;
 
 class TemplateController extends CoreController
 {
+    protected $_rendering = true;
+
     protected function before()
     {
         parent::before();
@@ -16,20 +18,33 @@ class TemplateController extends CoreController
 
     protected function after()
     {
-        $current = $this->getCurrent();
+        if ($this->getRendering())
+        {
+            $current = $this->getCurrent();
 
-        $this->getView()->setTemplateIfNotDefined($current->getUrl() . '/' . $current->getAction());
+            $this->getView()->setTemplateIfNotDefined($current->getUrl() . '/' . $current->getAction());
 
-        $this->getView()->addVars([
-            'main' => $this->getMain(),
-            'initial' => $this->getInitial(),
-            'current' => $current
-        ], 'app');
+            $this->getView()->addVars([
+                'main' => $this->getMain(),
+                'initial' => $this->getInitial(),
+                'current' => $current
+            ], 'app');
 
-        $content = $this->getView()->render();
+            $content = $this->getView()->render();
 
-        $this->getResponse()->setContent($content);
+            $this->getResponse()->setContent($content);
+        }
 
         parent::after();
+    }
+
+    protected function getRendering()
+    {
+        return $this->_rendering;
+    }
+
+    protected function setRendering($rendering)
+    {
+        $this->_rendering = $rendering;
     }
 }
