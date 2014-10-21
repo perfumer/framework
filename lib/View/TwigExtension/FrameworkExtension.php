@@ -36,6 +36,7 @@ class FrameworkExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
+            new \Twig_SimpleFunction('request', [$this, 'request']),
             new \Twig_SimpleFunction('param', [$this, 'param']),
             new \Twig_SimpleFunction('url', [$this, 'url']),
             new \Twig_SimpleFunction('prefix', [$this, 'prefix']),
@@ -44,6 +45,13 @@ class FrameworkExtension extends \Twig_Extension
             new \Twig_SimpleFunction('arg', [$this, 'arg']),
             new \Twig_SimpleFunction('t', [$this, 't'])
         ];
+    }
+
+    public function request($url, $action, array $args = [])
+    {
+        $response = $this->proxy->execute($url, $action, $args);
+
+        return $response->getContent();
     }
 
     public function param($name)
