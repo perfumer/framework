@@ -65,7 +65,7 @@ trait CreateTransfer
             $attachment->setPath($path[0] . '.' . $file->getExtension());
 
             if ($this->getUser()->isLogged())
-                $attachment->setUser($this->getUser());
+                $attachment->setCreator($this->getUser());
 
             if (isset($_POST['model_id']))
                 $attachment->setModelId((int) $_POST['model_id']);
