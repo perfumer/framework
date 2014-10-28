@@ -7,6 +7,8 @@ use Propel\Runtime\Map\TableMap;
 
 trait UpdateTransfer
 {
+    protected $old_model;
+
     public function put()
     {
         $this->putPermission();
@@ -27,6 +29,8 @@ trait UpdateTransfer
         }
         else
         {
+            $this->old_model = clone $model;
+
             $this->putPrePersist($model, $fields);
 
             $model->fromArray($fields, TableMap::TYPE_FIELDNAME);
