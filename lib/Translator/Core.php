@@ -1,9 +1,9 @@
 <?php
 
-namespace Perfumer\I18n;
+namespace Perfumer\Translator;
 
-use App\Model\I18nQuery;
-use Perfumer\I18n\Exception\I18nException;
+use App\Model\TranslationQuery;
+use Perfumer\Translator\Exception\TranslatorException;
 use Stash\Pool;
 
 class Core
@@ -25,12 +25,12 @@ class Core
     public function translate($key, $placeholders = [])
     {
         if ($this->locale === null)
-            throw new I18nException('Translation locale is not defined.');
+            throw new TranslatorException('Translation locale is not defined.');
 
         list($group, $name) = $this->extractTranslationKey($key);
 
         if ($name === null && $this->active_group === null)
-            throw new I18nException('Active group is not set for using short syntax or you have forgotten to specify name of translation phrase.');
+            throw new TranslatorException('Active group is not set for using short syntax or you have forgotten to specify name of translation phrase.');
 
         if ($name === null)
         {
@@ -74,11 +74,11 @@ class Core
         if (!isset($this->translations[$this->locale][$group]))
             $this->translations[$this->locale][$group] = [];
 
-        $cache = $this->cache->getItem('i18n/' . $this->locale . '/' . $group);
+        $cache = $this->cache->getItem(['_translator', $this->locale, $group]);
 
         if ($cache->isMiss())
         {
-            $translations = I18nQuery::create()
+            $translations = TranslationQuery::create()
                 ->filterByGroup($group)
                 ->joinWithI18n($this->locale)
                 ->find();
@@ -101,7 +101,7 @@ class Core
         $parts = explode('.', $key, 2);
 
         if (!$parts[0])
-            throw new I18nException('Translation group can not be empty. This usually happens when you try to translate empty string or a string starting with dot.');
+            throw new TranslatorException('Translation group can not be empty. This usually happens when you try to translate empty string or a string starting with dot.');
 
         return $parts;
     }

@@ -2,19 +2,19 @@
 
 namespace Perfumer\Validation;
 
-use Perfumer\I18n\Core as I18n;
+use Perfumer\Translator\Core as Translator;
 use Respect\Validation\Validator;
 
 class Core
 {
-    protected $i18n;
+    protected $translator;
 
     protected $rules = [];
     protected $messages = [];
 
-    public function __construct(I18n $i18n)
+    public function __construct(Translator $translator)
     {
-        $this->i18n = $i18n;
+        $this->translator = $translator;
 
         class_alias('Perfumer\Validation\Rules\Model', 'Respect\Validation\Rules\Model');
         class_alias('Perfumer\Validation\Exceptions\ModelException', 'Respect\Validation\Exceptions\ModelException');
@@ -54,7 +54,7 @@ class Core
                         {
                             $name = lcfirst(preg_replace('/.*\\\/', '', get_class($rule)));
 
-                            $messages[$name] = $this->i18n->translate('_validation.' . $name);
+                            $messages[$name] = $this->translator->translate('_validation.' . $name);
                         }
 
                         foreach ($e->findMessages($messages) as $message)

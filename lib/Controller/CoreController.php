@@ -37,9 +37,9 @@ class CoreController
     protected $_auth;
 
     /**
-     * @var \Perfumer\I18n\Core
+     * @var \Perfumer\Translator\Core
      */
-    protected $_i18n;
+    protected $_translator;
 
     /**
      * @var \App\Model\User
@@ -144,7 +144,7 @@ class CoreController
     }
 
     /**
-     * Shortcut for I18n translate() method
+     * Shortcut for Translator translate() method
      *
      * @param $key
      * @param $placeholders
@@ -152,7 +152,7 @@ class CoreController
      */
     public function t($key, $placeholders = [])
     {
-        return $this->getI18n()->translate($key, $placeholders);
+        return $this->getTranslator()->translate($key, $placeholders);
     }
 
     /**
@@ -225,14 +225,14 @@ class CoreController
     }
 
     /**
-     * @return \Perfumer\I18n\Core
+     * @return \Perfumer\Translator\Core
      */
-    protected function getI18n()
+    protected function getTranslator()
     {
-        if ($this->_i18n === null)
-            $this->_i18n = $this->getContainer()->getService('i18n');
+        if ($this->_translator === null)
+            $this->_translator = $this->getContainer()->getService('translator');
 
-        return $this->_i18n;
+        return $this->_translator;
     }
 
     /**

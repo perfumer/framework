@@ -2,7 +2,6 @@
 
 namespace Perfumer\Controller\Crud\Basic;
 
-use Perfumer\Controller\Exception\CrudException;
 use Propel\Runtime\Map\TableMap;
 
 trait UpdateTransfer
@@ -14,7 +13,7 @@ trait UpdateTransfer
         $this->putPermission();
 
         if ($this->getProxy()->getArg('id') === null)
-            $this->setErrorMessageAndExit($this->getI18n()->translate('crud.object_not_found'));
+            $this->setErrorMessageAndExit($this->getTranslator()->translate('crud.object_not_found'));
 
         $fields = $this->getContainer()->getService('arr')->fetch($this->getProxy()->getArg(), $this->putFields(), true);
 
@@ -25,7 +24,7 @@ trait UpdateTransfer
         if ($this->getView()->getVar('status') === false)
         {
             if (!$this->getView()->getVar('message'))
-                $this->setErrorMessage($this->getI18n()->translate('crud.update_errors'));
+                $this->setErrorMessage($this->getTranslator()->translate('crud.update_errors'));
         }
         else
         {
@@ -40,7 +39,7 @@ trait UpdateTransfer
             if ($model->save() || count($model->getModifiedColumns()) == 0)
             {
                 $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                $this->setSuccessMessage($this->getI18n()->translate('crud.updated'));
+                $this->setSuccessMessage($this->getTranslator()->translate('crud.updated'));
 
                 $this->putAfterSuccess($model, $fields);
             }

@@ -21,7 +21,7 @@ trait CrudSettings
         $model = $model_query::create()->findPk($this->getProxy()->getArg('id'));
 
         if (!$model)
-            $this->setErrorMessageAndExit($this->getI18n()->translate('crud.object_not_found'));
+            $this->setErrorMessageAndExit($this->getTranslator()->translate('crud.object_not_found'));
 
         return $model;
     }
