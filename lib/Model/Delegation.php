@@ -6,5 +6,5 @@ use App\Model\Base\Delegation as BaseDelegation;
 
 class Delegation extends BaseDelegation
 {
-    const TYPE_COMMON = 0;
+    const MOD_EMPTY = 0;
 }

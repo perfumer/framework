@@ -7,7 +7,7 @@ use Propel\Runtime\Connection\ConnectionInterface;
 
 class Attachment extends BaseAttachment
 {
-    const PURPOSE_COMMON = 0;
+    const MOD_EMPTY = 0;
 
     public function postDelete(ConnectionInterface $con = null)
     {

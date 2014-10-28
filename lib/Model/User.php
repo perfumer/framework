@@ -103,7 +103,7 @@ class User extends BaseUser
         return $this;
     }
 
-    public function getDelegatedIds($model, $type = Delegation::TYPE_COMMON)
+    public function getDelegatedIds($model, $type = Delegation::MOD_EMPTY)
     {
         if (is_object($model))
         {
@@ -123,7 +123,7 @@ class User extends BaseUser
             ->getData();
     }
 
-    public function getDelegatedObjects($model, $type = Delegation::TYPE_COMMON)
+    public function getDelegatedObjects($model, $type = Delegation::MOD_EMPTY)
     {
         $delegated_ids = $this->getDelegatedIds($model, $type);
 
