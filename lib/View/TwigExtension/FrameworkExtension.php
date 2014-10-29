@@ -17,15 +17,15 @@ class FrameworkExtension extends \Twig_Extension
     protected $proxy;
 
     /**
-     * @var \Perfumer\I18n\Core
+     * @var \Perfumer\Translator\Core
      */
-    protected $i18n;
+    protected $translator;
 
     public function __construct(Container $container)
     {
         $this->container = $container;
         $this->proxy = $container->getService('proxy');
-        $this->i18n = $container->getService('i18n');
+        $this->translator = $container->getService('translator');
     }
 
     public function getName()
@@ -86,6 +86,6 @@ class FrameworkExtension extends \Twig_Extension
 
     public function t($key, $placeholders = [])
     {
-        return $this->i18n->translate($key, $placeholders);
+        return $this->translator->translate($key, $placeholders);
     }
 }

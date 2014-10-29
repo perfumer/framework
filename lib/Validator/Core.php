@@ -2,19 +2,19 @@
 
 namespace Perfumer\Validator;
 
-use Perfumer\I18n\Core as I18n;
+use Perfumer\Translator\Core as Translator;
 use Perfumer\Validator\Constraint\AbstractConstraint;
 
 class Core
 {
-    protected $i18n;
+    protected $translator;
 
     protected $rules = [];
     protected $messages = [];
 
-    public function __construct(I18n $i18n)
+    public function __construct(Translator $translator)
     {
-        $this->i18n = $i18n;
+        $this->translator = $translator;
     }
 
     public function addRule($field, AbstractConstraint $constraint)
@@ -54,9 +54,9 @@ class Core
                             $message = $constraint->getMessage();
 
                             if (count($placeholders) > 0)
-                                $this->messages[$field][] = $this->i18n->translate($message, $placeholders);
+                                $this->messages[$field][] = $this->translator->translate($message, $placeholders);
                             else
-                                $this->messages[$field][] = $this->i18n->translate($message);
+                                $this->messages[$field][] = $this->translator->translate($message);
                         }
                     }
                 }
