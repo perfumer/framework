@@ -103,7 +103,7 @@ class User extends BaseUser
         return $this;
     }
 
-    public function getDelegatedIds($model, $type = Delegation::MOD_EMPTY)
+    public function getDelegatedIds($model, $modifier = Delegation::MOD_EMPTY)
     {
         if (is_object($model))
         {
@@ -117,15 +117,15 @@ class User extends BaseUser
         return DelegationQuery::create()
             ->filterByRoleId($this->role_ids)
             ->filterByModelName($model)
-            ->filterByType($type)
+            ->filterByModifier($modifier)
             ->select('model_id')
             ->find()
             ->getData();
     }
 
-    public function getDelegatedObjects($model, $type = Delegation::MOD_EMPTY)
+    public function getDelegatedObjects($model, $modifier = Delegation::MOD_EMPTY)
     {
-        $delegated_ids = $this->getDelegatedIds($model, $type);
+        $delegated_ids = $this->getDelegatedIds($model, $modifier);
 
         if (is_object($model))
         {
