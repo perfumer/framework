@@ -74,44 +74,56 @@ class Core
 
         $definition = $this->service_map[$name];
 
+        // Shared services are preserved through whole request
         if (isset($definition['shared']) && $definition['shared'] === true && isset($this->services[$name]))
             return $this->services[$name];
 
+        // Alias is a link to another definition
         if (isset($definition['alias']))
             return $this->getService($definition['alias']);
 
-        $arguments = [];
-
-        if (isset($definition['arguments']))
-            $arguments = $this->resolveArrayOfArguments($definition['arguments']);
-
-        if (isset($definition['static']))
+        // "Init" directive is a callable that returns instance of service
+        if (isset($definition['init']) && is_callable($definition['init']))
         {
-            $service_class = call_user_func_array([$definition['class'], $definition['static']], $arguments);
-
-            if ($service_class === false)
-                throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+            $service_class = $definition['init']($this);
         }
         else
         {
-            try
-            {
-                $reflection_class = new \ReflectionClass($definition['class']);
-            }
-            catch (\ReflectionException $e)
-            {
-                throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
-            }
+            $arguments = [];
 
-            $service_class = $reflection_class->newInstanceArgs($arguments);
+            // Array of arguments which are given to constructor method
+            if (isset($definition['arguments']))
+                $arguments = $this->resolveArrayOfArguments($definition['arguments']);
+
+            // Service is made by static method
+            if (isset($definition['static']))
+            {
+                $service_class = call_user_func_array([$definition['class'], $definition['static']], $arguments);
+
+                if ($service_class === false)
+                    throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+            }
+            else
+            {
+                // Service is made by normal constructor
+                try
+                {
+                    $reflection_class = new \ReflectionClass($definition['class']);
+                }
+                catch (\ReflectionException $e)
+                {
+                    throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+                }
+
+                $service_class = $reflection_class->newInstanceArgs($arguments);
+            }
         }
 
+        // "After" directive is a callable that is called after instantiation of service object
         if (isset($definition['after']) && is_callable($definition['after']))
-        {
-            $callable = $definition['after'];
-            $callable($this, $service_class);
-        }
+            $definition['after']($this, $service_class);
 
+        // Preserve shared service
         if (isset($definition['shared']) && $definition['shared'] === true)
             $this->services[$name] = $service_class;
 
