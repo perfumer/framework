@@ -85,9 +85,9 @@ class Core
         if (isset($definition['arguments']))
             $arguments = $this->resolveArrayOfArguments($definition['arguments']);
 
-        if (isset($definition['static_init']))
+        if (isset($definition['static']))
         {
-            $service_class = call_user_func_array([$definition['class'], $definition['static_init']], $arguments);
+            $service_class = call_user_func_array([$definition['class'], $definition['static']], $arguments);
 
             if ($service_class === false)
                 throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
