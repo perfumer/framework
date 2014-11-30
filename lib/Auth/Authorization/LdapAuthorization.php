@@ -1,14 +1,15 @@
 <?php
 
-namespace Perfumer\Auth\Driver;
+namespace Perfumer\Auth\Authorization;
 
 use App\Model\User;
 use App\Model\UserQuery;
+use Perfumer\Auth\Authentication;
 use Perfumer\Auth\Exception\AuthException;
 use Perfumer\Auth\TokenHandler\AbstractHandler as TokenHandler;
 use Perfumer\Session\Core as SessionService;
 
-class LdapDriver extends DatabaseDriver
+class LdapAuthorization extends Authentication
 {
     protected $ldap_hostname;
     protected $ldap_port = 636;
