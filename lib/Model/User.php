@@ -4,6 +4,7 @@ namespace Perfumer\Model;
 
 use App\Model\Base\User as BaseUser;
 use App\Model\DelegationQuery;
+use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Collection\ObjectCollection;
 
 class User extends BaseUser
@@ -139,5 +140,45 @@ class User extends BaseUser
         $model .= 'Query';
 
         return $model::create()->findPks($delegated_ids);
+    }
+
+    public function addDelegatedObjects(ObjectCollection $collection, $modifier = Delegation::MOD_EMPTY)
+    {
+        foreach ($collection as $model)
+        {
+            $object = DelegationQuery::create()
+                ->filterByModelName(get_class($model))
+                ->filterByModelId($model->getId())
+                ->filterByModifier($modifier)
+                ->findOneOrCreate();
+
+            $object->save();
+        }
+
+        return $this;
+    }
+
+    public function setDelegatedObjects(ObjectCollection $collection, $modifier = Delegation::MOD_EMPTY)
+    {
+        DelegationQuery::create()
+            ->filterByModelName(get_class($collection->get(0)))
+            ->filterByModelId($collection->getPrimaryKeys(), Criteria::NOT_IN)
+            ->filterByModifier($modifier)
+            ->delete();
+
+        $this->addDelegatedObjects($collection, $modifier);
+
+        return $this;
+    }
+
+    public function deleteDelegatedObjects(ObjectCollection $collection, $modifier = Delegation::MOD_EMPTY)
+    {
+        DelegationQuery::create()
+            ->filterByModelName(get_class($collection->get(0)))
+            ->filterByModelId($collection->getPrimaryKeys())
+            ->filterByModifier($modifier)
+            ->delete();
+
+        return $this;
     }
 }
