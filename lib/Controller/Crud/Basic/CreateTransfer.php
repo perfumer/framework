@@ -3,6 +3,7 @@
 namespace Perfumer\Controller\Crud\Basic;
 
 use Perfumer\Controller\Exception\CrudException;
+use Perfumer\Helper\Arr;
 use Propel\Runtime\Map\TableMap;
 
 trait CreateTransfer
@@ -11,7 +12,7 @@ trait CreateTransfer
     {
         $this->postPermission();
 
-        $fields = $this->getContainer()->getService('arr')->fetch($this->getProxy()->getArg(), $this->postFields(), true);
+        $fields = Arr::fetch($this->getProxy()->getArg(), $this->postFields(), true);
 
         if (!$model_name = $this->getModelName())
             throw new CrudException('Model name for CRUD actions is not defined');

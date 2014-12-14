@@ -2,6 +2,7 @@
 
 namespace Perfumer\Controller\Crud\Basic;
 
+use Perfumer\Helper\Arr;
 use Propel\Runtime\Map\TableMap;
 
 trait UpdateTransfer
@@ -15,7 +16,7 @@ trait UpdateTransfer
         if ($this->getProxy()->getArg('id') === null)
             $this->setErrorMessageAndExit($this->getTranslator()->translate('crud.object_not_found'));
 
-        $fields = $this->getContainer()->getService('arr')->fetch($this->getProxy()->getArg(), $this->putFields(), true);
+        $fields = Arr::fetch($this->getProxy()->getArg(), $this->putFields(), true);
 
         $model = $this->getModel();
 

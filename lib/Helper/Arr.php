@@ -4,7 +4,7 @@ namespace Perfumer\Helper;
 
 class Arr
 {
-    public function fetch(array $array, array $keys, $add_defaults = false, $default_value = null)
+    public static function fetch(array $array, array $keys, $add_defaults = false, $default_value = null)
     {
         $keys = array_fill_keys($keys, $default_value);
 
@@ -14,28 +14,28 @@ class Arr
         return array_intersect_key($array, $keys);
     }
 
-    public function deleteKeys(array $array, array $keys)
+    public static function deleteKeys(array $array, array $keys)
     {
         $keys = array_fill_keys($keys, true);
 
         return array_diff_key($array, $keys);
     }
 
-    public function trim(array $array, $char = ' ')
+    public static function trim(array $array, $char = ' ')
     {
         foreach ($array as &$value)
-            $value = is_array($value) ? $this->trim($value, $char) : trim($value, $char);
+            $value = is_array($value) ? self::trim($value, $char) : trim($value, $char);
 
         return $array;
     }
 
-    public function convertValues(array $array, $from_value, $to_value)
+    public static function convertValues(array $array, $from_value, $to_value)
     {
         foreach ($array as &$value)
         {
             if (is_array($value))
             {
-                $value = $this->convertValues($value, $from_value, $to_value);
+                $value = self::convertValues($value, $from_value, $to_value);
             }
             else
             {

@@ -15,7 +15,7 @@ use Perfumer\Helper\Exception\HelperException;
  */
 class Feed
 {
-    public function parse($feed, $limit = 0)
+    public static function parse($feed, $limit = 0)
     {
         if ( ! function_exists('simplexml_load_file'))
             throw new HelperException('SimpleXML must be installed!');

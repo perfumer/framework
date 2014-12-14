@@ -3,6 +3,7 @@
 namespace Perfumer\Proxy;
 
 use Perfumer\Container\Core as Container;
+use Perfumer\Helper\Arr;
 use Perfumer\Proxy\Exception\ForwardException;
 use Perfumer\Proxy\Exception\ProxyException;
 
@@ -111,13 +112,13 @@ class Core
         // Trim all args if auto_trim setting enabled
         if ($this->container->getParam('proxy.auto_trim'))
         {
-            $this->http_args = $container->getService('arr')->trim($this->http_args);
+            $this->http_args = Arr::trim($this->http_args);
         }
 
         // Convert empty strings to null values if auto_null setting enabled
         if ($this->container->getParam('proxy.auto_null'))
         {
-            $this->http_args = $container->getService('arr')->convertValues($this->http_args, '', null);
+            $this->http_args = Arr::convertValues($this->http_args, '', null);
         }
     }
 
@@ -299,7 +300,7 @@ class Core
         {
             if ($prefixes)
             {
-                $prefixes = $this->container->getService('arr')->fetch($prefixes, $this->container->getParam('proxy.prefixes'));
+                $prefixes = Arr::fetch($prefixes, $this->container->getParam('proxy.prefixes'));
                 $prefixes = array_merge($this->getPrefix(), $prefixes);
             }
             else

@@ -3,6 +3,7 @@ namespace Perfumer\Container;
 
 use Perfumer\Container\Exception\ContainerException;
 use Perfumer\Container\Storage\AbstractStorage;
+use Perfumer\Helper\Arr;
 
 /**
  * Core
@@ -278,7 +279,7 @@ class Core
         {
             if ($keys)
             {
-                $this->params[$group] = $this->getService('arr')->deleteKeys($this->params[$group], $keys);
+                $this->params[$group] = Arr::deleteKeys($this->params[$group], $keys);
             }
             else
             {
