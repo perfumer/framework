@@ -16,13 +16,6 @@ use Perfumer\Helper\Arr;
  */
 class DefaultStorage extends AbstractStorage
 {
-    protected $arr;
-
-    public function __construct(Arr $arr)
-    {
-        $this->arr = $arr;
-    }
-
     /**
      * getParamGroup
      * Get array with whole group of parameters. Returns key-value array.
@@ -90,7 +83,7 @@ class DefaultStorage extends AbstractStorage
         {
             if ($keys)
             {
-                $this->params[$group] = $this->arr->deleteKeys($this->params[$group], $keys);
+                $this->params[$group] = Arr::deleteKeys($this->params[$group], $keys);
             }
             else
             {

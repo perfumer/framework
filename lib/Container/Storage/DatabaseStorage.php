@@ -18,13 +18,6 @@ use Propel\Runtime\ActiveQuery\Criteria;
  */
 class DatabaseStorage extends AbstractStorage
 {
-    protected $arr;
-
-    public function __construct(Arr $arr)
-    {
-        $this->arr = $arr;
-    }
-
     /**
      * getParamGroup
      * Get array with whole group of parameters. Returns key-value array.
@@ -128,7 +121,7 @@ class DatabaseStorage extends AbstractStorage
         if ($keys)
         {
             if (isset($this->params[$group]))
-                $this->params[$group] = $this->arr->deleteKeys($this->params[$group], $keys);
+                $this->params[$group] = Arr::deleteKeys($this->params[$group], $keys);
 
             $storage = StorageQuery::create()
                 ->filterByGroup($group)
