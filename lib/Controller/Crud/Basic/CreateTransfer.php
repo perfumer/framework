@@ -5,6 +5,7 @@ namespace Perfumer\Controller\Crud\Basic;
 use Perfumer\Controller\Exception\CrudException;
 use Perfumer\Helper\Arr;
 use Propel\Runtime\Map\TableMap;
+use Propel\Runtime\Propel;
 
 trait CreateTransfer
 {
@@ -36,12 +37,27 @@ trait CreateTransfer
 
             $this->postPreSave($model, $fields);
 
-            if ($model->save())
-            {
-                $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                $this->setSuccessMessage($this->getTranslator()->translate('crud.created'));
+            $con = Propel::getWriteConnection(constant('\\App\\Model\\Map\\' . $this->getModelName() . 'TableMap::DATABASE_NAME'));
 
-                $this->postAfterSuccess($model, $fields);
+            $con->beginTransaction();
+
+            try
+            {
+                if ($model->save())
+                {
+                    $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
+                    $this->setSuccessMessage($this->getTranslator()->translate('crud.created'));
+
+                    $this->postAfterSuccess($model, $fields);
+                }
+
+                $con->commit();
+            }
+            catch (\Exception $e)
+            {
+                $con->rollback();
+
+                $this->setErrorMessage('При сохранении произошла неизвестная ошибка. Попробуйте еще раз.');
             }
         }
     }

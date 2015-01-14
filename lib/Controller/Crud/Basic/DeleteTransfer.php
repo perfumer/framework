@@ -2,6 +2,8 @@
 
 namespace Perfumer\Controller\Crud\Basic;
 
+use Propel\Runtime\Propel;
+
 trait DeleteTransfer
 {
     public function delete()
@@ -16,11 +18,26 @@ trait DeleteTransfer
         $this->deleteValidate($model);
         $this->deletePreRemove($model);
 
-        if ($this->deleteAction($model))
-        {
-            $this->deleteAfterSuccess($model);
+        $con = Propel::getWriteConnection(constant('\\App\\Model\\Map\\' . $this->getModelName() . 'TableMap::DATABASE_NAME'));
 
-            $this->setSuccessMessage($this->getTranslator()->translate('crud.deleted'));
+        $con->beginTransaction();
+
+        try
+        {
+            if ($this->deleteAction($model))
+            {
+                $this->deleteAfterSuccess($model);
+
+                $this->setSuccessMessage($this->getTranslator()->translate('crud.deleted'));
+            }
+
+            $con->commit();
+        }
+        catch (\Exception $e)
+        {
+            $con->rollback();
+
+            $this->setErrorMessage('При удалении произошла неизвестная ошибка. Попробуйте еще раз.');
         }
     }
 
