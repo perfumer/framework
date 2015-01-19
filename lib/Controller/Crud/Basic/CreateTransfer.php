@@ -41,7 +41,7 @@ trait CreateTransfer
                 if ($model->save())
                 {
                     $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                    $this->setSuccessMessage($this->postSuccessMessage());
+                    $this->setSuccessMessage($this->postSuccessMessage($model, $fields));
 
                     $this->postAfterSuccess($model, $fields);
                 }
@@ -82,7 +82,7 @@ trait CreateTransfer
     {
     }
 
-    protected function postSuccessMessage()
+    protected function postSuccessMessage($model, array $fields)
     {
         return $this->getTranslator()->translate('_crud.created');
     }

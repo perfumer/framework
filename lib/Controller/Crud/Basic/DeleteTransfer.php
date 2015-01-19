@@ -28,7 +28,7 @@ trait DeleteTransfer
             {
                 $this->deleteAfterSuccess($model);
 
-                $this->setSuccessMessage($this->deleteSuccessMessage());
+                $this->setSuccessMessage($this->deleteSuccessMessage($model));
             }
 
             $con->commit();
@@ -64,7 +64,7 @@ trait DeleteTransfer
     {
     }
 
-    protected function deleteSuccessMessage()
+    protected function deleteSuccessMessage($model)
     {
         return $this->getTranslator()->translate('_crud.deleted');
     }
