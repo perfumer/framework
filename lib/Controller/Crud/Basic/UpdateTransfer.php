@@ -15,7 +15,7 @@ trait UpdateTransfer
         $this->putPermission();
 
         if ($this->getProxy()->getArg('id') === null)
-            $this->setErrorMessageAndExit($this->getTranslator()->translate('crud.object_not_found'));
+            $this->setErrorMessageAndExit($this->getTranslator()->translate('_crud.object_not_found'));
 
         $fields = Arr::fetch($this->getProxy()->getArg(), $this->putFields(), true);
 
@@ -23,12 +23,7 @@ trait UpdateTransfer
 
         $this->putValidate($model, $fields);
 
-        if ($this->getView()->getVar('status') === false)
-        {
-            if (!$this->getView()->getVar('message'))
-                $this->setErrorMessage($this->getTranslator()->translate('crud.update_errors'));
-        }
-        else
+        if ($this->getView()->getVar('status') === true)
         {
             $this->old_model = clone $model;
 
@@ -47,7 +42,7 @@ trait UpdateTransfer
                 if ($model->save() || count($model->getModifiedColumns()) == 0)
                 {
                     $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                    $this->setSuccessMessage($this->getTranslator()->translate('crud.updated'));
+                    $this->setSuccessMessage($this->putSuccessMessage());
 
                     $this->putAfterSuccess($model, $fields);
                 }
@@ -58,7 +53,7 @@ trait UpdateTransfer
             {
                 $con->rollback();
 
-                $this->setErrorMessage('При сохранении произошла неизвестная ошибка. Попробуйте еще раз.');
+                $this->setErrorMessage($this->getTranslator()->translate('_crud.internal_error'));
             }
         }
     }
@@ -86,5 +81,10 @@ trait UpdateTransfer
 
     protected function putAfterSuccess($model, array $fields)
     {
+    }
+
+    protected function putSuccessMessage()
+    {
+        return $this->getTranslator()->translate('_crud.updated');
     }
 }

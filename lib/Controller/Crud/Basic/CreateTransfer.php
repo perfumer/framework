@@ -24,12 +24,7 @@ trait CreateTransfer
 
         $this->postValidate($model, $fields);
 
-        if ($this->getView()->getVar('status') === false)
-        {
-            if (!$this->getView()->getVar('message'))
-                $this->setErrorMessage($this->getTranslator()->translate('crud.create_errors'));
-        }
-        else
+        if ($this->getView()->getVar('status') === true)
         {
             $this->postPrePersist($model, $fields);
 
@@ -46,7 +41,7 @@ trait CreateTransfer
                 if ($model->save())
                 {
                     $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                    $this->setSuccessMessage($this->getTranslator()->translate('crud.created'));
+                    $this->setSuccessMessage($this->postSuccessMessage());
 
                     $this->postAfterSuccess($model, $fields);
                 }
@@ -57,7 +52,7 @@ trait CreateTransfer
             {
                 $con->rollback();
 
-                $this->setErrorMessage('При сохранении произошла неизвестная ошибка. Попробуйте еще раз.');
+                $this->setErrorMessage($this->getTranslator()->translate('_crud.internal_error'));
             }
         }
     }
@@ -85,5 +80,10 @@ trait CreateTransfer
 
     protected function postAfterSuccess($model, array $fields)
     {
+    }
+
+    protected function postSuccessMessage()
+    {
+        return $this->getTranslator()->translate('_crud.created');
     }
 }
