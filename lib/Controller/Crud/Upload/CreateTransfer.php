@@ -4,12 +4,18 @@ namespace Perfumer\Controller\Crud\Upload;
 
 use App\Model\Attachment;
 use App\Model\AttachmentQuery;
+use Perfumer\Controller\Exception\CrudException;
 use Propel\Runtime\Map\TableMap;
 use Upload\File;
 use Upload\Storage\FileSystem;
 
 trait CreateTransfer
 {
+    protected function getModelName()
+    {
+        return null;
+    }
+
     protected function postPermission()
     {
     }
@@ -46,14 +52,18 @@ trait CreateTransfer
         $mime = $file->getMimetype();
         $size = $file->getSize();
 
+        if (!$model_name = $this->getModelName())
+            throw new CrudException('Model name for upload action is not defined');
+
+        $attachment = new Attachment();
+        $attachment->setModelName('\\App\\Model\\' . $model_name);
+
         try
         {
             $file->upload();
 
             $digest = $this->newDigest($file->getName());
             $path = $this->digestPath($digest);
-
-            $attachment = new Attachment();
 
             $this->postPrePersist($attachment);
 
