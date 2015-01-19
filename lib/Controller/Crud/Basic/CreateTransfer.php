@@ -41,9 +41,10 @@ trait CreateTransfer
                 if ($model->save())
                 {
                     $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                    $this->setSuccessMessage($this->postSuccessMessage($model, $fields));
 
                     $this->postAfterSuccess($model, $fields);
+
+                    $this->setSuccessMessage($this->postSuccessMessage($model, $fields));
                 }
 
                 $con->commit();

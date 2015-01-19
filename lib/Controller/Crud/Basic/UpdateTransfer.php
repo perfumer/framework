@@ -42,9 +42,10 @@ trait UpdateTransfer
                 if ($model->save() || count($model->getModifiedColumns()) == 0)
                 {
                     $this->setContent($model->toArray(TableMap::TYPE_FIELDNAME));
-                    $this->setSuccessMessage($this->putSuccessMessage($model, $fields));
 
                     $this->putAfterSuccess($model, $fields);
+
+                    $this->setSuccessMessage($this->putSuccessMessage($model, $fields));
                 }
 
                 $con->commit();
