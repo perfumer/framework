@@ -47,6 +47,15 @@ class Item
         return $item->isMiss() ? $default : $item->get();
     }
 
+    public function getOnce($key, $default = null)
+    {
+        $value = $this->get($key, $default);
+
+        $this->delete($key);
+
+        return $value;
+    }
+
     public function set($key, $value)
     {
         if (!$this->is_destroyed)
