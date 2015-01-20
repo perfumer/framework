@@ -329,7 +329,7 @@ class Core
         }
 
         if ($id)
-            $generated_url .= '-' . $id;
+            $generated_url .= is_array($id) ? '-' . implode('/', $id) : '-' . $id;
 
         if ($query)
         {
