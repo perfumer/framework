@@ -30,6 +30,7 @@ class Core
 
     protected $http_prefixes = [];
     protected $http_id;
+    protected $http_id_array;
     protected $http_query = [];
     protected $http_args = [];
 
@@ -176,14 +177,30 @@ class Core
         return $this;
     }
 
-    public function getId()
+    public function getId($index = null)
     {
-        return $this->http_id;
+        if ($index === null)
+            return $this->http_id;
+
+        if ($this->http_id_array === null)
+            $this->http_id_array = explode('/', $this->http_id);
+
+        return isset($this->http_id_array[$index]) ? $this->http_id_array[$index] : null;
     }
 
-    public function setId($id)
+    public function setId($id, $index = null)
     {
-        $this->http_id = $id;
+        if ($index === null)
+        {
+            $this->http_id = $id;
+        }
+        else
+        {
+            if ($this->http_id_array === null)
+                $this->http_id_array = explode('/', $this->http_id);
+
+            $this->http_id_array[$index] = $id;
+        }
 
         return $this;
     }

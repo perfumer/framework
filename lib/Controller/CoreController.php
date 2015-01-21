@@ -116,9 +116,9 @@ class CoreController
      *
      * @return mixed
      */
-    protected function i()
+    protected function i($index = null)
     {
-        return $this->getProxy()->getId();
+        return $this->getProxy()->getId($index);
     }
 
     /**
