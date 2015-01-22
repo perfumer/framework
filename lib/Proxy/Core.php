@@ -39,6 +39,22 @@ class Core
         $this->container = $container;
         $action = strtolower($_SERVER['REQUEST_METHOD']);
 
+        if ($prefixes = $container->getParam('proxy.prefixes'))
+        {
+            $this->http_prefixes = array_fill_keys($prefixes, null);
+
+            $prefix_options = $container->getParam('proxy.prefix_options');
+
+            if (is_array($prefix_options))
+            {
+                foreach ($prefixes as $prefix)
+                {
+                    if (isset($prefix_options[$prefix]['default_value']))
+                        $this->http_prefixes[$prefix] = $prefix_options[$prefix]['default_value'];
+                }
+            }
+        }
+
         if ($_SERVER['PATH_INFO'] == '/')
         {
             $url = $container->getParam('proxy.default_url');
@@ -58,22 +74,22 @@ class Core
             {
                 $url = explode('/', $url);
 
-                $prefix_values = array_slice($url, 0, count($prefixes));
+                $prefix_options = $container->getParam('proxy.prefix_options');
 
-                foreach ($prefixes as $key => $prefix)
+                while ($prefixes && $url)
                 {
-                    $this->http_prefixes[$prefix] = isset($prefix_values[$key]) ? $prefix_values[$key] : null;
+                    $one_prefix = array_shift($prefixes);
+                    $one_url = $url[0];
+
+                    if ($this->validateUrlPartForPrefix($one_prefix, $one_url, $prefix_options))
+                    {
+                        $this->http_prefixes[$one_prefix] = $one_url;
+
+                        array_shift($url);
+                    }
                 }
 
-                if (count($prefixes) >= count($url))
-                {
-                    $url = $container->getParam('proxy.default_url');
-                }
-                else
-                {
-                    $url = array_slice($url, count($prefixes));
-                    $url = implode('/', $url);
-                }
+                $url = count($url) > 0 ? implode('/', $url) : $container->getParam('proxy.default_url');
             }
         }
 
@@ -388,5 +404,24 @@ class Core
         $controller = $reflection_class->newInstance($this->container, $request, $response, $reflection_class);
 
         return $reflection_class->getMethod('execute')->invoke($controller);
+    }
+
+    protected function validateUrlPartForPrefix($prefix, $part, $options)
+    {
+        if ($options === null || !isset($options[$prefix]))
+            return true;
+
+        $options = $options[$prefix];
+
+        if (isset($options['white_list']))
+            return in_array($part, $options['white_list']);
+
+        if (isset($options['black_list']))
+            return !in_array($part, $options['black_list']);
+
+        if (isset($options['regex']))
+            return preg_match($options['regex'], $part);
+
+        return true;
     }
 }
