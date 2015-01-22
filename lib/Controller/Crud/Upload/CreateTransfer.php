@@ -56,7 +56,7 @@ trait CreateTransfer
             throw new CrudException('Model name for upload action is not defined');
 
         $attachment = new Attachment();
-        $attachment->setModelName('\\App\\Model\\' . $model_name);
+        $attachment->setModelName($model_name);
 
         try
         {
