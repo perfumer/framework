@@ -10,21 +10,23 @@ use Perfumer\Auth\Exception\AuthException;
 use Perfumer\Auth\TokenHandler\AbstractHandler as TokenHandler;
 use Perfumer\Session\Core as SessionService;
 use Perfumer\Session\Item as Session;
+use Propel\Runtime\Map\TableMap;
 
 class Authentication
 {
     const STATUS_ACCOUNT_BANNED = 1;
     const STATUS_ACCOUNT_DISABLED = 2;
-    const STATUS_AUTHENTICATED = 3;
-    const STATUS_INVALID_CREDENTIALS = 4;
-    const STATUS_INVALID_PASSWORD = 5;
-    const STATUS_INVALID_USERNAME = 6;
-    const STATUS_NO_TOKEN = 7;
-    const STATUS_NON_EXISTING_TOKEN = 8;
-    const STATUS_NON_EXISTING_USER = 9;
-    const STATUS_REMOTE_SERVER_ERROR = 10;
-    const STATUS_SIGNED_IN = 11;
-    const STATUS_SIGNED_OUT = 12;
+    const STATUS_ANONYMOUS = 3;
+    const STATUS_AUTHENTICATED = 4;
+    const STATUS_INVALID_CREDENTIALS = 5;
+    const STATUS_INVALID_PASSWORD = 6;
+    const STATUS_INVALID_USERNAME = 7;
+    const STATUS_NO_TOKEN = 8;
+    const STATUS_NON_EXISTING_TOKEN = 9;
+    const STATUS_NON_EXISTING_USER = 10;
+    const STATUS_REMOTE_SERVER_ERROR = 11;
+    const STATUS_SIGNED_IN = 12;
+    const STATUS_SIGNED_OUT = 13;
 
     /**
      * @var SessionService
@@ -91,6 +93,13 @@ class Authentication
 
     public function getSession()
     {
+        if ($this->session === null || $this->session->isDestroyed())
+        {
+            $this->session = $this->session_service->get();
+
+            $this->token_handler->setToken($this->session->getId());
+        }
+
         return $this->session;
     }
 
@@ -106,28 +115,7 @@ class Authentication
 
             $user = null;
 
-            if ($data = $this->session->get('_user'))
-            {
-                $user = new User();
-                $user->fromArray($data);
-                $user->setPermissions($this->session->get('_user_permissions'));
-                $user->setRoleIds($this->session->get('_user_role_ids'));
-                $user->setNew(false);
-            }
-
-            if ($user)
-            {
-                if(time() - $this->session->get('_last_updated') >= $this->update_gap)
-                {
-                    $user = UserQuery::create()->findPk($user->getId());
-
-                    if (!$user)
-                        throw new AuthException(self::STATUS_NON_EXISTING_USER);
-
-                    $update_session = true;
-                }
-            }
-            else
+            if (!$this->session_service->has($this->token))
             {
                 $token = TokenQuery::create()->findOneByToken($this->token);
 
@@ -137,6 +125,40 @@ class Authentication
                 $user = $token->getUser();
 
                 $start_session = true;
+            }
+            else
+            {
+                $_user = $this->session->get('_user');
+
+                if (isset($_user['data']['id']))
+                {
+                    if(time() - $this->session->get('_last_updated') >= $this->update_gap)
+                    {
+                        $user = UserQuery::create()->findPk($_user['data']['id']);
+
+                        if (!$user)
+                            throw new AuthException(self::STATUS_NON_EXISTING_USER);
+
+                        $update_session = true;
+                    }
+                    else
+                    {
+                        $user = new User();
+                        $user->fromArray($_user['data'], TableMap::TYPE_FIELDNAME);
+                        $user->setPermissions($_user['permissions']);
+                        $user->setRoleIds($_user['role_ids']);
+                        $user->setNew(false);
+                    }
+                }
+                else
+                {
+                    // This is anonymous user, but has some data in session
+                    $this->status = self::STATUS_ANONYMOUS;
+
+                    $this->token_handler->setToken($this->token);
+
+                    return;
+                }
             }
 
             $this->user = $user;
@@ -199,11 +221,13 @@ class Authentication
     {
         $this->user->revealRoles();
 
-        $this->session
-            ->set('_last_updated', time())
-            ->set('_user', $this->user->toArray())
-            ->set('_user_permissions', $this->user->getPermissions())
-            ->set('_user_role_ids', $this->user->getRoleIds());
+        $_user = [
+            'data' => $this->user->toArray(TableMap::TYPE_FIELDNAME),
+            'permissions' => $this->user->getPermissions(),
+            'role_ids' => $this->user->getRoleIds()
+        ];
+
+        $this->session->set('_user', $_user)->set('_last_updated', time());
     }
 
     public function invalidateSessions($user = null)

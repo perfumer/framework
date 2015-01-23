@@ -59,7 +59,10 @@ class Item
     public function set($key, $value)
     {
         if (!$this->is_destroyed)
+        {
             $this->cache->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->lifetime);
+            $this->cache->getItem('_session/' . $this->id)->set(time() + $this->lifetime, $this->lifetime);
+        }
 
         return $this;
     }
@@ -86,5 +89,10 @@ class Item
             $this->cache->getItem('_session/' . $this->id)->clear();
 
         $this->is_destroyed = true;
+    }
+
+    public function isDestroyed()
+    {
+        return $this->is_destroyed;
     }
 }

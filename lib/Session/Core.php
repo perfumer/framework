@@ -39,6 +39,11 @@ class Core
         return $this->items[$id];
     }
 
+    public function has($id)
+    {
+        return !$this->cache->getItem('_session/' . $id)->isMiss();
+    }
+
     public function destroy($id)
     {
         $this->get($id)->destroy();
