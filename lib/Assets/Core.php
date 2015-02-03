@@ -15,6 +15,7 @@ class Core
     protected $web_path;
     protected $combine;
     protected $minify;
+    protected $version;
 
     protected $vendor_css = [];
     protected $vendor_js = [];
@@ -27,6 +28,9 @@ class Core
         $this->web_path = '/' . trim($params['web_path'], '/');
         $this->combine = (bool) $params['combine'];
         $this->minify = (bool) $params['minify'];
+
+        if (isset($params['version']))
+            $this->version = $params['version'];
     }
 
     public function getCss()
@@ -43,7 +47,12 @@ class Core
 
         if ($this->combine)
         {
-            $combined_file_path = '/css/' . substr(md5(serialize($stylesheets)), 0, 10) . '.css';
+            $combined_file_path = '/css/' . substr(md5(serialize($stylesheets)), 0, 10);
+
+            if ($this->version)
+                $combined_file_path .= '.' . $this->version;
+
+            $combined_file_path .= '.css';
 
             $this->combineFiles($stylesheets, $combined_file_path, 'css');
 
@@ -71,7 +80,12 @@ class Core
 
         if ($this->combine)
         {
-            $combined_file_path = '/js/' . substr(md5(serialize($javascripts)), 0, 10) . '.js';
+            $combined_file_path = '/js/' . substr(md5(serialize($javascripts)), 0, 10);
+
+            if ($this->version)
+                $combined_file_path .= '.' . $this->version;
+
+            $combined_file_path .= '.js';
 
             $this->combineFiles($javascripts, $combined_file_path, 'js');
 
