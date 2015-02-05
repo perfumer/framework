@@ -13,7 +13,6 @@ namespace Perfumer\Helper;
  */
 class Cookie
 {
-    protected $salt = null;
     protected $expiration = 3600;
     protected $path = '/';
     protected $domain = null;
@@ -22,9 +21,6 @@ class Cookie
 
     public function __construct(array $params = [])
     {
-        if (isset($params['salt']) && $params['salt'] !== null)
-            $this->salt = (string) $params['salt'];
-
         if (isset($params['expiration']))
             $this->expiration = (int) $params['expiration'];
 
@@ -63,24 +59,7 @@ class Cookie
 
     public function get($key, $default = null)
     {
-        if (!isset($_COOKIE[$key]))
-            return $default;
-
-        $cookie = $_COOKIE[$key];
-
-        $split = strlen($this->makeSalt($key, null));
-
-        if (isset($cookie[$split]) && $cookie[$split] === '~')
-        {
-            list($hash, $value) = explode('~', $cookie, 2);
-
-            if ($this->makeSalt($key, $value) === $hash)
-                return $value;
-
-            $this->delete($key);
-        }
-
-        return $default;
+        return isset($_COOKIE[$key]) ? $_COOKIE[$key] : $default;
     }
 
     public function set($name, $value, $expiration = null)
@@ -91,8 +70,6 @@ class Cookie
         if ($expiration !== 0)
             $expiration += time();
 
-        $value = $this->makeSalt($name, $value) . '~' . $value;
-
         return setcookie($name, $value, $expiration, $this->path, $this->domain, $this->secure, $this->httponly);
     }
 
@@ -101,12 +78,5 @@ class Cookie
         unset($_COOKIE[$name]);
 
         return setcookie($name, null, -86400, $this->path, $this->domain, $this->secure, $this->httponly);
-    }
-
-    protected function makeSalt($name, $value)
-    {
-        $agent = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : 'unknown';
-
-        return sha1($agent . $name . $value . $this->salt);
     }
 }
