@@ -9,21 +9,10 @@ use Propel\Runtime\Collection\ObjectCollection;
 
 class User extends BaseUser
 {
+    protected $profile;
     protected $is_logged = false;
     protected $role_ids = [];
     protected $permissions = [];
-
-    public function isLogged()
-    {
-        return $this->is_logged;
-    }
-
-    public function setLogged($is_logged)
-    {
-        $this->is_logged = (boolean) $is_logged;
-
-        return $this;
-    }
 
     public function hashPassword($v)
     {
@@ -37,6 +26,38 @@ class User extends BaseUser
     public function validatePassword($password)
     {
         return password_verify($password, $this->getPassword());
+    }
+
+    public function getProfile()
+    {
+        if ($this->profile !== null)
+            return $this->profile;
+
+        if ($this->getGroupName() !== null && $this->getGroupId() !== null)
+        {
+            $query = $this->getGroupName() . 'Query';
+
+            $this->profile = $query::create()->findPk($this->getGroupId());
+        }
+
+        return $this->profile;
+    }
+
+    public function setLogged($is_logged)
+    {
+        $this->is_logged = (boolean) $is_logged;
+
+        return $this;
+    }
+
+    public function isLogged()
+    {
+        return $this->is_logged;
+    }
+
+    public function inGroup($name)
+    {
+        return $this->getGroupName() === $name;
     }
 
     public function isGranted($permissions)
