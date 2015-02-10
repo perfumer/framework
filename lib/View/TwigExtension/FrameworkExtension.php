@@ -47,11 +47,29 @@ class FrameworkExtension extends \Twig_Extension
         ];
     }
 
-    public function request($url, $action, array $args = [])
+    public function request($url, $action, array $args = [], $cache_key = null, $cache_lifetime = 3600)
     {
-        $response = $this->proxy->execute($url, $action, $args);
+        if ($cache_key !== null)
+        {
+            $cache = $this->container->getService('cache')->getItem($cache_key);
 
-        return $response->getContent();
+            if ($cache->isMiss())
+            {
+                $content = $this->proxy->execute($url, $action, $args)->getContent();
+
+                $cache->set($content, $cache_lifetime);
+            }
+            else
+            {
+                $content = $cache->get();
+            }
+        }
+        else
+        {
+            $content = $this->proxy->execute($url, $action, $args)->getContent();
+        }
+
+        return $content;
     }
 
     public function param($name)
