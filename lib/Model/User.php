@@ -35,7 +35,7 @@ class User extends BaseUser
 
         if ($this->getGroupName() !== null && $this->getGroupId() !== null)
         {
-            $query = $this->getGroupName() . 'Query';
+            $query = 'App\\Model\\' . $this->getGroupName() . 'Query';
 
             $this->profile = $query::create()->findPk($this->getGroupId());
         }
