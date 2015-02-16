@@ -4,14 +4,19 @@ namespace Perfumer\Controller;
 
 use Perfumer\Controller\Exception\ExitActionException;
 
-class JsonController extends CoreController
+class SerializeController extends CoreController
 {
+    /*
+     * Default serialize method
+     */
+    protected $_serializer = 'json';
+
     protected function before()
     {
         parent::before();
 
         if (!method_exists($this, $this->getCurrent()->getAction()))
-            $this->getProxy()->forward('exception/json', 'actionNotFound');
+            $this->getProxy()->forward('exception/' . $this->_serializer, 'actionNotFound');
 
         $this->getView()->addVars([
             'status' => true,
@@ -24,7 +29,7 @@ class JsonController extends CoreController
 
     protected function after()
     {
-        $content = $this->getView()->serializeVars('json');
+        $content = $this->getView()->serializeVars($this->_serializer);
 
         $this->getResponse()->setContent($content);
 
