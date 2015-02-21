@@ -21,5 +21,8 @@
             "Perfumer\\Helper\\": "helper/",
             "Perfumer\\MVC\\": "mvc/"
         }
+    },
+    "config": {
+        "preferred-install": "dist"
     }
 }
