@@ -20,8 +20,17 @@ class DatabaseAuthorization extends Authentication
             if (!$user)
                 throw new AuthException(self::STATUS_INVALID_USERNAME);
 
-            if (!$force_login && !$user->validatePassword($password))
-                throw new AuthException(self::STATUS_INVALID_PASSWORD);
+            if (!$force_login)
+            {
+                if (!$user->validatePassword($password))
+                    throw new AuthException(self::STATUS_INVALID_PASSWORD);
+
+                if ($user->isDisabled())
+                    throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
+
+                if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 1)
+                    throw new AuthException(self::STATUS_ACCOUNT_BANNED);
+            }
 
             $this->user = $user;
             $this->user->setLogged(true);

@@ -132,7 +132,7 @@ class Authentication
 
                 if (isset($_user['data']['id']))
                 {
-                    if(time() - $this->session->get('_last_updated') >= $this->update_gap)
+                    if(time() - $this->session->get('_updated_at') >= $this->update_gap)
                     {
                         $user = UserQuery::create()->findPk($_user['data']['id']);
 
@@ -160,6 +160,12 @@ class Authentication
                     return;
                 }
             }
+
+            if ($user->isDisabled())
+                throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
+
+            if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 1)
+                throw new AuthException(self::STATUS_ACCOUNT_BANNED);
 
             $this->user = $user;
             $this->user->setLogged(true);
@@ -227,7 +233,7 @@ class Authentication
             'role_ids' => $this->user->getRoleIds()
         ];
 
-        $this->session->set('_user', $_user)->set('_last_updated', time());
+        $this->session->set('_user', $_user)->set('_updated_at', time());
     }
 
     public function invalidateSessions($user = null)
@@ -246,8 +252,8 @@ class Authentication
         {
             $session = $this->session_service->get($token->getToken());
 
-            if ($session->has('_last_updated'))
-                $session->set('_last_updated', 0);
+            if ($session->has('_updated_at'))
+                $session->set('_updated_at', 0);
         }
     }
 
