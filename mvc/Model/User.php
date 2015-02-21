@@ -14,6 +14,21 @@ class User extends BaseUser
     protected $role_ids = [];
     protected $permissions = [];
 
+    public function getProfile()
+    {
+        if ($this->profile !== null)
+            return $this->profile;
+
+        if ($this->getGroupName() !== null && $this->getGroupId() !== null)
+        {
+            $query = 'App\\Model\\' . $this->getGroupName() . 'Query';
+
+            $this->profile = $query::create()->findPk($this->getGroupId());
+        }
+
+        return $this->profile;
+    }
+
     public function hashPassword($v)
     {
         $password = password_hash($v, PASSWORD_DEFAULT);
@@ -28,19 +43,13 @@ class User extends BaseUser
         return password_verify($password, $this->getPassword());
     }
 
-    public function getProfile()
+    public function ban($seconds)
     {
-        if ($this->profile !== null)
-            return $this->profile;
+        $date = (new \DateTime())->modify('+' . $seconds . ' second');
 
-        if ($this->getGroupName() !== null && $this->getGroupId() !== null)
-        {
-            $query = 'App\\Model\\' . $this->getGroupName() . 'Query';
+        $this->setBannedTill($date);
 
-            $this->profile = $query::create()->findPk($this->getGroupId());
-        }
-
-        return $this->profile;
+        return $this;
     }
 
     public function setLogged($is_logged)
