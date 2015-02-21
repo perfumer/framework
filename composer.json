@@ -17,7 +17,9 @@
     },
     "autoload": {
         "psr-4": {
-            "Perfumer\\": "lib/"
+            "Perfumer\\Component\\": "component/",
+            "Perfumer\\Helper\\": "helper/",
+            "Perfumer\\MVC\\": "mvc/"
         }
     }
 }
