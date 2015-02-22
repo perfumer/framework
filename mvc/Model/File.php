@@ -2,10 +2,10 @@
 
 namespace Perfumer\MVC\Model;
 
-use App\Model\Base\Attachment as BaseAttachment;
+use App\Model\Base\File as BaseFile;
 use Propel\Runtime\Connection\ConnectionInterface;
 
-class Attachment extends BaseAttachment
+class File extends BaseFile
 {
     const MOD_EMPTY = 0;
 
