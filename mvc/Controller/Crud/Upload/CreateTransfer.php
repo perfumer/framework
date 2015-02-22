@@ -2,11 +2,12 @@
 
 namespace Perfumer\MVC\Controller\Crud\Upload;
 
-use App\Model\Attachment;
-use App\Model\AttachmentQuery;
+use App\Model\File;
+use App\Model\FileQuery;
+use Perfumer\Helper\Text;
 use Perfumer\MVC\Controller\Exception\CrudException;
 use Propel\Runtime\Map\TableMap;
-use Upload\File;
+use Upload\File as FileUpload;
 use Upload\Storage\FileSystem;
 
 trait CreateTransfer
@@ -20,19 +21,23 @@ trait CreateTransfer
     {
     }
 
-    protected function postValidate(File $file)
+    protected function postValidate(FileUpload $file)
     {
     }
 
-    protected function postPrePersist(Attachment $attachment)
+    protected function postPrePersist(File $attachment)
     {
     }
 
-    protected function postPreSave(Attachment $attachment)
+    protected function postPreSave(File $attachment)
     {
     }
 
-    protected function postAfterSuccess(Attachment $attachment)
+    protected function postAfterSuccess(File $attachment)
+    {
+    }
+
+    protected function postSetContent(File $attachment)
     {
     }
 
@@ -40,8 +45,12 @@ trait CreateTransfer
     {
         $this->postPermission();
 
-        $storage = new FileSystem(ATTACHMENTS_DIR);
-        $file = new File('file', $storage);
+        $digest = $this->newDigest();
+        $splitted_digest = implode('/', str_split($digest, 2)) . '/';
+        $target_folder = date('Y/m/d/H/i/');
+
+        $storage = new FileSystem(FILES_TMP_DIR . $splitted_digest);
+        $file = new FileUpload('file', $storage);
 
         $this->postValidate($file);
 
@@ -55,15 +64,12 @@ trait CreateTransfer
         if (!$model_name = $this->getModelName())
             throw new CrudException('Model name for upload action is not defined');
 
-        $attachment = new Attachment();
+        $attachment = new File();
         $attachment->setModelName($model_name);
 
         try
         {
             $file->upload();
-
-            $digest = $this->newDigest($file->getName());
-            $path = $this->digestPath($digest);
 
             $this->postPrePersist($attachment);
 
@@ -72,7 +78,7 @@ trait CreateTransfer
             $attachment->setDigest($digest);
             $attachment->setContentType($mime);
             $attachment->setSize($size);
-            $attachment->setPath($path[0] . '.' . $file->getExtension());
+            $attachment->setPath($target_folder . $digest . '.' . $file->getExtension());
 
             if ($this->getUser()->isLogged())
                 $attachment->setCreator($this->getUser());
@@ -84,13 +90,12 @@ trait CreateTransfer
 
             if ($attachment->save())
             {
-                @unlink(ATTACHMENTS_DIR . $attachment->getPath());
-                @mkdir(ATTACHMENTS_DIR . $path[1], 0777, true);
-                @rename(ATTACHMENTS_DIR . $file->getNameWithExtension(), ATTACHMENTS_DIR . $attachment->getPath());
-
-                $this->setContent($attachment->toArray(TableMap::TYPE_FIELDNAME));
+                @unlink(FILES_DIR . $attachment->getPath());
+                @mkdir(FILES_DIR . $target_folder, 0777, true);
+                @rename(FILES_TMP_DIR . $splitted_digest . $file->getNameWithExtension(), FILES_DIR . $attachment->getPath());
 
                 $this->postAfterSuccess($attachment);
+                $this->postSetContent($attachment);
             }
         }
         catch (\Exception $e)
@@ -99,30 +104,18 @@ trait CreateTransfer
         }
     }
 
-    protected function newDigest($name)
+    protected function newDigest()
     {
-        $digest = $name . '_' . uniqid(time() . '_', true);
-
         do
         {
-            $digest = md5($digest);
+            $digest = Text::generateString();
 
-            $count = AttachmentQuery::create()
+            $count = FileQuery::create()
                 ->filterByDigest($digest)
                 ->count();
         }
         while ($count > 0);
 
         return $digest;
-    }
-
-    protected function digestPath($digest)
-    {
-        $first = substr($digest, 0, 6);
-        $last = substr($digest, 6);
-
-        $folder = implode('/', str_split($first, 2));
-
-        return [$folder . '/' . $last, $folder];
     }
 }
