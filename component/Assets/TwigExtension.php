@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\MVC\View\TwigExtension;
+namespace Perfumer\Component\Assets;
 
 use Perfumer\Component\Assets\Core as Assets;
 
-class AssetsExtension extends \Twig_Extension
+class TwigExtension extends \Twig_Extension
 {
     /**
      * @var Assets
