@@ -11,6 +11,6 @@ class Attachment extends BaseAttachment
 
     public function postDelete(ConnectionInterface $con = null)
     {
-        @unlink(ATTACHMENTS_DIR . $this->getPath());
+        @unlink(FILES_DIR . $this->getPath());
     }
 }
