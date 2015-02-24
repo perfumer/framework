@@ -49,6 +49,8 @@ trait CreateTransfer
         $splitted_digest = implode('/', str_split($digest, 2)) . '/';
         $target_folder = date('Y/m/d/H/i/');
 
+        @mkdir(FILES_TMP_DIR . $splitted_digest, 0777, true);
+
         $storage = new FileSystem(FILES_TMP_DIR . $splitted_digest);
         $file = new FileUpload('file', $storage);
 
