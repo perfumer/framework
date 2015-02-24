@@ -36,7 +36,7 @@ class FrameworkExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('request', [$this, 'request']),
+            new \Twig_SimpleFunction('request', [$this, 'request'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('param', [$this, 'param']),
             new \Twig_SimpleFunction('url', [$this, 'url']),
             new \Twig_SimpleFunction('prefix', [$this, 'prefix']),
