@@ -97,23 +97,33 @@ class Core
 
         $this->input = file_get_contents("php://input");
 
-        // Get query parameters and args depending of the request content type
-        $this->http_query = $_GET;
+        $data_type = $container->getParam('proxy.data_type');
 
-        if (!empty($_SERVER['CONTENT_TYPE']))
+        // Get query parameters and args depending from type of data in the http request body
+        if ($data_type == 'query_string')
         {
-            switch ($_SERVER['CONTENT_TYPE'])
+            switch ($action)
             {
-                case 'application/json':
-                    $this->http_args = $this->getInput() ? json_decode($this->getInput(), true) : [];
-
-                    if (!is_array($this->http_args))
-                        $this->http_args = [];
+                case 'get':
+                    $this->http_query = $_GET;
+                    break;
+                case 'post':
+                    $this->http_query = $_GET;
+                    $this->http_args = $_POST;
                     break;
                 default:
+                    $this->http_query = $_GET;
                     parse_str($this->getInput(), $this->http_args);
                     break;
             }
+        }
+        else if ($data_type == 'json')
+        {
+            $this->http_query = $_GET;
+            $this->http_args = $this->getInput() ? json_decode($this->getInput(), true) : [];
+
+            if (!is_array($this->http_args))
+                $this->http_args = [];
         }
 
         // Trim all args if auto_trim setting enabled
