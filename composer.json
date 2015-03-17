@@ -1,9 +1,9 @@
 {
-    "name": "perfumer/perfumer",
+    "name": "perfumer/framework",
     "type": "library",
-    "description": "PHP 5.5+ DIC Framework",
-    "keywords": ["framework", "container"],
-    "homepage": "https://github.com/blumfontein/perfumer",
+    "description": "PHP Framework",
+    "keywords": ["framework"],
+    "homepage": "https://github.com/perfumer/framework",
     "license": "MIT",
     "authors": [
         {
