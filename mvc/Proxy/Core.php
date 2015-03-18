@@ -25,25 +25,27 @@ class Core
     protected $next;
 
     protected $external_router;
+    protected $internal_router;
 
     public function __construct(Container $container)
     {
         $this->container = $container;
         $this->external_router = $container->getService('external_router');
+        $this->internal_router = $container->getService('internal_router');
     }
 
     public function run()
     {
         list($url, $action, $args) = $this->external_router->dispatch();
 
-        $this->next = $this->container->getService('request')->init($url, $action, $args);
+        $this->next = $this->internal_router->dispatch($url, $action, $args);
 
         $this->start()->send();
     }
 
     public function execute($url, $action, array $args = [])
     {
-        $request = $this->container->getService('request')->init($url, $action, $args);
+        $request = $this->internal_router->dispatch($url, $action, $args);
 
         return $this->executeController($request);
     }
@@ -52,7 +54,7 @@ class Core
     {
         $this->current_initial = null;
 
-        $this->next = $this->container->getService('request')->init($url, $action, $args);
+        $this->next = $this->internal_router->dispatch($url, $action, $args);
 
         throw new ForwardException();
     }
