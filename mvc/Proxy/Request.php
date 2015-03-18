@@ -10,21 +10,9 @@ class Request
     protected $initial;
 
     protected $url;
-    protected $args;
     protected $controller;
     protected $action;
-
-    public function init($url, $action, array $args = [])
-    {
-        $path = explode('/', $url);
-
-        $this->url = $url;
-        $this->args = $args;
-        $this->action = $action;
-        $this->controller = 'App\\Controller\\' . implode('\\', array_map('ucfirst', $path)) . 'Controller';
-
-        return $this;
-    }
+    protected $args;
 
     public function setInitial(Request $request)
     {
@@ -48,9 +36,11 @@ class Request
         return $this->url;
     }
 
-    public function getArgs()
+    public function setUrl($url)
     {
-        return $this->args;
+        $this->url = $url;
+
+        return $this;
     }
 
     public function getController()
@@ -58,8 +48,34 @@ class Request
         return $this->controller;
     }
 
+    public function setController($controller)
+    {
+        $this->controller = $controller;
+
+        return $this;
+    }
+
     public function getAction()
     {
         return $this->action;
+    }
+
+    public function setAction($action)
+    {
+        $this->action = $action;
+
+        return $this;
+    }
+
+    public function getArgs()
+    {
+        return $this->args;
+    }
+
+    public function setArgs(array $args)
+    {
+        $this->args = $args;
+
+        return $this;
     }
 }
