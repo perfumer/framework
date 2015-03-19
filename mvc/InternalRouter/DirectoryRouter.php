@@ -4,7 +4,7 @@ namespace Perfumer\MVC\InternalRouter;
 
 use Perfumer\MVC\Proxy\Request;
 
-class DirectoryRouter
+class DirectoryRouter implements RouterInterface
 {
     protected $options = [];
 
