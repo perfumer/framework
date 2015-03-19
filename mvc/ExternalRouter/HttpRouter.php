@@ -5,7 +5,7 @@ namespace Perfumer\MVC\ExternalRouter;
 use Perfumer\Helper\Arr;
 use Perfumer\MVC\Proxy\Exception\ProxyException;
 
-class HttpRouter
+class HttpRouter implements RouterInterface
 {
     protected $input;
 
