@@ -2,7 +2,7 @@
 
 namespace Perfumer\MVC\View\Router;
 
-class IdenticalRouter
+class IdenticalRouter implements RouterInterface
 {
     public function dispatch($template)
     {
