@@ -22,15 +22,13 @@ class TemplateController extends CoreController
         {
             $current = $this->getCurrent();
 
-            $this->getView()->setTemplateIfNotDefined($current->getUrl() . '/' . $current->getAction());
-
             $this->getView()->addVars([
                 'main' => $this->getMain(),
                 'initial' => $this->getInitial(),
                 'current' => $current
             ], 'app');
 
-            $content = $this->getView()->render();
+            $content = $this->getView()->render($current->getUrl() . '/' . $current->getAction());
 
             $this->getResponse()->setContent($content);
         }
