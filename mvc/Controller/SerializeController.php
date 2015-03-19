@@ -36,6 +36,11 @@ class SerializeController extends CoreController
         parent::after();
     }
 
+    protected function getStatus()
+    {
+        return $this->getView()->getVar('status');
+    }
+
     protected function setStatus($status)
     {
         $this->getView()->addVar('status', (bool) $status);
@@ -46,6 +51,11 @@ class SerializeController extends CoreController
         $this->setStatus($status);
 
         throw new ExitActionException();
+    }
+
+    protected function getMessage()
+    {
+        return $this->getView()->getVar('message');
     }
 
     protected function setErrorMessage($message)
@@ -78,6 +88,16 @@ class SerializeController extends CoreController
         throw new ExitActionException;
     }
 
+    protected function hasMessage()
+    {
+        return $this->getView()->hasVar('message');
+    }
+
+    protected function getError($key)
+    {
+        return $this->getView()->getVar($key, 'errors');
+    }
+
     protected function addError($key, $value)
     {
         $this->getView()->addVar('status', false)->addVar($key, $value, 'errors');
@@ -88,6 +108,16 @@ class SerializeController extends CoreController
         $this->addError($key, $value);
 
         throw new ExitActionException;
+    }
+
+    protected function hasError($key)
+    {
+        return $this->getView()->hasVar($key, 'errors');
+    }
+
+    protected function getErrors()
+    {
+        return $this->getView()->getVars('errors');
     }
 
     protected function addErrors($errors)
@@ -102,6 +132,16 @@ class SerializeController extends CoreController
         throw new ExitActionException;
     }
 
+    protected function hasErrors()
+    {
+        return $this->getView()->hasVars('errors');
+    }
+
+    protected function getContent()
+    {
+        return $this->getView()->getVar('content');
+    }
+
     protected function setContent($content)
     {
         $this->getView()->addVar('content', $content);
@@ -112,5 +152,10 @@ class SerializeController extends CoreController
         $this->setContent($content);
 
         throw new ExitActionException();
+    }
+
+    protected function hasContent()
+    {
+        return $this->getView()->hasVar('content');
     }
 }
