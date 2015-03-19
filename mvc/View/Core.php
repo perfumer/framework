@@ -3,19 +3,23 @@
 namespace Perfumer\MVC\View;
 
 use Perfumer\MVC\View\Exception\ViewException;
+use Perfumer\MVC\View\Router\RouterInterface;
 
 class Core
 {
     protected $templating;
+
+    /**
+     * @var RouterInterface
+     */
     protected $router;
 
-    protected $template;
     protected $vars = [];
     protected $groups = [];
 
     protected $options = [];
 
-    public function __construct($templating, $router, $options = [])
+    public function __construct($templating, RouterInterface $router, $options = [])
     {
         $this->templating = $templating;
         $this->router = $router;
@@ -27,14 +31,14 @@ class Core
         $this->options = array_merge($default_options, $options);
     }
 
-    public function render()
+    public function render($template, $extension = null)
     {
-        if (!$this->template)
-            throw new ViewException('No template defined.');
+        $template = $this->router->dispatch($template);
 
-        $template = $this->router->dispatch($this->template);
+        if ($extension === null)
+            $extension = $this->options['extension'];
 
-        return $this->templating->render($template . '.' . $this->options['extension'], $this->vars);
+        return $this->templating->render($template . '.' . $extension, $this->vars);
     }
 
     public function getVar($name, $group = null)
@@ -140,26 +144,6 @@ class Core
         }
 
         $this->groups[$name] = &$base;
-
-        return $this;
-    }
-
-    public function getTemplate()
-    {
-        return $this->template;
-    }
-
-    public function setTemplate($template)
-    {
-        $this->template = $template;
-
-        return $this;
-    }
-
-    public function setTemplateIfNotDefined($template)
-    {
-        if (!$this->template)
-            $this->template = $template;
 
         return $this;
     }
