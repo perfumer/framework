@@ -6,18 +6,25 @@ use Perfumer\MVC\View\Exception\ViewException;
 
 class Core
 {
-    /**
-     * @var \Twig_Environment
-     */
-    protected $twig;
+    protected $templating;
+    protected $router;
 
     protected $template;
     protected $vars = [];
     protected $groups = [];
 
-    public function __construct(\Twig_Environment $twig)
+    protected $options = [];
+
+    public function __construct($templating, $router, $options = [])
     {
-        $this->twig = $twig;
+        $this->templating = $templating;
+        $this->router = $router;
+
+        $default_options = [
+            'extension' => 'php'
+        ];
+
+        $this->options = array_merge($default_options, $options);
     }
 
     public function render()
@@ -25,7 +32,9 @@ class Core
         if (!$this->template)
             throw new ViewException('No template defined.');
 
-        return $this->twig->render($this->template . '.twig', $this->vars);
+        $template = $this->router->dispatch($this->template);
+
+        return $this->templating->render($template . '.' . $this->options['extension'], $this->vars);
     }
 
     public function getVar($name, $group = null)
