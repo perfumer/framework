@@ -103,6 +103,11 @@ class CoreController
         $this->getProxy()->forward('exception/page', 'location', [$url, $status_code]);
     }
 
+    protected function getInjected($key)
+    {
+        return isset($this->_injected[$key]) ? $this->_injected[$key] : null;
+    }
+
     /**
      * Shortcut for DI Container getService() method
      *
@@ -163,7 +168,7 @@ class CoreController
      */
     protected function getContainer()
     {
-        return $this->_injected['_container'];
+        return $this->getInjected('_container');
     }
 
     /**
