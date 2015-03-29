@@ -4,30 +4,38 @@ namespace Perfumer\MVC\Controller;
 
 use Perfumer\Component\Container\Core as Container;
 use Perfumer\MVC\Controller\Exception\ExitActionException;
+use Perfumer\MVC\Proxy\Core as Proxy;
 use Perfumer\MVC\Proxy\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CoreController
 {
     /**
-     * @var \Perfumer\Component\Container\Core
-     */
-    protected $_container;
-
-    /**
-     * @var \Perfumer\MVC\Proxy\Core
+     * @var Proxy
      */
     protected $_proxy;
 
     /**
-     * @var \Perfumer\MVC\Proxy\Request
+     * @var Request
      */
     protected $_current;
 
     /**
-     * @var \Symfony\Component\HttpFoundation\Response
+     * @var Response
      */
     protected $_response;
+
+    /**
+     * @var \ReflectionClass
+     */
+    protected $_reflection_class;
+
+    /**
+     * @var array
+     *
+     * Array of variables, injected to this controller
+     */
+    protected $_injected = [];
 
     /**
      * @var \Perfumer\MVC\View\Core
@@ -47,24 +55,19 @@ class CoreController
     protected $_user;
 
     /**
-     * @var \ReflectionClass
-     */
-    protected $_reflection_class;
-
-    /**
      * Default name of Auth service
      *
      * @var string
      */
     protected $_auth_service_name = 'auth';
 
-    public function __construct(Container $container, Request $request, Response $response, \ReflectionClass $reflection_class)
+    public function __construct(Proxy $proxy, Request $request, Response $response, \ReflectionClass $reflection_class, array $injected = [])
     {
-        $this->_container = $container;
-        $this->_proxy = $container->getService('proxy');
+        $this->_proxy = $proxy;
         $this->_current = $request;
         $this->_response = $response;
         $this->_reflection_class = $reflection_class;
+        $this->_injected = $injected;
     }
 
     public function execute()
@@ -160,11 +163,11 @@ class CoreController
      */
     protected function getContainer()
     {
-        return $this->_container;
+        return $this->_injected['_container'];
     }
 
     /**
-     * @return \Perfumer\MVC\Proxy\Core
+     * @return Proxy
      */
     protected function getProxy()
     {
@@ -172,7 +175,7 @@ class CoreController
     }
 
     /**
-     * @return \Perfumer\MVC\Proxy\Request
+     * @return Request
      */
     protected function getMain()
     {
@@ -180,7 +183,7 @@ class CoreController
     }
 
     /**
-     * @return \Perfumer\MVC\Proxy\Request
+     * @return Request
      */
     protected function getInitial()
     {
@@ -190,7 +193,7 @@ class CoreController
     }
 
     /**
-     * @return \Perfumer\MVC\Proxy\Request
+     * @return Request
      */
     protected function getCurrent()
     {
@@ -198,7 +201,7 @@ class CoreController
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     protected function getResponse()
     {
