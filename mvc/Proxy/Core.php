@@ -2,17 +2,22 @@
 
 namespace Perfumer\MVC\Proxy;
 
-use Perfumer\Component\Container\Core as Container;
+use Perfumer\MVC\ExternalRouter\RouterInterface as ExternalRouter;
+use Perfumer\MVC\InternalRouter\RouterInterface as InternalRouter;
 use Perfumer\MVC\Proxy\Exception\ForwardException;
+use Symfony\Component\HttpFoundation\Response;
 
 class Core
 {
     /**
-     * @var Container
+     * @var ExternalRouter
      */
-    protected $container;
+    protected $external_router;
 
-    protected $request_pool = [];
+    /**
+     * @var InternalRouter
+     */
+    protected $internal_router;
 
     /**
      * @var Request
@@ -24,14 +29,12 @@ class Core
      */
     protected $next;
 
-    protected $external_router;
-    protected $internal_router;
+    protected $request_pool = [];
 
-    public function __construct(Container $container)
+    public function __construct(ExternalRouter $external_router, InternalRouter $internal_router)
     {
-        $this->container = $container;
-        $this->external_router = $container->getService('external_router');
-        $this->internal_router = $container->getService('internal_router');
+        $this->external_router = $external_router;
+        $this->internal_router = $internal_router;
     }
 
     public function run()
@@ -75,7 +78,7 @@ class Core
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     protected function start()
     {
@@ -113,9 +116,9 @@ class Core
             $this->forward('exception/page', 'controllerNotFound');
         }
 
-        $response = $this->container->getService('response');
+        $response = new Response;
 
-        $controller = $reflection_class->newInstance($this->container, $request, $response, $reflection_class);
+        $controller = $reflection_class->newInstance($request, $response, $reflection_class);
 
         return $reflection_class->getMethod('execute')->invoke($controller);
     }
