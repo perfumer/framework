@@ -139,7 +139,7 @@ class Core
 
         $response = new Response;
 
-        $controller = $reflection_class->newInstance($request, $response, $reflection_class, $this->injected);
+        $controller = $reflection_class->newInstance($this, $request, $response, $reflection_class, $this->injected);
 
         return $reflection_class->getMethod('execute')->invoke($controller);
     }
