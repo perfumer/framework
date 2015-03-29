@@ -4,6 +4,7 @@ namespace Perfumer\MVC\Controller;
 
 class TemplateController extends CoreController
 {
+    protected $_template;
     protected $_rendering = true;
 
     protected function before()
@@ -28,12 +29,25 @@ class TemplateController extends CoreController
                 'current' => $current
             ], 'app');
 
-            $content = $this->getView()->render($current->getUrl() . '/' . $current->getAction());
+            if (!$this->getTemplate())
+                $this->setTemplate($current->getUrl() . '/' . $current->getAction());
+
+            $content = $this->getView()->render($this->_template);
 
             $this->getResponse()->setContent($content);
         }
 
         parent::after();
+    }
+
+    protected function getTemplate()
+    {
+        return $this->_template;
+    }
+
+    protected function setTemplate($template)
+    {
+        $this->_template = $template;
     }
 
     protected function getRendering()
