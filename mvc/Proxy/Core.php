@@ -29,6 +29,13 @@ class Core
      */
     protected $next;
 
+    /**
+     * @var array
+     *
+     * Array of variables to inject to controller
+     */
+    protected $injected = [];
+
     protected $request_pool = [];
 
     public function __construct(ExternalRouter $external_router, InternalRouter $internal_router)
@@ -60,6 +67,20 @@ class Core
         $this->next = $this->internal_router->dispatch($url, $action, $args);
 
         throw new ForwardException();
+    }
+
+    public function inject($key, $value)
+    {
+        $this->injected[$key] = $value;
+
+        return $this;
+    }
+
+    public function injectArray($values)
+    {
+        $this->injected = array_merge($this->injected, $values);
+
+        return $this;
     }
 
     public function getRequestPool()
@@ -118,7 +139,7 @@ class Core
 
         $response = new Response;
 
-        $controller = $reflection_class->newInstance($request, $response, $reflection_class);
+        $controller = $reflection_class->newInstance($request, $response, $reflection_class, $this->injected);
 
         return $reflection_class->getMethod('execute')->invoke($controller);
     }
