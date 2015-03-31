@@ -118,7 +118,7 @@ class CoreController
      */
     protected function i($index = null)
     {
-        return $this->getProxy()->getId($index);
+        return $this->getProxy()->getExternalRouter()->getId($index);
     }
 
     /**
@@ -129,7 +129,7 @@ class CoreController
      */
     protected function q($name = null, $default = null)
     {
-        return $this->getProxy()->getQuery($name, $default);
+        return $this->getProxy()->getExternalRouter()->getQuery($name, $default);
     }
 
     /**
@@ -140,7 +140,7 @@ class CoreController
      */
     protected function a($name = null, $default = null)
     {
-        return $this->getProxy()->getArg($name, $default);
+        return $this->getProxy()->getExternalRouter()->getArg($name, $default);
     }
 
     /**
