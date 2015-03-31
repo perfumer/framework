@@ -44,6 +44,22 @@ class Core
         $this->internal_router = $internal_router;
     }
 
+    /**
+     * @return ExternalRouter
+     */
+    public function getExternalRouter()
+    {
+        return $this->external_router;
+    }
+
+    /**
+     * @return InternalRouter
+     */
+    public function getInternalRouter()
+    {
+        return $this->internal_router;
+    }
+
     public function run()
     {
         list($url, $action, $args) = $this->external_router->dispatch();
