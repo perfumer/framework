@@ -69,6 +69,14 @@ class Core
         throw new ForwardException();
     }
 
+    public function getInjected($key = null)
+    {
+        if ($key === null)
+            return $this->injected;
+
+        return isset($this->injected[$key]) ? $this->injected[$key] : null;
+    }
+
     public function inject($key, $value)
     {
         $this->injected[$key] = $value;
@@ -139,7 +147,7 @@ class Core
 
         $response = new Response;
 
-        $controller = $reflection_class->newInstance($this, $request, $response, $reflection_class, $this->injected);
+        $controller = $reflection_class->newInstance($this, $request, $response, $reflection_class);
 
         return $reflection_class->getMethod('execute')->invoke($controller);
     }

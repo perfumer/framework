@@ -31,13 +31,6 @@ class CoreController
     protected $_reflection_class;
 
     /**
-     * @var array
-     *
-     * Array of variables, injected to this controller
-     */
-    protected $_injected = [];
-
-    /**
      * @var \Perfumer\MVC\View\Core
      */
     protected $_view;
@@ -61,13 +54,12 @@ class CoreController
      */
     protected $_auth_service_name = 'auth';
 
-    public function __construct(Proxy $proxy, Request $request, Response $response, \ReflectionClass $reflection_class, array $injected = [])
+    public function __construct(Proxy $proxy, Request $request, Response $response, \ReflectionClass $reflection_class)
     {
         $this->_proxy = $proxy;
         $this->_current = $request;
         $this->_response = $response;
         $this->_reflection_class = $reflection_class;
-        $this->_injected = $injected;
     }
 
     public function execute()
@@ -103,9 +95,9 @@ class CoreController
         $this->getProxy()->forward('exception/page', 'location', [$url, $status_code]);
     }
 
-    protected function getInjected($key)
+    protected function getInjected($key = null)
     {
-        return isset($this->_injected[$key]) ? $this->_injected[$key] : null;
+        return $this->getProxy()->getInjected($key);
     }
 
     /**
@@ -168,7 +160,7 @@ class CoreController
      */
     protected function getContainer()
     {
-        return $this->getInjected('_container');
+        return $this->getProxy()->getInjected('_container');
     }
 
     /**
