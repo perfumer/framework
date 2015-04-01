@@ -53,15 +53,15 @@ class FrameworkExtension extends \Twig_Extension
         {
             $cache = $this->container->getService('cache')->getItem($cache_key);
 
+            $content = $cache->get();
+
             if ($cache->isMiss())
             {
+                $cache->lock();
+
                 $content = $this->proxy->execute($url, $action, $args)->getContent();
 
                 $cache->set($content, $cache_lifetime);
-            }
-            else
-            {
-                $content = $cache->get();
             }
         }
         else
