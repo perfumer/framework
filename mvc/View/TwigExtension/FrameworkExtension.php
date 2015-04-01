@@ -79,7 +79,7 @@ class FrameworkExtension extends \Twig_Extension
 
     public function url($url, $id = null, $query = [], $prefixes = [])
     {
-        return $this->proxy->generateUrl($url, $id, $query, $prefixes);
+        return $this->proxy->getExternalRouter()->generateUrl($url, $id, $query, $prefixes);
     }
 
     public function prefix($name = null)

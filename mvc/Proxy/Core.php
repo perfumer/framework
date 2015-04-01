@@ -117,11 +117,6 @@ class Core
         throw new ForwardException();
     }
 
-    public function generateUrl($url, $id = null, $query = [], $prefixes = [])
-    {
-        return $this->external_router->generateUrl($url, $id, $query, $prefixes);
-    }
-
     /**
      * @return Response
      */
