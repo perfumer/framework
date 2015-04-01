@@ -158,14 +158,7 @@ class HttpRouter implements RouterInterface
             $generated_url .= is_array($id) ? '-' . implode('/', $id) : '-' . $id;
 
         if ($query)
-        {
-            $query_parts = [];
-
-            foreach ($query as $key => $value)
-                $query_parts[] = $key . '=' . urlencode($value);
-
-            $generated_url .= '?' . implode('&', $query_parts);
-        }
+            $generated_url .= '?' . http_build_query($query, '', '&');
 
         return $generated_url;
     }
