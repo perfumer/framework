@@ -60,31 +60,6 @@ class Core
         return $this->internal_router;
     }
 
-    public function run()
-    {
-        list($url, $action, $args) = $this->external_router->dispatch();
-
-        $this->next = $this->internal_router->dispatch($url, $action, $args);
-
-        $this->start()->send();
-    }
-
-    public function execute($url, $action, array $args = [])
-    {
-        $request = $this->internal_router->dispatch($url, $action, $args);
-
-        return $this->executeController($request);
-    }
-
-    public function forward($url, $action, array $args = [])
-    {
-        $this->current_initial = null;
-
-        $this->next = $this->internal_router->dispatch($url, $action, $args);
-
-        throw new ForwardException();
-    }
-
     public function getInjected($key = null)
     {
         if ($key === null)
@@ -115,6 +90,31 @@ class Core
     public function getMain()
     {
         return $this->request_pool[0];
+    }
+
+    public function run()
+    {
+        list($url, $action, $args) = $this->external_router->dispatch();
+
+        $this->next = $this->internal_router->dispatch($url, $action, $args);
+
+        $this->start()->send();
+    }
+
+    public function execute($url, $action, array $args = [])
+    {
+        $request = $this->internal_router->dispatch($url, $action, $args);
+
+        return $this->executeController($request);
+    }
+
+    public function forward($url, $action, array $args = [])
+    {
+        $this->current_initial = null;
+
+        $this->next = $this->internal_router->dispatch($url, $action, $args);
+
+        throw new ForwardException();
     }
 
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])
@@ -166,105 +166,5 @@ class Core
         $controller = $reflection_class->newInstance($this, $request, $response, $reflection_class);
 
         return $reflection_class->getMethod('execute')->invoke($controller);
-    }
-
-    public function getPrefix($name = null, $default = null)
-    {
-        return $this->external_router->getPrefix($name, $default);
-    }
-
-    public function setPrefix($name, $value)
-    {
-        $this->external_router->setPrefix($name, $value);
-
-        return $this;
-    }
-
-    public function getId($index = null)
-    {
-        return $this->external_router->getId($index);
-    }
-
-    public function setId($id, $index = null)
-    {
-        $this->external_router->setId($id, $index);
-
-        return $this;
-    }
-
-    public function getArg($name = null, $default = null)
-    {
-        return $this->external_router->getArg($name, $default);
-    }
-
-    public function hasArgs()
-    {
-        return $this->external_router->hasArgs();
-    }
-
-    public function setArg($name, $value)
-    {
-        $this->external_router->setArg($name, $value);
-
-        return $this;
-    }
-
-    public function setArgsArray($array)
-    {
-        $this->external_router->setArgsArray($array);
-
-        return $this;
-    }
-
-    public function addArgsArray($array)
-    {
-        $this->external_router->addArgsArray($array);
-
-        return $this;
-    }
-
-    public function deleteArgs(array $keys = [])
-    {
-        $this->external_router->deleteArgs($keys);
-
-        return $this;
-    }
-
-    public function getQuery($name = null, $default = null)
-    {
-        return $this->external_router->getQuery($name, $default);
-    }
-
-    public function hasQuery()
-    {
-        return $this->external_router->hasQuery();
-    }
-
-    public function setQuery($name, $value)
-    {
-        $this->external_router->setQuery($name, $value);
-
-        return $this;
-    }
-
-    public function setQueryArray($array)
-    {
-        $this->external_router->setQueryArray($array);
-
-        return $this;
-    }
-
-    public function addQueryArray($array)
-    {
-        $this->external_router->addQueryArray($array);
-
-        return $this;
-    }
-
-    public function deleteQuery(array $keys = [])
-    {
-        $this->external_router->deleteQuery($keys);
-
-        return $this;
     }
 }

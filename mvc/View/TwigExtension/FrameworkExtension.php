@@ -84,22 +84,22 @@ class FrameworkExtension extends \Twig_Extension
 
     public function prefix($name = null)
     {
-        return $this->proxy->getPrefix($name);
+        return $this->proxy->getExternalRouter()->getPrefix($name);
     }
 
     public function id()
     {
-        return $this->proxy->getId();
+        return $this->proxy->getExternalRouter()->getId();
     }
 
     public function query($name = null)
     {
-        return $this->proxy->getQuery($name);
+        return $this->proxy->getExternalRouter()->getQuery($name);
     }
 
     public function arg($name = null)
     {
-        return $this->proxy->getArg($name);
+        return $this->proxy->getExternalRouter()->getArg($name);
     }
 
     public function t($key, $placeholders = [])

@@ -14,10 +14,10 @@ trait UpdateTransfer
     {
         $this->putPermission();
 
-        if ($this->getProxy()->getArg('id') === null)
+        if ($this->getProxy()->getExternalRouter()->getArg('id') === null)
             $this->setErrorMessageAndExit($this->getTranslator()->translate('_crud.object_not_found'));
 
-        $fields = Arr::fetch($this->getProxy()->getArg(), $this->putFields(), true);
+        $fields = Arr::fetch($this->getProxy()->getExternalRouter()->getArg(), $this->putFields(), true);
 
         $model = $this->getModel();
 
