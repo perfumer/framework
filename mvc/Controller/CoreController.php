@@ -171,6 +171,20 @@ class CoreController
     }
 
     /**
+     * Shortcut for ExternalRouter generateUrl() method
+     *
+     * @param $url
+     * @param $id
+     * @param $query
+     * @param $prefixes
+     * @return string
+     */
+    public function generateUrl($url, $id = null, $query = [], $prefixes = [])
+    {
+        return $this->getProxy()->getExternalRouter()->generateUrl($url, $id, $query, $prefixes);
+    }
+
+    /**
      * @return Container
      */
     protected function getContainer()
