@@ -112,8 +112,21 @@ class CoreController
     }
 
     /**
-     * Shortcut for Proxy getId() method
+     * Shortcut for ExternalRouter getPrefix() method
      *
+     * @param $name
+     * @param $default
+     * @return mixed
+     */
+    protected function p($name = null, $default = null)
+    {
+        return $this->getProxy()->getExternalRouter()->getPrefix($name, $default);
+    }
+
+    /**
+     * Shortcut for ExternalRouter getId() method
+     *
+     * @param $index
      * @return mixed
      */
     protected function i($index = null)
@@ -122,9 +135,10 @@ class CoreController
     }
 
     /**
-     * Shortcut for Proxy getQuery() method
+     * Shortcut for ExternalRouter getQuery() method
      *
      * @param $name
+     * @param $default
      * @return mixed
      */
     protected function q($name = null, $default = null)
@@ -133,9 +147,10 @@ class CoreController
     }
 
     /**
-     * Shortcut for Proxy getArg() method
+     * Shortcut for ExternalRouter getArg() method
      *
      * @param $name
+     * @param $default
      * @return mixed
      */
     protected function a($name = null, $default = null)
