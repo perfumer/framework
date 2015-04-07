@@ -5,6 +5,7 @@ namespace Perfumer\MVC\Proxy;
 use Perfumer\MVC\ExternalRouter\RouterInterface as ExternalRouter;
 use Perfumer\MVC\InternalRouter\RouterInterface as InternalRouter;
 use Perfumer\MVC\Proxy\Exception\ForwardException;
+use Perfumer\MVC\View\ViewFactory;
 use Symfony\Component\HttpFoundation\Response;
 
 class Core
@@ -18,6 +19,11 @@ class Core
      * @var InternalRouter
      */
     protected $internal_router;
+
+    /**
+     * @var ViewFactory
+     */
+    protected $view_factory;
 
     /**
      * @var Request
@@ -38,10 +44,11 @@ class Core
 
     protected $request_pool = [];
 
-    public function __construct(ExternalRouter $external_router, InternalRouter $internal_router)
+    public function __construct(ExternalRouter $external_router, InternalRouter $internal_router, ViewFactory $view_factory)
     {
         $this->external_router = $external_router;
         $this->internal_router = $internal_router;
+        $this->view_factory = $view_factory;
     }
 
     /**
@@ -58,6 +65,14 @@ class Core
     public function getInternalRouter()
     {
         return $this->internal_router;
+    }
+
+    /**
+     * @return ViewFactory
+     */
+    public function getViewFactory()
+    {
+        return $this->view_factory;
     }
 
     public function getInjected($key = null)
