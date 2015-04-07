@@ -30,11 +30,6 @@ class CoreController
      */
     protected $_reflection_class;
 
-    /**
-     * @var \Perfumer\MVC\View\Core
-     */
-    protected $_view;
-
     protected $_auth;
 
     /**
@@ -235,14 +230,11 @@ class CoreController
     }
 
     /**
-     * @return \Perfumer\MVC\View\Core
+     * @return \Perfumer\MVC\View\View
      */
-    protected function getView()
+    protected function getViewInstance()
     {
-        if ($this->_view === null)
-            $this->_view = $this->getContainer()->getService('view');
-
-        return $this->_view;
+        return $this->getProxy()->getViewFactory()->getInstance();
     }
 
     protected function getAuth()

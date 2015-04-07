@@ -6,6 +6,11 @@ use Perfumer\MVC\Controller\Exception\ExitActionException;
 
 class SerializeController extends CoreController
 {
+    /**
+     * @var \Perfumer\MVC\View\View
+     */
+    protected $_view;
+
     /*
      * Default serialize method
      */
@@ -34,6 +39,17 @@ class SerializeController extends CoreController
         $this->getResponse()->setContent($content);
 
         parent::after();
+    }
+
+    /**
+     * @return \Perfumer\MVC\View\View
+     */
+    protected function getView()
+    {
+        if ($this->_view === null)
+            $this->_view = $this->getProxy()->getViewFactory()->getInstance();
+
+        return $this->_view;
     }
 
     protected function getStatus()

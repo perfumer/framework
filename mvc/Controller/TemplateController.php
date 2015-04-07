@@ -4,6 +4,11 @@ namespace Perfumer\MVC\Controller;
 
 class TemplateController extends CoreController
 {
+    /**
+     * @var \Perfumer\MVC\View\View
+     */
+    protected $_view;
+
     protected $_template;
     protected $_rendering = true;
 
@@ -38,6 +43,17 @@ class TemplateController extends CoreController
         }
 
         parent::after();
+    }
+
+    /**
+     * @return \Perfumer\MVC\View\View
+     */
+    protected function getView()
+    {
+        if ($this->_view === null)
+            $this->_view = $this->getProxy()->getViewFactory()->getInstance();
+
+        return $this->_view;
     }
 
     protected function getTemplate()
