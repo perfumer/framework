@@ -5,7 +5,7 @@ namespace Perfumer\MVC\View;
 use Perfumer\MVC\View\Exception\ViewException;
 use Perfumer\MVC\View\Router\RouterInterface;
 
-class Core
+class View
 {
     protected $templating;
 
@@ -19,16 +19,11 @@ class Core
 
     protected $options = [];
 
-    public function __construct($templating, RouterInterface $router, $options = [])
+    public function __construct($templating, RouterInterface $router, $options)
     {
         $this->templating = $templating;
         $this->router = $router;
-
-        $default_options = [
-            'extension' => 'php'
-        ];
-
-        $this->options = array_merge($default_options, $options);
+        $this->options = $options;
     }
 
     public function render($template, $extension = null)
