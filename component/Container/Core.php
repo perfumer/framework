@@ -203,10 +203,11 @@ class Core
      * @example getParam('db.') -> mixed value
      * @example getParam('name') -> exception
      * @param string $key
+     * @param mixed $default
      * @return mixed
      * @access public
      */
-    public function getParam($key)
+    public function getParam($key, $default = null)
     {
         list($group, $name) = $this->extractParamKey($key);
 
@@ -216,7 +217,7 @@ class Core
         if (!isset($this->params[$group]))
             $this->params[$group] = [];
 
-        return isset($this->params[$group][$name]) ? $this->params[$group][$name] : null;
+        return isset($this->params[$group][$name]) ? $this->params[$group][$name] : $default;
     }
 
     /**
