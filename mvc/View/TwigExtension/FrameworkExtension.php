@@ -11,21 +11,9 @@ class FrameworkExtension extends \Twig_Extension
      */
     protected $container;
 
-    /**
-     * @var \Perfumer\MVC\Proxy\Core
-     */
-    protected $proxy;
-
-    /**
-     * @var \Perfumer\Component\Translator\Core
-     */
-    protected $translator;
-
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->proxy = $container->getService('proxy');
-        $this->translator = $container->getService('translator');
     }
 
     public function getName()
@@ -49,6 +37,8 @@ class FrameworkExtension extends \Twig_Extension
 
     public function request($url, $action, array $args = [], $cache_key = null, $cache_lifetime = 3600)
     {
+        $proxy = $this->container->getService('proxy');
+
         if ($cache_key !== null)
         {
             $cache = $this->container->getService('cache')->getItem($cache_key);
@@ -59,14 +49,14 @@ class FrameworkExtension extends \Twig_Extension
             {
                 $cache->lock();
 
-                $content = $this->proxy->execute($url, $action, $args)->getContent();
+                $content = $proxy->execute($url, $action, $args)->getContent();
 
                 $cache->set($content, $cache_lifetime);
             }
         }
         else
         {
-            $content = $this->proxy->execute($url, $action, $args)->getContent();
+            $content = $proxy->execute($url, $action, $args)->getContent();
         }
 
         return $content;
@@ -79,31 +69,36 @@ class FrameworkExtension extends \Twig_Extension
 
     public function url($url, $id = null, $query = [], $prefixes = [])
     {
-        return $this->proxy->getExternalRouter()->generateUrl($url, $id, $query, $prefixes);
+        return $this->getExternalRouter()->generateUrl($url, $id, $query, $prefixes);
     }
 
     public function prefix($name = null)
     {
-        return $this->proxy->getExternalRouter()->getPrefix($name);
+        return $this->getExternalRouter()->getPrefix($name);
     }
 
     public function id($index = null)
     {
-        return $this->proxy->getExternalRouter()->getId($index);
+        return $this->getExternalRouter()->getId($index);
     }
 
     public function query($name = null)
     {
-        return $this->proxy->getExternalRouter()->getQuery($name);
+        return $this->getExternalRouter()->getQuery($name);
     }
 
     public function arg($name = null)
     {
-        return $this->proxy->getExternalRouter()->getArg($name);
+        return $this->getExternalRouter()->getArg($name);
     }
 
     public function t($key, $placeholders = [])
     {
-        return $this->translator->translate($key, $placeholders);
+        return $this->container->getService('translator')->translate($key, $placeholders);
+    }
+
+    private function getExternalRouter()
+    {
+        return $this->container->getService('proxy')->getExternalRouter();
     }
 }
