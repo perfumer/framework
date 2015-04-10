@@ -42,6 +42,9 @@ class Core
      */
     protected $injected = [];
 
+    /**
+     * @var array
+     */
     protected $request_pool = [];
 
     public function __construct(ExternalRouter $external_router, InternalRouter $internal_router, ViewFactory $view_factory)
@@ -151,6 +154,9 @@ class Core
 
     protected function executeController(Request $request)
     {
+        if (count($this->request_pool) != 0)
+            $request->setMain($this->getMain());
+
         $this->request_pool[] = $request;
 
         if ($this->current_initial === null)
