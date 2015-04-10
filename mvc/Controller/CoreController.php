@@ -85,6 +85,16 @@ class CoreController
     {
     }
 
+    /**
+     * @return array
+     * 
+     * Array of actions available for main request
+     */
+    protected function getAllowedMethods()
+    {
+        return ['get', 'post', 'put', 'delete', 'patch', 'lock', 'unlock', 'options'];
+    }
+
     protected function redirect($url, $status_code = 302)
     {
         $this->getProxy()->forward('exception/page', 'location', [$url, $status_code]);

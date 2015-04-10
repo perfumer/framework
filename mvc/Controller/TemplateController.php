@@ -16,7 +16,12 @@ class TemplateController extends CoreController
     {
         parent::before();
 
-        if (!method_exists($this, $this->getCurrent()->getAction()))
+        $current = $this->getCurrent();
+
+        if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
+            $this->getProxy()->forward('exception/page', 'actionNotFound');
+
+        if (!method_exists($this, $current->getAction()))
             $this->getProxy()->forward('exception/page', 'actionNotFound');
 
         $this->getView()->mapGroup('app')->addVar('user', $this->getUser(), 'app');
