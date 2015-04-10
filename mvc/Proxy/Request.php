@@ -7,12 +7,34 @@ class Request
     /**
      * @var Request
      */
+    protected $main;
+
+    /**
+     * @var Request
+     */
     protected $initial;
 
     protected $url;
     protected $controller;
     protected $action;
     protected $args;
+
+    public function setMain(Request $request)
+    {
+        $this->main = $request;
+
+        return $this;
+    }
+
+    public function getMain()
+    {
+        return $this->main;
+    }
+
+    public function isMain()
+    {
+        return $this->main === null;
+    }
 
     public function setInitial(Request $request)
     {
@@ -28,7 +50,7 @@ class Request
 
     public function isInitial()
     {
-        return $this->initial !== null;
+        return $this->initial === null;
     }
 
     public function getUrl()
