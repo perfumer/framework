@@ -56,7 +56,7 @@ class TemplateController extends CoreController
     protected function getView()
     {
         if ($this->_view === null)
-            $this->_view = $this->getProxy()->getViewFactory()->getInstance();
+            $this->_view = $this->getViewInstance();
 
         return $this->_view;
     }

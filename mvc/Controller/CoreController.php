@@ -11,6 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 class CoreController
 {
     /**
+     * @var Container
+     */
+    protected $_container;
+
+    /**
      * @var Proxy
      */
     protected $_proxy;
@@ -49,9 +54,10 @@ class CoreController
      */
     protected $_auth_service_name = 'auth';
 
-    public function __construct(Proxy $proxy, Request $request, Response $response, \ReflectionClass $reflection_class)
+    public function __construct(Container $container, Request $request, Response $response, \ReflectionClass $reflection_class)
     {
-        $this->_proxy = $proxy;
+        $this->_container = $container;
+        $this->_proxy = $container->getService('proxy');
         $this->_current = $request;
         $this->_response = $response;
         $this->_reflection_class = $reflection_class;
@@ -87,7 +93,7 @@ class CoreController
 
     /**
      * @return array
-     * 
+     *
      * Array of actions available for main request
      */
     protected function getAllowedMethods()
@@ -98,11 +104,6 @@ class CoreController
     protected function redirect($url, $status_code = 302)
     {
         $this->getProxy()->forward('exception/page', 'location', [$url, $status_code]);
-    }
-
-    protected function getInjected($key = null)
-    {
-        return $this->getProxy()->getInjected($key);
     }
 
     /**
@@ -194,7 +195,7 @@ class CoreController
      */
     protected function getContainer()
     {
-        return $this->getProxy()->getInjected('_container');
+        return $this->_container;
     }
 
     /**
@@ -244,7 +245,7 @@ class CoreController
      */
     protected function getViewInstance()
     {
-        return $this->getProxy()->getViewFactory()->getInstance();
+        return $this->getContainer()->getService('view_factory')->getInstance();
     }
 
     protected function getAuth()
