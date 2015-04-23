@@ -76,7 +76,7 @@ class User extends BaseUser
 
     public function inGroup($group_name)
     {
-        if (array_key_exists($group_name, $this->profiles))
+        if (isset($this->profiles[$group_name]))
             return true;
 
         $user_group = UserGroupQuery::create()
