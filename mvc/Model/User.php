@@ -4,29 +4,39 @@ namespace Perfumer\MVC\Model;
 
 use App\Model\Base\User as BaseUser;
 use App\Model\DelegationQuery;
+use App\Model\UserGroupQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Collection\ObjectCollection;
 
 class User extends BaseUser
 {
-    protected $profile;
+    protected $profiles = [];
     protected $is_logged = false;
     protected $role_ids = [];
     protected $permissions = [];
 
-    public function getProfile()
+    public function getProfile($group_name)
     {
-        if ($this->profile !== null)
-            return $this->profile;
+        if (array_key_exists($group_name, $this->profiles))
+            return $this->profiles[$group_name];
 
-        if ($this->getGroupName() !== null && $this->getGroupId() !== null)
+        $user_group = UserGroupQuery::create()
+            ->filterByUserId($this->getId())
+            ->filterByGroupName($group_name)
+            ->findOne();
+
+        if ($user_group)
         {
-            $query = 'App\\Model\\' . $this->getGroupName() . 'Query';
+            $query = 'App\\Model\\' . $group_name . 'Query';
 
-            $this->profile = $query::create()->findPk($this->getGroupId());
+            $this->profiles[$group_name] = $query::create()->findPk($user_group->getGroupId());
+        }
+        else
+        {
+            $this->profiles[$group_name] = null;
         }
 
-        return $this->profile;
+        return $this->profiles[$group_name];
     }
 
     public function hashPassword($v)
@@ -64,9 +74,17 @@ class User extends BaseUser
         return $this->is_logged;
     }
 
-    public function inGroup($name)
+    public function inGroup($group_name)
     {
-        return $this->getGroupName() === $name;
+        if (array_key_exists($group_name, $this->profiles))
+            return true;
+
+        $user_group = UserGroupQuery::create()
+            ->filterByUserId($this->getId())
+            ->filterByGroupName($group_name)
+            ->findOne();
+
+        return (bool) $user_group;
     }
 
     public function isGranted($permissions)
