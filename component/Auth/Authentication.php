@@ -103,6 +103,11 @@ class Authentication
         return $this->session;
     }
 
+    public function getToken()
+    {
+        return $this->token;
+    }
+
     public function init()
     {
         $start_session = false;
