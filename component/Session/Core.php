@@ -2,6 +2,7 @@
 
 namespace Perfumer\Component\Session;
 
+use Perfumer\Helper\Text;
 use Stash\Pool as Cache;
 
 class Core
@@ -51,11 +52,9 @@ class Core
 
     protected function generateId()
     {
-        $id = uniqid('', true);
-
         do
         {
-            $id = md5($id);
+            $id = Text::generateString(20);
 
             $item = $this->cache->getItem('_session/' . $id);
         }
