@@ -10,6 +10,7 @@ use Perfumer\Component\Auth\Exception\AuthException;
 use Perfumer\Component\Auth\TokenHandler\AbstractHandler as TokenHandler;
 use Perfumer\Component\Session\Core as SessionService;
 use Perfumer\Component\Session\Item as Session;
+use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Map\TableMap;
 
 class Authentication
@@ -219,20 +220,43 @@ class Authentication
         $token = new Token();
         $token->setToken($this->token);
         $token->setUser($this->user);
+
+        $lifetime = $this->token_handler->getTokenLifetime();
+
+        if ($lifetime > 0)
+        {
+            $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
+
+            $token->setExpiredAt($expired_at);
+        }
+
         $token->save();
 
         // Clear old tokens in the database
-        $old_date = (new \DateTime())->modify('-' . $this->token_handler->getTokenLifetime() . ' second');
-
-        TokenQuery::create()->filterByUser($this->user)->filterByUpdatedAt($old_date, '<')->delete();
+        TokenQuery::create()
+            ->filterByUser($this->user)
+            ->filterByExpiredAt(new \DateTime(), '<')
+            ->_or()
+            ->filterByExpiredAt(null, Criteria::ISNOTNULL)
+            ->delete();
     }
 
     protected function updateSession()
     {
-        $token = TokenQuery::create()->findOneByToken($this->token);
+        $lifetime = $this->token_handler->getTokenLifetime();
 
-        if ($token)
-            $token->setUpdatedAt(new \DateTime())->save();
+        if ($lifetime > 0)
+        {
+            $token = TokenQuery::create()->findOneByToken($this->token);
+
+            if ($token)
+            {
+                $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
+
+                $token->setExpiredAt($expired_at);
+                $token->save();
+            }
+        }
 
         $this->updateSessionData();
     }
@@ -255,11 +279,11 @@ class Authentication
         if ($user === null)
             $user = $this->user;
 
-        $old_date = (new \DateTime())->modify('-' . $this->token_handler->getTokenLifetime() . ' second');
-
         $tokens = TokenQuery::create()
             ->filterByUser($user)
-            ->filterByUpdatedAt($old_date, '>=')
+            ->filterByExpiredAt(new \DateTime(), '>=')
+            ->_or()
+            ->filterByExpiredAt(null, Criteria::ISNULL)
             ->find();
 
         foreach ($tokens as $token)

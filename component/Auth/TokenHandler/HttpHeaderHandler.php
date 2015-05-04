@@ -26,6 +26,6 @@ class HttpHeaderHandler extends AbstractHandler
 
     public function getTokenLifetime()
     {
-        return 30 * 86400;
+        return 0;
     }
 }
