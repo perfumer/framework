@@ -25,6 +25,9 @@ class DatabaseAuthorization extends Authentication
                 if (!$user->validatePassword($password))
                     throw new AuthException(self::STATUS_INVALID_PASSWORD);
 
+                if ($this->options['groups'] && !$user->inGroup($this->options['groups']))
+                    throw new AuthException(self::STATUS_INVALID_GROUP);
+
                 if ($user->isDisabled())
                     throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
 

@@ -5,6 +5,7 @@ namespace Perfumer\MVC\Model;
 use App\Model\Base\User as BaseUser;
 use App\Model\DelegationQuery;
 use App\Model\UserGroupQuery;
+use Perfumer\Helper\Arr;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Collection\ObjectCollection;
 
@@ -74,14 +75,17 @@ class User extends BaseUser
         return $this->is_logged;
     }
 
-    public function inGroup($group_name)
+    public function inGroup($groups)
     {
-        if (isset($this->profiles[$group_name]))
+        if (!is_array($groups))
+            $groups = [$groups];
+
+        if (array_filter(Arr::fetch($this->profiles, $groups)))
             return true;
 
         $user_group = UserGroupQuery::create()
             ->filterByUserId($this->getId())
-            ->filterByGroupName($group_name)
+            ->filterByGroupName($groups, Criteria::IN)
             ->findOne();
 
         return (bool) $user_group;

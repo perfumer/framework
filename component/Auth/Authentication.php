@@ -19,14 +19,15 @@ class Authentication
     const STATUS_ANONYMOUS = 3;
     const STATUS_AUTHENTICATED = 4;
     const STATUS_INVALID_CREDENTIALS = 5;
-    const STATUS_INVALID_PASSWORD = 6;
-    const STATUS_INVALID_USERNAME = 7;
-    const STATUS_NO_TOKEN = 8;
-    const STATUS_NON_EXISTING_TOKEN = 9;
-    const STATUS_NON_EXISTING_USER = 10;
-    const STATUS_REMOTE_SERVER_ERROR = 11;
-    const STATUS_SIGNED_IN = 12;
-    const STATUS_SIGNED_OUT = 13;
+    const STATUS_INVALID_GROUP = 6;
+    const STATUS_INVALID_PASSWORD = 7;
+    const STATUS_INVALID_USERNAME = 8;
+    const STATUS_NO_TOKEN = 9;
+    const STATUS_NON_EXISTING_TOKEN = 10;
+    const STATUS_NON_EXISTING_USER = 11;
+    const STATUS_REMOTE_SERVER_ERROR = 12;
+    const STATUS_SIGNED_IN = 13;
+    const STATUS_SIGNED_OUT = 14;
 
     /**
      * @var SessionService
@@ -50,10 +51,18 @@ class Authentication
 
     protected $token;
     protected $status;
-    protected $update_gap = 3600;
+
+    protected $options = [];
 
     public function __construct(SessionService $session_service, TokenHandler $token_handler, $options = [])
     {
+        $default_options = [
+            'update_gap' => 3600,
+            'groups' => []
+        ];
+
+        $this->options = array_merge($default_options, $options);
+
         $this->session_service = $session_service;
         $this->token_handler = $token_handler;
         $this->user = new User();
@@ -62,9 +71,6 @@ class Authentication
 
         if ($this->token !== null)
             $this->session = $this->session_service->get($this->token);
-
-        if (isset($options['update_gap']))
-            $this->update_gap = (int) $options['update_gap'];
     }
 
     public function isLogged()
@@ -137,7 +143,7 @@ class Authentication
 
                 if (isset($_user['data']['id']))
                 {
-                    if(time() - $this->session->get('_updated_at') >= $this->update_gap)
+                    if(time() - $this->session->get('_updated_at') >= $this->options['update_gap'])
                     {
                         $user = UserQuery::create()->findPk($_user['data']['id']);
 
@@ -165,6 +171,9 @@ class Authentication
                     return;
                 }
             }
+
+            if ($this->options['groups'] && !$user->inGroup($this->options['groups']))
+                throw new AuthException(self::STATUS_INVALID_GROUP);
 
             if ($user->isDisabled())
                 throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
