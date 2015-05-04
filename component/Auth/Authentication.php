@@ -233,9 +233,11 @@ class Authentication
         $token->save();
 
         // Clear old tokens in the database
+        $expired_at = (new \DateTime())->modify('-' . $this->options['update_gap'] . ' second');
+
         TokenQuery::create()
             ->filterByUser($this->user)
-            ->filterByExpiredAt(new \DateTime(), '<')
+            ->filterByExpiredAt($expired_at, '<')
             ->filterByExpiredAt(null, Criteria::ISNOTNULL)
             ->delete();
     }
