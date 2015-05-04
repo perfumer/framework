@@ -136,6 +136,9 @@ class Authentication
 
                 $user = $token->getUser();
 
+                // Delete this token from database, because we will attach new one
+                $token->delete();
+
                 $start_session = true;
             }
             else
