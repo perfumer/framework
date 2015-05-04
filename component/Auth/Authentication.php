@@ -236,7 +236,6 @@ class Authentication
         TokenQuery::create()
             ->filterByUser($this->user)
             ->filterByExpiredAt(new \DateTime(), '<')
-            ->_or()
             ->filterByExpiredAt(null, Criteria::ISNOTNULL)
             ->delete();
     }
