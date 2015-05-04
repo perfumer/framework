@@ -4,16 +4,21 @@ namespace Perfumer\Component\Auth\TokenHandler;
 
 class HttpHeaderHandler extends AbstractHandler
 {
-    protected $header;
+    protected $options = [];
 
-    public function __construct($header)
+    public function __construct($options = [])
     {
-        $this->header = $header;
+        $default_options = [
+            'header' => 'HTTP_TOKEN',
+            'lifetime' => 3600
+        ];
+
+        $this->options = array_merge($default_options, $options);
     }
 
     public function getToken()
     {
-        return isset($_SERVER[$this->header]) ? $_SERVER[$this->header] : null;
+        return isset($_SERVER[$this->options['header']]) ? $_SERVER[$this->options['header']] : null;
     }
 
     public function setToken($token)
@@ -26,6 +31,6 @@ class HttpHeaderHandler extends AbstractHandler
 
     public function getTokenLifetime()
     {
-        return 0;
+        return $this->options['lifetime'];
     }
 }
