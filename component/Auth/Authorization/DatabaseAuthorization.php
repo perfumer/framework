@@ -18,7 +18,7 @@ class DatabaseAuthorization extends Authentication
                 $application = ApplicationQuery::create()->findOneByToken($application_token);
 
                 if (!$application)
-                    throw new AuthException(self::STATUS_NON_EXISTING_APPLICATION);
+                    throw new AuthException(self::STATUS_INVALID_APPLICATION);
 
                 $this->application = $application;
             }

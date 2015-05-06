@@ -20,19 +20,20 @@ class Authentication
     const STATUS_ACCOUNT_BANNED = 1;
     const STATUS_ACCOUNT_DISABLED = 2;
     const STATUS_ANONYMOUS = 3;
-    const STATUS_APPLICATION_REQUIRED = 4;
-    const STATUS_AUTHENTICATED = 5;
-    const STATUS_INVALID_CREDENTIALS = 6;
-    const STATUS_INVALID_GROUP = 7;
-    const STATUS_INVALID_PASSWORD = 8;
-    const STATUS_INVALID_USERNAME = 9;
-    const STATUS_NO_TOKEN = 10;
-    const STATUS_NON_EXISTING_APPLICATION = 11;
-    const STATUS_NON_EXISTING_TOKEN = 12;
-    const STATUS_NON_EXISTING_USER = 13;
-    const STATUS_REMOTE_SERVER_ERROR = 14;
-    const STATUS_SIGNED_IN = 15;
-    const STATUS_SIGNED_OUT = 16;
+    const STATUS_AUTHENTICATED = 4;
+    const STATUS_EXPIRED_TOKEN = 5;
+    const STATUS_INVALID_APPLICATION = 6;
+    const STATUS_INVALID_CREDENTIALS = 7;
+    const STATUS_INVALID_GROUP = 8;
+    const STATUS_INVALID_PASSWORD = 9;
+    const STATUS_INVALID_TOKEN = 10;
+    const STATUS_INVALID_USER = 11;
+    const STATUS_INVALID_USERNAME = 12;
+    const STATUS_NO_APPLICATION = 13;
+    const STATUS_NO_TOKEN = 14;
+    const STATUS_REMOTE_SERVER_ERROR = 15;
+    const STATUS_SIGNED_IN = 16;
+    const STATUS_SIGNED_OUT = 17;
 
     /**
      * @var SessionService
@@ -151,13 +152,16 @@ class Authentication
                 $_session = SessionQuery::create()->findOneByToken($this->token);
 
                 if (!$_session)
-                    throw new AuthException(self::STATUS_NON_EXISTING_TOKEN);
+                    throw new AuthException(self::STATUS_INVALID_TOKEN);
+
+                if ($_session->getExpiredAt() !== null && $_session->getExpiredAt()->diff(new \DateTime())->invert == 1)
+                    throw new AuthException(self::STATUS_EXPIRED_TOKEN);
 
                 if ($this->options['application'])
                 {
                     if ($_session->getApplicationId() === null)
                     {
-                        throw new AuthException(self::STATUS_APPLICATION_REQUIRED);
+                        throw new AuthException(self::STATUS_NO_APPLICATION);
                     }
                     else
                     {
@@ -183,7 +187,7 @@ class Authentication
                         $_application = $this->session->get('_application');
 
                         if (!isset($_application['data']) || !isset($_application['data']['id']))
-                            throw new AuthException(self::STATUS_APPLICATION_REQUIRED);
+                            throw new AuthException(self::STATUS_NO_APPLICATION);
                     }
 
                     if(time() - $this->session->get('_updated_at') >= $this->options['update_gap'])
@@ -191,14 +195,14 @@ class Authentication
                         $user = UserQuery::create()->findPk($_user['data']['id']);
 
                         if (!$user)
-                            throw new AuthException(self::STATUS_NON_EXISTING_USER);
+                            throw new AuthException(self::STATUS_INVALID_USER);
 
                         if ($this->options['application'])
                         {
                             $application = ApplicationQuery::create()->findPk($_application['data']['id']);
 
                             if (!$application)
-                                throw new AuthException(self::STATUS_NON_EXISTING_APPLICATION);
+                                throw new AuthException(self::STATUS_INVALID_APPLICATION);
                         }
 
                         $update_session = true;
