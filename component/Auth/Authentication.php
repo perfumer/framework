@@ -240,7 +240,7 @@ class Authentication
             if ($user->isDisabled())
                 throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
 
-            if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 1)
+            if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 0)
                 throw new AuthException(self::STATUS_ACCOUNT_BANNED);
 
             $this->user = $user;
@@ -287,42 +287,32 @@ class Authentication
         if ($this->options['application'])
             $_session->setApplication($this->application);
 
-        $lifetime = $this->token_handler->getTokenLifetime();
+        $lifetime = $this->token_handler->getTokenLifetime() + $this->options['update_gap'];
 
-        if ($lifetime > 0)
-        {
-            $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
+        $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
 
-            $_session->setExpiredAt($expired_at);
-        }
-
+        $_session->setExpiredAt($expired_at);
         $_session->save();
 
         // Clear old tokens in the database
-        $expired_at = (new \DateTime())->modify('-' . $this->options['update_gap'] . ' second');
-
         SessionQuery::create()
             ->filterByUser($this->user)
-            ->filterByExpiredAt($expired_at, '<')
-            ->filterByExpiredAt(null, Criteria::ISNOTNULL)
+            ->filterByExpiredAt(new \DateTime(), '<')
             ->delete();
     }
 
     protected function updateSession()
     {
-        $lifetime = $this->token_handler->getTokenLifetime();
+        $_session = SessionQuery::create()->findOneByToken($this->token);
 
-        if ($lifetime > 0)
+        if ($_session)
         {
-            $_session = SessionQuery::create()->findOneByToken($this->token);
+            $lifetime = $this->token_handler->getTokenLifetime() + $this->options['update_gap'];
 
-            if ($_session)
-            {
-                $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
+            $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
 
-                $_session->setExpiredAt($expired_at);
-                $_session->save();
-            }
+            $_session->setExpiredAt($expired_at);
+            $_session->save();
         }
 
         $this->updateSessionData();
@@ -358,8 +348,6 @@ class Authentication
         $_sessions = SessionQuery::create()
             ->filterByUser($user)
             ->filterByExpiredAt(new \DateTime(), '>=')
-            ->_or()
-            ->filterByExpiredAt(null, Criteria::ISNULL)
             ->find();
 
         foreach ($_sessions as $_session)

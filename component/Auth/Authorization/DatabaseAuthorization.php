@@ -39,7 +39,7 @@ class DatabaseAuthorization extends Authentication
                 if ($user->isDisabled())
                     throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
 
-                if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 1)
+                if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 0)
                     throw new AuthException(self::STATUS_ACCOUNT_BANNED);
             }
 
