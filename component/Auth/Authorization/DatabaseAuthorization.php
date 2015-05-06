@@ -2,19 +2,27 @@
 
 namespace Perfumer\Component\Auth\Authorization;
 
-use App\Model\Token;
-use App\Model\TokenQuery;
-use App\Model\User;
+use App\Model\ApplicationQuery;
 use App\Model\UserQuery;
 use Perfumer\Component\Auth\Authentication;
 use Perfumer\Component\Auth\Exception\AuthException;
 
 class DatabaseAuthorization extends Authentication
 {
-    public function login($username, $password, $force_login = false)
+    public function login($username, $password, $application_token = null, $force_login = false)
     {
         try
         {
+            if ($this->options['application'])
+            {
+                $application = ApplicationQuery::create()->findOneByToken($application_token);
+
+                if (!$application)
+                    throw new AuthException(self::STATUS_NON_EXISTING_APPLICATION);
+
+                $this->application = $application;
+            }
+
             $user = UserQuery::create()->findOneByUsername($username);
 
             if (!$user)
