@@ -2,6 +2,8 @@
 
 namespace Perfumer\Component\Auth;
 
+use App\Model\Application;
+use App\Model\ApplicationQuery;
 use App\Model\Token;
 use App\Model\TokenQuery;
 use App\Model\User;
@@ -18,17 +20,19 @@ class Authentication
     const STATUS_ACCOUNT_BANNED = 1;
     const STATUS_ACCOUNT_DISABLED = 2;
     const STATUS_ANONYMOUS = 3;
-    const STATUS_AUTHENTICATED = 4;
-    const STATUS_INVALID_CREDENTIALS = 5;
-    const STATUS_INVALID_GROUP = 6;
-    const STATUS_INVALID_PASSWORD = 7;
-    const STATUS_INVALID_USERNAME = 8;
-    const STATUS_NO_TOKEN = 9;
-    const STATUS_NON_EXISTING_TOKEN = 10;
-    const STATUS_NON_EXISTING_USER = 11;
-    const STATUS_REMOTE_SERVER_ERROR = 12;
-    const STATUS_SIGNED_IN = 13;
-    const STATUS_SIGNED_OUT = 14;
+    const STATUS_APPLICATION_REQUIRED = 4;
+    const STATUS_AUTHENTICATED = 5;
+    const STATUS_INVALID_CREDENTIALS = 6;
+    const STATUS_INVALID_GROUP = 7;
+    const STATUS_INVALID_PASSWORD = 8;
+    const STATUS_INVALID_USERNAME = 9;
+    const STATUS_NO_TOKEN = 10;
+    const STATUS_NON_EXISTING_APPLICATION = 11;
+    const STATUS_NON_EXISTING_TOKEN = 12;
+    const STATUS_NON_EXISTING_USER = 13;
+    const STATUS_REMOTE_SERVER_ERROR = 14;
+    const STATUS_SIGNED_IN = 15;
+    const STATUS_SIGNED_OUT = 16;
 
     /**
      * @var SessionService
@@ -46,6 +50,11 @@ class Authentication
     protected $user;
 
     /**
+     * @var \App\Model\Application
+     */
+    protected $application;
+
+    /**
      * @var Session
      */
     protected $session;
@@ -59,7 +68,8 @@ class Authentication
     {
         $default_options = [
             'update_gap' => 3600,
-            'groups' => []
+            'groups' => [],
+            'application' => false
         ];
 
         $this->options = array_merge($default_options, $options);
@@ -88,6 +98,14 @@ class Authentication
             $this->init();
 
         return $this->user;
+    }
+
+    public function getApplication()
+    {
+        if ($this->status === null)
+            $this->init();
+
+        return $this->application;
     }
 
     public function getStatus()
@@ -126,6 +144,7 @@ class Authentication
                 throw new AuthException(self::STATUS_NO_TOKEN);
 
             $user = null;
+            $application = null;
 
             if (!$this->session_service->has($this->token))
             {
@@ -133,6 +152,18 @@ class Authentication
 
                 if (!$token)
                     throw new AuthException(self::STATUS_NON_EXISTING_TOKEN);
+
+                if ($this->options['application'])
+                {
+                    if ($token->getApplicationId() === null)
+                    {
+                        throw new AuthException(self::STATUS_APPLICATION_REQUIRED);
+                    }
+                    else
+                    {
+                        $application = $token->getApplication();
+                    }
+                }
 
                 $user = $token->getUser();
 
@@ -147,12 +178,28 @@ class Authentication
 
                 if (isset($_user['data']['id']))
                 {
+                    if ($this->options['application'])
+                    {
+                        $_application = $this->session->get('_application');
+
+                        if (!isset($_application['data']) || !isset($_application['data']['id']))
+                            throw new AuthException(self::STATUS_APPLICATION_REQUIRED);
+                    }
+
                     if(time() - $this->session->get('_updated_at') >= $this->options['update_gap'])
                     {
                         $user = UserQuery::create()->findPk($_user['data']['id']);
 
                         if (!$user)
                             throw new AuthException(self::STATUS_NON_EXISTING_USER);
+
+                        if ($this->options['application'])
+                        {
+                            $application = ApplicationQuery::create()->findPk($_application['data']['id']);
+
+                            if (!$application)
+                                throw new AuthException(self::STATUS_NON_EXISTING_APPLICATION);
+                        }
 
                         $update_session = true;
                     }
@@ -163,6 +210,13 @@ class Authentication
                         $user->setPermissions($_user['permissions']);
                         $user->setRoleIds($_user['role_ids']);
                         $user->setNew(false);
+
+                        if ($this->options['application'])
+                        {
+                            $application = new Application();
+                            $application->fromArray($_application['data']);
+                            $application->setNew(false);
+                        }
                     }
                 }
                 else
@@ -187,6 +241,8 @@ class Authentication
 
             $this->user = $user;
             $this->user->setLogged(true);
+
+            $this->application = $application;
 
             if ($start_session)
                 $this->startSession();
@@ -223,6 +279,9 @@ class Authentication
         $token = new Token();
         $token->setToken($this->token);
         $token->setUser($this->user);
+
+        if ($this->options['application'])
+            $token->setApplication($this->application);
 
         $lifetime = $this->token_handler->getTokenLifetime();
 
@@ -276,6 +335,15 @@ class Authentication
         ];
 
         $this->session->set('_user', $_user)->set('_updated_at', time());
+
+        if ($this->options['application'])
+        {
+            $_application = [
+                'data' => $this->application->toArray(TableMap::TYPE_FIELDNAME)
+            ];
+
+            $this->session->set('_application', $_application);
+        }
     }
 
     public function invalidateSessions($user = null)
@@ -302,6 +370,7 @@ class Authentication
     protected function reset($status)
     {
         $this->user = new User();
+        $this->application = null;
 
         $this->status = $status;
 
