@@ -4,14 +4,14 @@ namespace Perfumer\Component\Auth;
 
 use App\Model\Application;
 use App\Model\ApplicationQuery;
-use App\Model\Token;
-use App\Model\TokenQuery;
+use App\Model\Session;
+use App\Model\SessionQuery;
 use App\Model\User;
 use App\Model\UserQuery;
 use Perfumer\Component\Auth\Exception\AuthException;
 use Perfumer\Component\Auth\TokenHandler\AbstractHandler as TokenHandler;
 use Perfumer\Component\Session\Core as SessionService;
-use Perfumer\Component\Session\Item as Session;
+use Perfumer\Component\Session\Item as SessionCell;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Map\TableMap;
 
@@ -55,7 +55,7 @@ class Authentication
     protected $application;
 
     /**
-     * @var Session
+     * @var SessionCell
      */
     protected $session;
 
@@ -148,27 +148,27 @@ class Authentication
 
             if (!$this->session_service->has($this->token))
             {
-                $token = TokenQuery::create()->findOneByToken($this->token);
+                $_session = SessionQuery::create()->findOneByToken($this->token);
 
-                if (!$token)
+                if (!$_session)
                     throw new AuthException(self::STATUS_NON_EXISTING_TOKEN);
 
                 if ($this->options['application'])
                 {
-                    if ($token->getApplicationId() === null)
+                    if ($_session->getApplicationId() === null)
                     {
                         throw new AuthException(self::STATUS_APPLICATION_REQUIRED);
                     }
                     else
                     {
-                        $application = $token->getApplication();
+                        $application = $_session->getApplication();
                     }
                 }
 
-                $user = $token->getUser();
+                $user = $_session->getUser();
 
-                // Delete this token from database, because we will attach new one
-                $token->delete();
+                // Delete this session ID from database, because we will attach new one
+                $_session->delete();
 
                 $start_session = true;
             }
@@ -276,12 +276,12 @@ class Authentication
 
         $this->token = $this->session->getId();
 
-        $token = new Token();
-        $token->setToken($this->token);
-        $token->setUser($this->user);
+        $_session = new Session();
+        $_session->setToken($this->token);
+        $_session->setUser($this->user);
 
         if ($this->options['application'])
-            $token->setApplication($this->application);
+            $_session->setApplication($this->application);
 
         $lifetime = $this->token_handler->getTokenLifetime();
 
@@ -289,15 +289,15 @@ class Authentication
         {
             $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
 
-            $token->setExpiredAt($expired_at);
+            $_session->setExpiredAt($expired_at);
         }
 
-        $token->save();
+        $_session->save();
 
         // Clear old tokens in the database
         $expired_at = (new \DateTime())->modify('-' . $this->options['update_gap'] . ' second');
 
-        TokenQuery::create()
+        SessionQuery::create()
             ->filterByUser($this->user)
             ->filterByExpiredAt($expired_at, '<')
             ->filterByExpiredAt(null, Criteria::ISNOTNULL)
@@ -310,14 +310,14 @@ class Authentication
 
         if ($lifetime > 0)
         {
-            $token = TokenQuery::create()->findOneByToken($this->token);
+            $_session = SessionQuery::create()->findOneByToken($this->token);
 
-            if ($token)
+            if ($_session)
             {
                 $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
 
-                $token->setExpiredAt($expired_at);
-                $token->save();
+                $_session->setExpiredAt($expired_at);
+                $_session->save();
             }
         }
 
@@ -351,16 +351,16 @@ class Authentication
         if ($user === null)
             $user = $this->user;
 
-        $tokens = TokenQuery::create()
+        $_sessions = SessionQuery::create()
             ->filterByUser($user)
             ->filterByExpiredAt(new \DateTime(), '>=')
             ->_or()
             ->filterByExpiredAt(null, Criteria::ISNULL)
             ->find();
 
-        foreach ($tokens as $token)
+        foreach ($_sessions as $_session)
         {
-            $session = $this->session_service->get($token->getToken());
+            $session = $this->session_service->get($_session->getToken());
 
             if ($session->has('_updated_at'))
                 $session->set('_updated_at', 0);
