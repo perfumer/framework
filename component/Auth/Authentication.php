@@ -154,7 +154,7 @@ class Authentication
                 if (!$_session)
                     throw new AuthException(self::STATUS_INVALID_TOKEN);
 
-                if ($_session->getExpiredAt() !== null && $_session->getExpiredAt()->diff(new \DateTime())->invert == 1)
+                if ($_session->getExpiredAt() !== null && $_session->getExpiredAt()->diff(new \DateTime())->invert == 0)
                     throw new AuthException(self::STATUS_EXPIRED_TOKEN);
 
                 if ($this->options['application'])
@@ -240,7 +240,7 @@ class Authentication
             if ($user->isDisabled())
                 throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
 
-            if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 0)
+            if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 1)
                 throw new AuthException(self::STATUS_ACCOUNT_BANNED);
 
             $this->user = $user;
