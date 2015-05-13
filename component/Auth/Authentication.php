@@ -218,7 +218,7 @@ class Authentication
                         if ($this->options['application'])
                         {
                             $application = new Application();
-                            $application->fromArray($_application['data']);
+                            $application->fromArray($_application['data'], TableMap::TYPE_FIELDNAME);
                             $application->setNew(false);
                         }
                     }
