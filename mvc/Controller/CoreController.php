@@ -98,7 +98,7 @@ class CoreController
      */
     protected function getAllowedMethods()
     {
-        return ['get', 'post', 'put', 'delete', 'patch', 'lock', 'unlock', 'options'];
+        return ['get', 'post', 'head', 'put', 'delete', 'patch', 'lock', 'unlock', 'options'];
     }
 
     protected function redirect($url, $status_code = 302)
