@@ -4,41 +4,45 @@ namespace Perfumer\Component\Auth;
 
 use App\Model\Application;
 use App\Model\ApplicationQuery;
-use App\Model\Session;
-use App\Model\SessionQuery;
+use App\Model\Session as SessionEntry;
+use App\Model\SessionQuery as SessionEntryQuery;
 use App\Model\User;
 use App\Model\UserQuery;
 use Perfumer\Component\Auth\Exception\AuthException;
 use Perfumer\Component\Auth\TokenHandler\AbstractHandler as TokenHandler;
 use Perfumer\Component\Session\Core as SessionService;
 use Perfumer\Component\Session\Item as SessionCell;
-use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Map\TableMap;
 
 class Authentication
 {
-    const STATUS_ACCOUNT_BANNED = 1;
-    const STATUS_ACCOUNT_DISABLED = 2;
-    const STATUS_ANONYMOUS = 3;
-    const STATUS_AUTHENTICATED = 4;
-    const STATUS_EXPIRED_TOKEN = 5;
-    const STATUS_INVALID_APPLICATION = 6;
-    const STATUS_INVALID_CREDENTIALS = 7;
-    const STATUS_INVALID_GROUP = 8;
-    const STATUS_INVALID_PASSWORD = 9;
-    const STATUS_INVALID_TOKEN = 10;
-    const STATUS_INVALID_USER = 11;
-    const STATUS_INVALID_USERNAME = 12;
-    const STATUS_NO_APPLICATION = 13;
-    const STATUS_NO_TOKEN = 14;
-    const STATUS_REMOTE_SERVER_ERROR = 15;
-    const STATUS_SIGNED_IN = 16;
-    const STATUS_SIGNED_OUT = 17;
+    const STATUS_ACCOUNT_BANNED = 10;
+    const STATUS_ACCOUNT_DISABLED = 20;
+    const STATUS_ANONYMOUS = 30;
+    const STATUS_AUTHENTICATED = 40;
+    const STATUS_EXPIRED_TOKEN = 50;
+    const STATUS_INVALID_APPLICATION = 60;
+    const STATUS_INVALID_CREDENTIALS = 70;
+    const STATUS_INVALID_GROUP = 80;
+    const STATUS_INVALID_PASSWORD = 90;
+    const STATUS_INVALID_TOKEN = 100;
+    const STATUS_INVALID_USER = 110;
+    const STATUS_INVALID_USERNAME = 120;
+    const STATUS_NO_APPLICATION = 130;
+    const STATUS_NO_TOKEN = 140;
+    const STATUS_REMOTE_SERVER_ERROR = 150;
+    const STATUS_SIGNED_IN = 160;
+    const STATUS_SIGNED_OUT = 170;
 
     /**
      * @var SessionService
      */
     protected $session_service;
+
+    /**
+     * @var SessionCell
+     */
+    protected $session;
 
     /**
      * @var TokenHandler
@@ -56,13 +60,23 @@ class Authentication
     protected $application;
 
     /**
-     * @var SessionCell
+     * @var SessionEntry
      */
-    protected $session;
+    protected $session_entry;
 
+    /**
+     * @var string
+     */
     protected $token;
+
+    /**
+     * @var int
+     */
     protected $status;
 
+    /**
+     * @var array
+     */
     protected $options = [];
 
     public function __construct(SessionService $session_service, TokenHandler $token_handler, $options = [])
@@ -129,6 +143,14 @@ class Authentication
         return $this->session;
     }
 
+    public function getSessionEntry()
+    {
+        if ($this->session_entry === null && $this->isLogged())
+            $this->session_entry = SessionEntryQuery::create()->findOneByToken($this->token);
+
+        return $this->session_entry;
+    }
+
     public function getToken()
     {
         return $this->token;
@@ -136,7 +158,7 @@ class Authentication
 
     public function init()
     {
-        $start_session = false;
+        $regenerate_session = false;
         $update_session = false;
 
         try
@@ -149,32 +171,31 @@ class Authentication
 
             if (!$this->session_service->has($this->token))
             {
-                $_session = SessionQuery::create()->findOneByToken($this->token);
+                $_session_entry = SessionEntryQuery::create()->findOneByToken($this->token);
 
-                if (!$_session)
+                if (!$_session_entry)
                     throw new AuthException(self::STATUS_INVALID_TOKEN);
 
-                if ($_session->getExpiredAt() !== null && $_session->getExpiredAt()->diff(new \DateTime())->invert == 0)
+                if ($_session_entry->getExpiredAt() !== null && $_session_entry->getExpiredAt()->diff(new \DateTime())->invert == 0)
                     throw new AuthException(self::STATUS_EXPIRED_TOKEN);
 
                 if ($this->options['application'])
                 {
-                    if ($_session->getApplicationId() === null)
+                    if ($_session_entry->getApplicationId() === null)
                     {
                         throw new AuthException(self::STATUS_NO_APPLICATION);
                     }
                     else
                     {
-                        $application = $_session->getApplication();
+                        $application = $_session_entry->getApplication();
                     }
                 }
 
-                $user = $_session->getUser();
+                $user = $_session_entry->getUser();
 
-                // Delete this session ID from database, because we will attach new one
-                $_session->delete();
+                $this->session_entry = $_session_entry;
 
-                $start_session = true;
+                $regenerate_session = true;
             }
             else
             {
@@ -240,7 +261,7 @@ class Authentication
             if ($user->isDisabled())
                 throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
 
-            if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 1)
+            if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 0)
                 throw new AuthException(self::STATUS_ACCOUNT_BANNED);
 
             $this->user = $user;
@@ -248,8 +269,8 @@ class Authentication
 
             $this->application = $application;
 
-            if ($start_session)
-                $this->startSession();
+            if ($regenerate_session)
+                $this->regenerateSession();
 
             if ($update_session)
                 $this->updateSession();
@@ -280,22 +301,49 @@ class Authentication
 
         $this->token = $this->session->getId();
 
-        $_session = new Session();
-        $_session->setToken($this->token);
-        $_session->setUser($this->user);
+        $this->session_entry = new SessionEntry();
+        $this->session_entry->setToken($this->token);
+        $this->session_entry->setUser($this->user);
 
         if ($this->options['application'])
-            $_session->setApplication($this->application);
+            $this->session_entry->setApplication($this->application);
 
         $lifetime = $this->token_handler->getTokenLifetime() + $this->options['update_gap'];
 
         $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
 
-        $_session->setExpiredAt($expired_at);
-        $_session->save();
+        $this->session_entry->setExpiredAt($expired_at);
+        $this->session_entry->save();
 
         // Clear old tokens in the database
-        SessionQuery::create()
+        SessionEntryQuery::create()
+            ->filterByUser($this->user)
+            ->filterByExpiredAt(new \DateTime(), '<')
+            ->delete();
+    }
+
+    protected function regenerateSession()
+    {
+        if ($this->session !== null)
+            $this->session->destroy();
+
+        $this->session = $this->session_service->get();
+
+        $this->updateSessionData();
+
+        $this->token = $this->session->getId();
+
+        $this->session_entry->setToken($this->token);
+
+        $lifetime = $this->token_handler->getTokenLifetime() + $this->options['update_gap'];
+
+        $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
+
+        $this->session_entry->setExpiredAt($expired_at);
+        $this->session_entry->save();
+
+        // Clear old tokens in the database
+        SessionEntryQuery::create()
             ->filterByUser($this->user)
             ->filterByExpiredAt(new \DateTime(), '<')
             ->delete();
@@ -303,16 +351,16 @@ class Authentication
 
     protected function updateSession()
     {
-        $_session = SessionQuery::create()->findOneByToken($this->token);
+        $this->session_entry = SessionEntryQuery::create()->findOneByToken($this->token);
 
-        if ($_session)
+        if ($this->session_entry)
         {
             $lifetime = $this->token_handler->getTokenLifetime() + $this->options['update_gap'];
 
             $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
 
-            $_session->setExpiredAt($expired_at);
-            $_session->save();
+            $this->session_entry->setExpiredAt($expired_at);
+            $this->session_entry->save();
         }
 
         $this->updateSessionData();
@@ -345,7 +393,7 @@ class Authentication
         if ($user === null)
             $user = $this->user;
 
-        $_sessions = SessionQuery::create()
+        $_sessions = SessionEntryQuery::create()
             ->filterByUser($user)
             ->filterByExpiredAt(new \DateTime(), '>=')
             ->find();
