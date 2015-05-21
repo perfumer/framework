@@ -40,6 +40,11 @@ class Core
      */
     protected $request_pool = [];
 
+    /**
+     * @var array
+     */
+    protected $background_jobs = [];
+
     public function __construct(Container $container)
     {
         $this->container = $container;
@@ -80,6 +85,9 @@ class Core
         $this->next = $this->internal_router->dispatch($url, $action, $args);
 
         $this->start()->send();
+
+        foreach ($this->background_jobs as $job)
+            $this->execute($job[0], $job[1], $job[2]);
     }
 
     public function execute($url, $action, array $args = [])
@@ -96,6 +104,13 @@ class Core
         $this->next = $this->internal_router->dispatch($url, $action, $args);
 
         throw new ForwardException();
+    }
+
+    public function addBackgroundJob($url, $action, array $args = [])
+    {
+        $this->background_jobs[] = [$url, $action, $args];
+
+        return $this;
     }
 
     /**
