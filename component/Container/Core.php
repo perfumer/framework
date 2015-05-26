@@ -138,7 +138,6 @@ class Core
      * @param array $array
      * @return array
      * @access protected
-     * @throws ContainerException
      */
     protected function resolveArrayOfArguments($array)
     {
@@ -154,22 +153,15 @@ class Core
             {
                 $arguments[$key] = $this->resolveArrayOfArguments($value);
             }
+            elseif (is_string($value) && $value && in_array($value[0], ['#', '@']))
+            {
+                $name = substr($value, 1);
+
+                $arguments[$key] = ($value[0] == '#') ? $this->getService($name) : $this->getParam($name);
+            }
             else
             {
-                $id = $value[0];
-
-                switch ($id)
-                {
-                    case '#':
-                        $arguments[$key] = $this->getService(substr($value, 1));
-                        break;
-                    case '@':
-                        $arguments[$key] = $this->getParam(substr($value, 1));
-                        break;
-                    default:
-                        throw new ContainerException('Argument "' . $value . '" must begin either with char "#" (for services), or "@" (for parameters).');
-                        break;
-                }
+                $arguments[$key] = $value;
             }
         }
 
