@@ -1,8 +1,11 @@
 <?php
+
 namespace Perfumer\Component\Container;
 
 use Perfumer\Component\Container\Exception\ContainerException;
 use Perfumer\Component\Container\Storage\AbstractStorage;
+use Perfumer\Component\Container\Storage\DefaultStorage;
+use Perfumer\Component\Container\Storage\FileStorage;
 use Perfumer\Helper\Arr;
 
 /**
@@ -30,12 +33,17 @@ class Core
     // Parameters array, divided to groups
     protected $params = [];
 
+    public function __construct()
+    {
+        $this->storages['default'] = new DefaultStorage();
+        $this->storages['file'] = new FileStorage();
+    }
+
     /**
      * registerServiceMap
      * Register files containing service definitions.
      *
      * @param string $file - path to file with service definitions
-     * @return void
      * @access public
      */
     public function registerServiceMap($file)
@@ -43,6 +51,8 @@ class Core
         $service_map = require $file;
 
         $this->service_map = array_merge($this->service_map, $service_map);
+
+        return $this;
     }
 
     /**
@@ -51,12 +61,20 @@ class Core
      *
      * @param string $name
      * @param AbstractStorage $storage
-     * @return void
      * @access public
      */
     public function registerStorage($name, AbstractStorage $storage)
     {
         $this->storages[$name] = $storage;
+
+        return $this;
+    }
+
+    public function unregisterStorage($name)
+    {
+        unset($this->storages[$name]);
+
+        return $this;
     }
 
     /**
