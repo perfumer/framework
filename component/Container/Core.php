@@ -39,6 +39,16 @@ class Core
         $this->storages['file'] = new FileStorage();
     }
 
+    public function getDefaultStorage()
+    {
+        return $this->storages['default'];
+    }
+
+    public function getFileStorage()
+    {
+        return $this->storages['file'];
+    }
+
     /**
      * registerServiceMap
      * Register files containing service definitions.
