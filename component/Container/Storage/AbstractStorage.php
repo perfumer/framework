@@ -25,7 +25,7 @@ namespace Perfumer\Component\Container\Storage;
  * @license    MIT
  * @abstract
  */
-abstract class AbstractStorage
+abstract class AbstractStorage implements StorageInterface
 {
     // Parameters array, divided to groups
     protected $params = [];

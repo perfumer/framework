@@ -3,9 +3,9 @@
 namespace Perfumer\Component\Container;
 
 use Perfumer\Component\Container\Exception\ContainerException;
-use Perfumer\Component\Container\Storage\AbstractStorage;
 use Perfumer\Component\Container\Storage\DefaultStorage;
 use Perfumer\Component\Container\Storage\FileStorage;
+use Perfumer\Component\Container\Storage\StorageInterface;
 use Perfumer\Helper\Arr;
 
 /**
@@ -60,10 +60,10 @@ class Core
      * Register storage services.
      *
      * @param string $name
-     * @param AbstractStorage $storage
+     * @param StorageInterface $storage
      * @access public
      */
-    public function registerStorage($name, AbstractStorage $storage)
+    public function registerStorage($name, StorageInterface $storage)
     {
         $this->storages[$name] = $storage;
 
