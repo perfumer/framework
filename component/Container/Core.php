@@ -39,11 +39,17 @@ class Core
         $this->storages['file'] = new FileStorage();
     }
 
+    /**
+     * @return DefaultStorage
+     */
     public function getDefaultStorage()
     {
         return $this->storages['default'];
     }
 
+    /**
+     * @return FileStorage
+     */
     public function getFileStorage()
     {
         return $this->storages['file'];
