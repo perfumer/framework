@@ -137,7 +137,10 @@ class HttpRouter implements RouterInterface
 
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])
     {
-        $generated_url = '/' . trim($url, '/');
+        $generated_url = trim($url, '/');
+
+        if ($generated_url)
+            $generated_url = '/' . $generated_url;
 
         if ($this->options['prefixes'])
         {
