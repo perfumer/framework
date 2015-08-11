@@ -168,6 +168,9 @@ class HttpRouter implements RouterInterface
                 $generated_url .= '?' . $query_string;
         }
 
+        if (!$generated_url)
+            $generated_url = '/';
+
         return $generated_url;
     }
 
