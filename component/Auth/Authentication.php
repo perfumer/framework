@@ -314,12 +314,6 @@ class Authentication
 
         $this->session_entry->setExpiredAt($expired_at);
         $this->session_entry->save();
-
-        // Clear old tokens in the database
-        SessionEntryQuery::create()
-            ->filterByUser($this->user)
-            ->filterByExpiredAt(new \DateTime(), '<')
-            ->delete();
     }
 
     protected function regenerateSession()
@@ -343,12 +337,6 @@ class Authentication
         $session_entry->setCreatedAt(new \DateTime());
         $session_entry->setExpiredAt($expired_at);
         $session_entry->save();
-
-        // Clear old tokens in the database
-        SessionEntryQuery::create()
-            ->filterByUser($this->user)
-            ->filterByExpiredAt(new \DateTime(), '<')
-            ->delete();
     }
 
     protected function updateSession()
