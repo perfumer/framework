@@ -333,6 +333,7 @@ class Authentication
 
         $session_entry = new SessionEntry();
         $session_entry->fromArray($this->session_entry->toArray());
+        $session_entry->setId(null);
         $session_entry->setToken($this->token);
         $session_entry->setCreatedAt(new \DateTime());
         $session_entry->setExpiredAt($expired_at);
