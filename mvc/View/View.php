@@ -3,37 +3,30 @@
 namespace Perfumer\MVC\View;
 
 use Perfumer\MVC\View\Exception\ViewException;
-use Perfumer\MVC\View\Router\RouterInterface;
 
 class View
 {
-    protected $templating;
-
     /**
-     * @var RouterInterface
+     * @var ViewFactory
      */
-    protected $router;
+    protected $factory;
 
     protected $vars = [];
     protected $groups = [];
 
-    protected $options = [];
-
-    public function __construct($templating, RouterInterface $router, $options)
+    public function __construct(ViewFactory $factory)
     {
-        $this->templating = $templating;
-        $this->router = $router;
-        $this->options = $options;
+        $this->factory = $factory;
     }
 
-    public function render($template, $extension = null)
+    public function render($bundle, $template, $extension = null)
     {
-        $template = $this->router->dispatch($template);
+        $template = $this->factory->getBundler()->getService($bundle, 'view_router')->dispatch($template);
 
         if ($extension === null)
-            $extension = $this->options['extension'];
+            $extension = $this->factory->getOption('extension');
 
-        return $this->templating->render($template . '.' . $extension, $this->vars);
+        return $this->factory->getTemplating()->render($template . '.' . $extension, $this->vars);
     }
 
     public function getVar($name, $group = null)

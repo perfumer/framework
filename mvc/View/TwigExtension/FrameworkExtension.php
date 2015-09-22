@@ -35,7 +35,7 @@ class FrameworkExtension extends \Twig_Extension
         ];
     }
 
-    public function request($url, $action, array $args = [], $cache_key = null, $cache_lifetime = 3600)
+    public function request($bundle, $url, $action, array $args = [], $cache_key = null, $cache_lifetime = 3600)
     {
         $proxy = $this->container->getService('proxy');
 
@@ -49,14 +49,14 @@ class FrameworkExtension extends \Twig_Extension
             {
                 $cache->lock();
 
-                $content = $proxy->execute($url, $action, $args)->getContent();
+                $content = $proxy->execute($bundle, $url, $action, $args)->getContent();
 
                 $cache->set($content, $cache_lifetime);
             }
         }
         else
         {
-            $content = $proxy->execute($url, $action, $args)->getContent();
+            $content = $proxy->execute($bundle, $url, $action, $args)->getContent();
         }
 
         return $content;

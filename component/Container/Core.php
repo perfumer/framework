@@ -71,6 +71,13 @@ class Core
         return $this;
     }
 
+    public function registerService($name, $service)
+    {
+        $this->services[$name] = $service;
+
+        return $this;
+    }
+
     /**
      * registerStorage
      * Register storage services.
@@ -104,14 +111,14 @@ class Core
      */
     public function getService($name)
     {
+        // Shared services are preserved through whole request
+        if (isset($this->services[$name]))
+            return $this->services[$name];
+
         if (!isset($this->service_map[$name]))
             throw new ContainerException('Service "' . $name . '" is not registered.');
 
         $definition = $this->service_map[$name];
-
-        // Shared services are preserved through whole request
-        if (isset($definition['shared']) && $definition['shared'] === true && isset($this->services[$name]))
-            return $this->services[$name];
 
         // Alias is a link to another definition
         if (isset($definition['alias']))

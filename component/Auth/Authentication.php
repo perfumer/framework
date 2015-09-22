@@ -314,6 +314,12 @@ class Authentication
 
         $this->session_entry->setExpiredAt($expired_at);
         $this->session_entry->save();
+
+        // Clear old tokens in the database
+        SessionEntryQuery::create()
+            ->filterByUser($this->user)
+            ->filterByExpiredAt(new \DateTime(), '<')
+            ->delete();
     }
 
     protected function regenerateSession()
@@ -327,17 +333,20 @@ class Authentication
 
         $this->token = $this->session->getId();
 
+        $this->session_entry->setToken($this->token);
+
         $lifetime = $this->token_handler->getTokenLifetime() + $this->options['update_gap'];
 
         $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
 
-        $session_entry = new SessionEntry();
-        $session_entry->fromArray($this->session_entry->toArray());
-        $session_entry->setId(null);
-        $session_entry->setToken($this->token);
-        $session_entry->setCreatedAt(new \DateTime());
-        $session_entry->setExpiredAt($expired_at);
-        $session_entry->save();
+        $this->session_entry->setExpiredAt($expired_at);
+        $this->session_entry->save();
+
+        // Clear old tokens in the database
+        SessionEntryQuery::create()
+            ->filterByUser($this->user)
+            ->filterByExpiredAt(new \DateTime(), '<')
+            ->delete();
     }
 
     protected function updateSession()

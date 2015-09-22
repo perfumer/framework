@@ -9,6 +9,7 @@ class TemplateController extends CoreController
      */
     protected $_view;
 
+    protected $_template_bundle;
     protected $_template;
     protected $_rendering = true;
 
@@ -19,12 +20,12 @@ class TemplateController extends CoreController
         $current = $this->getCurrent();
 
         if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
-            $this->getProxy()->forward('exception/page', 'actionNotFound');
+            $this->getProxy()->forward('framework', 'exception/page', 'actionNotFound');
 
         if (!method_exists($this, $current->getAction()))
-            $this->getProxy()->forward('exception/page', 'actionNotFound');
+            $this->getProxy()->forward('framework', 'exception/page', 'actionNotFound');
 
-        $this->getView()->mapGroup('app')->addVar('user', $this->getUser(), 'app');
+        $this->getView()->mapGroup('app');//->addVar('user', $this->getUser(), 'app');
     }
 
     protected function after()
@@ -39,10 +40,13 @@ class TemplateController extends CoreController
                 'current' => $current
             ], 'app');
 
+            if (!$this->getTemplateBundle())
+                $this->setTemplateBundle($this->getCurrent()->getBundle());
+
             if (!$this->getTemplate())
                 $this->setTemplate($current->getUrl() . '/' . $current->getAction());
 
-            $content = $this->getView()->render($this->_template);
+            $content = $this->getView()->render($this->_template_bundle, $this->_template);
 
             $this->getResponse()->setContent($content);
         }
@@ -59,6 +63,16 @@ class TemplateController extends CoreController
             $this->_view = $this->getViewInstance();
 
         return $this->_view;
+    }
+
+    protected function getTemplateBundle()
+    {
+        return $this->_template_bundle;
+    }
+
+    protected function setTemplateBundle($bundle)
+    {
+        $this->_template_bundle = $bundle;
     }
 
     protected function getTemplate()

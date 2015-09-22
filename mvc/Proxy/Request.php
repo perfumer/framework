@@ -14,6 +14,7 @@ class Request
      */
     protected $initial;
 
+    protected $bundle;
     protected $url;
     protected $controller;
     protected $action;
@@ -51,6 +52,18 @@ class Request
     public function isInitial()
     {
         return $this->initial === null;
+    }
+
+    public function getBundle()
+    {
+        return $this->bundle;
+    }
+
+    public function setBundle($bundle)
+    {
+        $this->bundle = $bundle;
+
+        return $this;
     }
 
     public function getUrl()

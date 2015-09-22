@@ -2,23 +2,23 @@
 
 namespace Perfumer\MVC\View;
 
-use Perfumer\MVC\View\Router\RouterInterface;
+use Perfumer\MVC\Bundler\Bundler;
 
 class ViewFactory
 {
     protected $templating;
 
     /**
-     * @var RouterInterface
+     * @var Bundler
      */
-    protected $router;
+    protected $bundler;
 
     protected $options = [];
 
-    public function __construct($templating, RouterInterface $router, $options = [])
+    public function __construct($templating, Bundler $bundler, $options = [])
     {
         $this->templating = $templating;
-        $this->router = $router;
+        $this->bundler = $bundler;
 
         $default_options = [
             'extension' => 'php'
@@ -29,6 +29,24 @@ class ViewFactory
 
     public function getInstance()
     {
-        return new View($this->templating, $this->router, $this->options);
+        return new View($this);
+    }
+
+    /**
+     * @return Bundler
+     */
+    public function getBundler()
+    {
+        return $this->bundler;
+    }
+
+    public function getTemplating()
+    {
+        return $this->templating;
+    }
+
+    public function getOption($name)
+    {
+        return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 }

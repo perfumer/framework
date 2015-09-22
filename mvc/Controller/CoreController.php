@@ -63,7 +63,7 @@ class CoreController
         $this->_reflection_class = $reflection_class;
     }
 
-    public function execute()
+    public function process()
     {
         $this->before();
 
@@ -98,12 +98,22 @@ class CoreController
      */
     protected function getAllowedMethods()
     {
-        return ['get', 'post', 'head', 'put', 'delete', 'patch', 'lock', 'unlock', 'options'];
+        return ['get', 'post', 'head', 'options'];
+    }
+
+    protected function execute($url, $action, array $args = [])
+    {
+        return $this->getProxy()->execute($this->getCurrent()->getBundle(), $url, $action, $args);
+    }
+
+    protected function forward($url, $action, array $args = [])
+    {
+        $this->getProxy()->forward($this->getCurrent()->getBundle(), $url, $action, $args);
     }
 
     protected function redirect($url, $status_code = 302)
     {
-        $this->getProxy()->forward('exception/page', 'location', [$url, $status_code]);
+        $this->getProxy()->forward('framework', 'exception/page', 'location', [$url, $status_code]);
     }
 
     /**

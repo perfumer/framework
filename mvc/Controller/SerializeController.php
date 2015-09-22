@@ -23,10 +23,10 @@ class SerializeController extends CoreController
         $current = $this->getCurrent();
 
         if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
-            $this->getProxy()->forward('exception/page', 'actionNotFound');
+            $this->getProxy()->forward('framework', 'exception/page', 'actionNotFound');
 
         if (!method_exists($this, $current->getAction()))
-            $this->getProxy()->forward('exception/' . $this->_serializer, 'actionNotFound');
+            $this->getProxy()->forward('framework', 'exception/' . $this->_serializer, 'actionNotFound');
 
         $this->getView()->addVars([
             'status' => true,
