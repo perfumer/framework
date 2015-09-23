@@ -27,11 +27,6 @@ class Core
     protected $external_router;
 
     /**
-     * @var InternalRouter
-     */
-    protected $internal_router;
-
-    /**
      * @var Request
      */
     protected $current_initial;
@@ -56,7 +51,6 @@ class Core
         $this->container = $container;
         $this->bundler = $container->getService('bundler');
         $this->external_router = $container->getService('external_router');
-        $this->internal_router = $container->getService('internal_router');
     }
 
     /**
@@ -65,14 +59,6 @@ class Core
     public function getExternalRouter()
     {
         return $this->external_router;
-    }
-
-    /**
-     * @return InternalRouter
-     */
-    public function getInternalRouter()
-    {
-        return $this->internal_router;
     }
 
     public function getRequestPool()
