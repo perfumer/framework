@@ -20,12 +20,13 @@ class HttpRouter implements RouterInterface
     public function __construct($options = [])
     {
         $default_options = [
+            'auto_null' => true,
+            'auto_trim' => true,
+            'bundles' => [],
+            'data_type' => 'query_string',
             'default_url' => 'home',
             'prefixes' => [],
             'prefix_options' => [],
-            'data_type' => 'query_string',
-            'auto_trim' => true,
-            'auto_null' => true
         ];
 
         $this->options = array_merge($default_options, $options);
@@ -132,7 +133,19 @@ class HttpRouter implements RouterInterface
             $this->http_args = Arr::convertValues($this->http_args, '', null);
         }
 
-        return ['app', $url, $action, []];
+        // Define bundle
+        $bundle = 'app';
+
+        foreach ($this->options['bundles'] as $route)
+        {
+            if (!empty($route['domain']) && $route['domain'] === $_SERVER['HTTP_HOST'])
+            {
+                $bundle = $route['bundle'];
+                break;
+            }
+        }
+
+        return [$bundle, $url, $action, []];
     }
 
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])
