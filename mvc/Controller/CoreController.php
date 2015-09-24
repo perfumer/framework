@@ -116,6 +116,11 @@ class CoreController
         $this->getProxy()->forward('framework', 'exception/page', 'location', [$url, $status_code]);
     }
 
+    protected function addBackgroundJob($url, $action, array $args = [])
+    {
+        $this->getProxy()->addBackgroundJob($this->getCurrent()->getBundle(), $url, $action, $args);
+    }
+
     /**
      * Shortcut for DI Container getService() method
      *
