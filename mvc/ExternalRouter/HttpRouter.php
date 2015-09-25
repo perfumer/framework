@@ -138,7 +138,7 @@ class HttpRouter implements RouterInterface
 
         foreach ($this->options['bundles'] as $route)
         {
-            if (!empty($route['domain']) && $route['domain'] === $_SERVER['HTTP_HOST'])
+            if (!empty($route['domain']) && $route['domain'] === $_SERVER['SERVER_NAME'])
             {
                 $bundle = $route['bundle'];
                 break;
