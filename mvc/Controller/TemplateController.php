@@ -20,10 +20,10 @@ class TemplateController extends CoreController
         $current = $this->getCurrent();
 
         if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
-            $this->getProxy()->forward('framework', 'exception/page', 'actionNotFound');
+            $this->getProxy()->forward('framework', 'exception/html', 'actionNotFound');
 
         if (!method_exists($this, $current->getAction()))
-            $this->getProxy()->forward('framework', 'exception/page', 'actionNotFound');
+            $this->getProxy()->forward('framework', 'exception/html', 'actionNotFound');
 
         $this->getView()->mapGroup('app');//->addVar('user', $this->getUser(), 'app');
     }

@@ -153,7 +153,7 @@ class Core
         }
         catch (\ReflectionException $e)
         {
-            $this->forward('framework', 'exception/page', 'controllerNotFound');
+            $this->forward('framework', 'exception/html', 'controllerNotFound');
         }
 
         $response = new Response;
