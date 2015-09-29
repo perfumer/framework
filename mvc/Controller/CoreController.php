@@ -111,9 +111,14 @@ class CoreController
         $this->getProxy()->forward($this->getCurrent()->getBundle(), $url, $action, $args);
     }
 
-    protected function redirect($url, $status_code = 302)
+    protected function internalRedirect($url, $id = null, $query = [], $prefixes = [], $status_code = 302)
     {
-        $this->getProxy()->forward('framework', 'exception/page', 'location', [$url, $status_code]);
+        $this->getProxy()->forward('framework', 'redirect', 'internal', [$url, $id, $query, $prefixes, $status_code]);
+    }
+
+    protected function externalRedirect($url, $status_code = 302)
+    {
+        $this->getProxy()->forward('framework', 'redirect', 'external', [$url, $status_code]);
     }
 
     protected function addBackgroundJob($url, $action, array $args = [])
