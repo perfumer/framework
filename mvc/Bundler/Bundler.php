@@ -28,9 +28,9 @@ class Bundler
 
             $this->manifests[$manifest['name']] = $manifest;
 
-            if (isset($manifest['service_maps']))
+            if (isset($manifest['services']))
             {
-                foreach ($manifest['service_maps'] as $file)
+                foreach ($manifest['services'] as $file)
                 {
                     $this->container->registerServiceMap($file);
                 }
@@ -44,11 +44,11 @@ class Bundler
                 }
             }
 
-            if (isset($manifest['config_files']))
+            if (isset($manifest['parameters']))
             {
                 $file_storage = $this->container->getFileStorage();
 
-                foreach ($manifest['config_files'] as $file)
+                foreach ($manifest['parameters'] as $file)
                 {
                     $file_storage->registerFile($file);
                 }
@@ -58,7 +58,7 @@ class Bundler
 
     public function getService($bundle, $service)
     {
-        $service_name = $this->manifests[$bundle]['services'][$service];
+        $service_name = $this->manifests[$bundle]['aliases'][$service];
 
         return $this->container->getService($service_name);
     }
