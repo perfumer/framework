@@ -111,7 +111,7 @@ class Core
      */
     protected function initializeRequest($bundle, $url, $action, array $args = [])
     {
-        return $this->bundler->getService($bundle, 'internal_router')->dispatch($url, $action, $args)->setBundle($bundle)->setArgs($args);
+        return $this->bundler->getService($bundle, 'internal_router')->dispatch($url)->setBundle($bundle)->setAction($action)->setArgs($args);
     }
 
     /**

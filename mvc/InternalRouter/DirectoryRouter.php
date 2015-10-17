@@ -18,7 +18,7 @@ class DirectoryRouter implements RouterInterface
         $this->options = array_merge($default_options, $options);
     }
 
-    public function dispatch($url, $action)
+    public function dispatch($url)
     {
         $path = explode('/', $url);
 
@@ -26,7 +26,7 @@ class DirectoryRouter implements RouterInterface
 
         $request = new Request();
 
-        $request->setUrl($url)->setController($controller)->setAction($action);
+        $request->setUrl($url)->setController($controller);
 
         return $request;
     }
