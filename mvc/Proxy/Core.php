@@ -80,28 +80,28 @@ class Core
         $this->start()->send();
 
         foreach ($this->background_jobs as $job)
-            $this->execute($job[0], $job[1], $job[2], $job[3]);
+            $this->execute($job[0], $job[1], $job[2], $job[3], $job[4]);
     }
 
-    public function execute($bundle, $url, $action, array $args = [])
+    public function execute($bundle, $url, $action, array $args = [], array $context = [])
     {
-        $request = $this->initializeRequest($bundle, $url, $action, $args);
+        $request = $this->initializeRequest($bundle, $url, $action, $args, $context);
 
         return $this->executeRequest($request);
     }
 
-    public function forward($bundle, $url, $action, array $args = [])
+    public function forward($bundle, $url, $action, array $args = [], array $context = [])
     {
         $this->current_initial = null;
 
-        $this->next = $this->initializeRequest($bundle, $url, $action, $args);
+        $this->next = $this->initializeRequest($bundle, $url, $action, $args, $context);
 
         throw new ForwardException();
     }
 
-    public function addBackgroundJob($bundle, $url, $action, array $args = [])
+    public function addBackgroundJob($bundle, $url, $action, array $args = [], array $context = [])
     {
-        $this->background_jobs[] = [$bundle, $url, $action, $args];
+        $this->background_jobs[] = [$bundle, $url, $action, $args, $context];
 
         return $this;
     }
@@ -157,7 +157,7 @@ class Core
         }
         catch (\ReflectionException $e)
         {
-            $this->forward('framework', 'exception/html', 'controllerNotFound');
+            $this->forward('framework', 'exception/html', 'controllerNotFound', [], ['bundle' => $request->getBundle()]);
         }
 
         $response = new Response;

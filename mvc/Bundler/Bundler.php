@@ -12,6 +12,7 @@ class Bundler
     protected $container;
 
     protected $manifests = [];
+    protected $overrides = [];
 
     public function __construct(Container $container)
     {
@@ -53,6 +54,28 @@ class Bundler
                     $file_storage->registerFile($file);
                 }
             }
+
+            if (isset($manifest['global_override']))
+            {
+                $global_override = $manifest['global_override'];
+
+                if (isset($global_override['controller']))
+                {
+                    foreach ($global_override['controller'] as $key => $value)
+                        $this->overrides['gc#' . $key] = $value;
+                }
+            }
+
+            if (isset($manifest['local_override']))
+            {
+                $local_override = $manifest['local_override'];
+
+                if (isset($local_override['controller']))
+                {
+                    foreach ($local_override['controller'] as $key => $value)
+                        $this->overrides['lc#' . $manifest['name'] . '#' . $key] = $value;
+                }
+            }
         }
     }
 
@@ -65,6 +88,21 @@ class Bundler
 
     public function overrideController($bundle, $url, $action, $context_bundle = null)
     {
-        return [$bundle, $url, $action];
+        $key = '#' . $bundle . '#' . $url . '#' . $action;
+
+        if ($context_bundle !== null && isset($this->overrides['lc#' . $context_bundle . $key]))
+        {
+            $result = $this->overrides['lc#' . $context_bundle . $key];
+        }
+        elseif (isset($this->overrides['gc' . $key]))
+        {
+            $result = $this->overrides['lc#' . $context_bundle . $key];
+        }
+        else
+        {
+            $result = [$bundle, $url, $action];
+        }
+
+        return $result;
     }
 }
