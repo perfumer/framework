@@ -87,7 +87,7 @@ class Core
     {
         $request = $this->initializeRequest($bundle, $url, $action, $args);
 
-        return $this->executeController($request);
+        return $this->executeRequest($request);
     }
 
     public function forward($bundle, $url, $action, array $args = [])
@@ -107,21 +107,13 @@ class Core
     }
 
     /**
-     * @return Request
-     */
-    protected function initializeRequest($bundle, $url, $action, array $args = [])
-    {
-        return $this->bundler->getService($bundle, 'internal_router')->dispatch($url)->setBundle($bundle)->setAction($action)->setArgs($args);
-    }
-
-    /**
      * @return Response
      */
     protected function start()
     {
         try
         {
-            $response = $this->executeController($this->next);
+            $response = $this->executeRequest($this->next);
         }
         catch (ForwardException $e)
         {
@@ -131,7 +123,15 @@ class Core
         return $response;
     }
 
-    protected function executeController(Request $request)
+    /**
+     * @return Request
+     */
+    protected function initializeRequest($bundle, $url, $action, array $args = [])
+    {
+        return $this->bundler->getService($bundle, 'internal_router')->dispatch($url)->setBundle($bundle)->setAction($action)->setArgs($args);
+    }
+
+    protected function executeRequest(Request $request)
     {
         if (count($this->request_pool) != 0)
             $request->setMain($this->getMain());
