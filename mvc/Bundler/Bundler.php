@@ -62,4 +62,9 @@ class Bundler
 
         return $this->container->getService($service_name);
     }
+
+    public function overrideController($bundle, $url, $action, $context_bundle = null)
+    {
+        return [$bundle, $url, $action];
+    }
 }

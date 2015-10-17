@@ -126,8 +126,12 @@ class Core
     /**
      * @return Request
      */
-    protected function initializeRequest($bundle, $url, $action, array $args = [])
+    protected function initializeRequest($bundle, $url, $action, array $args = [], array $context = [])
     {
+        $context_bundle = isset($context['bundle']) ? $context['bundle'] : null;
+
+        list($bundle, $url, $action) = $this->bundler->overrideController($bundle, $url, $action, $context_bundle);
+
         return $this->bundler->getService($bundle, 'internal_router')->dispatch($url)->setBundle($bundle)->setAction($action)->setArgs($args);
     }
 
