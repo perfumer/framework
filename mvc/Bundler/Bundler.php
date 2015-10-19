@@ -96,7 +96,7 @@ class Bundler
         }
         elseif (isset($this->overrides['gc' . $key]))
         {
-            $result = $this->overrides['lc#' . $context_bundle . $key];
+            $result = $this->overrides['gc' . $key];
         }
         else
         {
