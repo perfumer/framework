@@ -62,7 +62,11 @@ class Bundler
                 if (isset($global_override['controller']))
                 {
                     foreach ($global_override['controller'] as $key => $value)
-                        $this->overrides['gc#' . $key] = $value;
+                    {
+                        $set = $value;
+                        array_unshift($set, $manifest['name']);
+                        $this->overrides['gc#' . $key] = $set;
+                    }
                 }
             }
 
@@ -73,7 +77,11 @@ class Bundler
                 if (isset($local_override['controller']))
                 {
                     foreach ($local_override['controller'] as $key => $value)
-                        $this->overrides['lc#' . $manifest['name'] . '#' . $key] = $value;
+                    {
+                        $set = $value;
+                        array_unshift($set, $manifest['name']);
+                        $this->overrides['lc#' . $manifest['name'] . '#' . $key] = $set;
+                    }
                 }
             }
         }
