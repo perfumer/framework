@@ -19,8 +19,12 @@ class View
         $this->factory = $factory;
     }
 
-    public function render($bundle, $template, $extension = null)
+    public function render($bundle, $template, $extension = null, array $context = [])
     {
+        $context_bundle = isset($context['bundle']) ? $context['bundle'] : null;
+
+        list($bundle, $template) = $this->factory->getBundler()->overrideTemplate($bundle, $template, $context_bundle);
+
         $template = $this->factory->getBundler()->getService($bundle, 'view_router')->dispatch($template);
 
         if ($extension === null)
