@@ -68,6 +68,12 @@ class Bundler
                         $this->overrides['gc#' . $key] = $set;
                     }
                 }
+
+                if (isset($global_override['template']))
+                {
+                    foreach ($global_override['template'] as $key => $value)
+                        $this->overrides['gt#' . $key] = [$manifest['name'], $value];
+                }
             }
 
             if (isset($manifest['local_override']))
@@ -82,6 +88,12 @@ class Bundler
                         array_unshift($set, $manifest['name']);
                         $this->overrides['lc#' . $manifest['name'] . '#' . $key] = $set;
                     }
+                }
+
+                if (isset($local_override['template']))
+                {
+                    foreach ($local_override['template'] as $key => $value)
+                        $this->overrides['lt#' . $manifest['name'] . '#' . $key] = [$manifest['name'], $value];
                 }
             }
         }
@@ -109,6 +121,26 @@ class Bundler
         else
         {
             $result = [$bundle, $url, $action];
+        }
+
+        return $result;
+    }
+
+    public function overrideTemplate($bundle, $url, $context_bundle = null)
+    {
+        $key = '#' . $bundle . '#' . $url;
+
+        if ($context_bundle !== null && isset($this->overrides['lt#' . $context_bundle . $key]))
+        {
+            $result = $this->overrides['lt#' . $context_bundle . $key];
+        }
+        elseif (isset($this->overrides['gt' . $key]))
+        {
+            $result = $this->overrides['gt' . $key];
+        }
+        else
+        {
+            $result = [$bundle, $url];
         }
 
         return $result;
