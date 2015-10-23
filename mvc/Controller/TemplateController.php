@@ -9,8 +9,6 @@ class TemplateController extends CoreController
      */
     protected $_view;
 
-    protected $_template_bundle;
-    protected $_template;
     protected $_rendering = true;
 
     protected function before()
@@ -40,13 +38,15 @@ class TemplateController extends CoreController
                 'current' => $current
             ], 'app');
 
-            if (!$this->getTemplateBundle())
-                $this->setTemplateBundle($this->getCurrent()->getBundle());
+            $view = $this->getView();
 
-            if (!$this->getTemplate())
-                $this->setTemplate($current->getUrl() . '/' . $current->getAction());
+            if (!$view->getTemplateBundle())
+                $view->setTemplateBundle($this->getCurrent()->getBundle());
 
-            $content = $this->getView()->render($this->_template_bundle, $this->_template);
+            if (!$view->getTemplateUrl())
+                $view->setTemplateUrl($current->getUrl() . '/' . $current->getAction());
+
+            $content = $view->render();
 
             $this->getResponse()->setContent($content);
         }
@@ -63,26 +63,6 @@ class TemplateController extends CoreController
             $this->_view = $this->getViewInstance();
 
         return $this->_view;
-    }
-
-    protected function getTemplateBundle()
-    {
-        return $this->_template_bundle;
-    }
-
-    protected function setTemplateBundle($bundle)
-    {
-        $this->_template_bundle = $bundle;
-    }
-
-    protected function getTemplate()
-    {
-        return $this->_template;
-    }
-
-    protected function setTemplate($template)
-    {
-        $this->_template = $template;
     }
 
     protected function getRendering()
