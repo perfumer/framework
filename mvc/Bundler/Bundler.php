@@ -126,9 +126,9 @@ class Bundler
         return $result;
     }
 
-    public function overrideTemplate($bundle, $template, $context_bundle = null)
+    public function overrideTemplate($bundle, $url, $context_bundle = null)
     {
-        $key = '#' . $bundle . '#' . $template;
+        $key = '#' . $bundle . '#' . $url;
 
         if ($context_bundle !== null && isset($this->overrides['lt#' . $context_bundle . $key]))
         {
@@ -140,7 +140,7 @@ class Bundler
         }
         else
         {
-            $result = [$bundle, $template];
+            $result = [$bundle, $url];
         }
 
         return $result;

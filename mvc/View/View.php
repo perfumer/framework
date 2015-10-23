@@ -14,23 +14,68 @@ class View
     protected $vars = [];
     protected $groups = [];
 
+    protected $bundle;
+    protected $url;
+    protected $format;
+
     public function __construct(ViewFactory $factory)
     {
         $this->factory = $factory;
     }
 
-    public function render($bundle, $template, $extension = null, array $context = [])
+    public function render($bundle = null, $url = null, $vars = [], array $context = [])
     {
+        $bundle = $bundle ?: $this->bundle;
+        $url = $url ?: $this->url;
+        $format = isset($context['format']) ? $context['format'] : ($this->format ?: $this->factory->getOption('format'));
+        $vars = $vars ? array_merge($this->vars, $vars) : $this->vars;
         $context_bundle = isset($context['bundle']) ? $context['bundle'] : null;
 
-        list($bundle, $template) = $this->factory->getBundler()->overrideTemplate($bundle, $template, $context_bundle);
+        list($bundle, $url) = $this->factory->getBundler()->overrideTemplate($bundle, $url, $context_bundle);
 
-        $template = $this->factory->getBundler()->getService($bundle, 'view_router')->dispatch($template);
+        $template = $this->factory->getBundler()->getService($bundle, 'view_router')->dispatch($url);
 
-        if ($extension === null)
-            $extension = $this->factory->getOption('extension');
+        return $this->factory->getTemplating()->render($template . '.' . $format, $vars);
+    }
 
-        return $this->factory->getTemplating()->render($template . '.' . $extension, $this->vars);
+    public function getTemplateBundle()
+    {
+        return $this->bundle;
+    }
+
+    public function getTemplateUrl()
+    {
+        return $this->url;
+    }
+
+    public function setTemplate($bundle, $url, $format = null)
+    {
+        $this->bundle = $bundle;
+        $this->url = $url;
+        $this->format = $format;
+
+        return $this;
+    }
+
+    public function setTemplateBundle($bundle)
+    {
+        $this->bundle = $bundle;
+
+        return $this;
+    }
+
+    public function setTemplateUrl($url)
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    public function setTemplateFormat($format)
+    {
+        $this->format = $format;
+
+        return $this;
     }
 
     public function getVar($name, $group = null)
