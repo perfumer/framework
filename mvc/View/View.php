@@ -35,26 +35,12 @@ class View
 
     public function getVar($name, $group = null)
     {
-        $return = null;
-
-        if ($group === null)
-            $return = $this->vars[$name];
-        else
-            $return = $this->groups[$group][$name];
-
-        return $return;
+        return $group === null ? $this->vars[$name] : $this->groups[$group][$name];
     }
 
     public function getVars($group = null)
     {
-        $return = null;
-
-        if ($group === null)
-            $return = $this->vars;
-        else
-            $return = $this->groups[$group];
-
-        return $return;
+        return $group === null ? $this->vars : $this->groups[$group];
     }
 
     public function addVar($name, $value, $group = null)
@@ -79,22 +65,12 @@ class View
 
     public function hasVar($name, $group = null)
     {
-        if ($group === null)
-            $status = isset($this->vars[$name]);
-        else
-            $status = isset($this->groups[$group][$name]);
-
-        return $status;
+        return $group === null ? isset($this->vars[$name]) : isset($this->groups[$group][$name]);
     }
 
     public function hasVars($group = null)
     {
-        if ($group === null)
-            $status = count($this->vars) > 0;
-        else
-            $status = count($this->groups[$group]) > 0;
-
-        return $status;
+        return $group === null ? count($this->vars) > 0 : count($this->groups[$group]) > 0;
     }
 
     public function deleteVar($name, $group = null)
@@ -140,10 +116,8 @@ class View
         return $this;
     }
 
-    public function serializeVars($serializer)
+    public function serializeVars($serializer = null)
     {
-        $data = '';
-
         if ($serializer === 'json')
         {
             $data = json_encode($this->vars);
@@ -151,6 +125,10 @@ class View
         elseif (is_callable($serializer))
         {
             $data = $serializer($this->vars);
+        }
+        else
+        {
+            $data = serialize($this->vars);
         }
 
         return $data;
