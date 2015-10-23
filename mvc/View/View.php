@@ -48,6 +48,11 @@ class View
         return $this->url;
     }
 
+    public function getTemplateFormat()
+    {
+        return $this->format;
+    }
+
     public function setTemplate($bundle, $url, $format = null)
     {
         $this->bundle = $bundle;
