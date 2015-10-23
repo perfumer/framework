@@ -21,7 +21,7 @@ class ViewFactory
         $this->bundler = $bundler;
 
         $default_options = [
-            'extension' => 'php'
+            'format' => 'php'
         ];
 
         $this->options = array_merge($default_options, $options);
