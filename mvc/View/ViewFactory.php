@@ -13,18 +13,10 @@ class ViewFactory
      */
     protected $bundler;
 
-    protected $options = [];
-
-    public function __construct($templating, Bundler $bundler, $options = [])
+    public function __construct($templating, Bundler $bundler)
     {
         $this->templating = $templating;
         $this->bundler = $bundler;
-
-        $default_options = [
-            'format' => 'php'
-        ];
-
-        $this->options = array_merge($default_options, $options);
     }
 
     public function getInstance()
@@ -43,10 +35,5 @@ class ViewFactory
     public function getTemplating()
     {
         return $this->templating;
-    }
-
-    public function getOption($name)
-    {
-        return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 }

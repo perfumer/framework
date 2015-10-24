@@ -16,7 +16,6 @@ class View
 
     protected $bundle;
     protected $url;
-    protected $format;
 
     public function __construct(ViewFactory $factory)
     {
@@ -27,7 +26,6 @@ class View
     {
         $bundle = $bundle ?: $this->bundle;
         $url = $url ?: $this->url;
-        $format = isset($context['format']) ? $context['format'] : ($this->format ?: $this->factory->getOption('format'));
         $vars = $vars ? array_merge($this->vars, $vars) : $this->vars;
         $context_bundle = isset($context['bundle']) ? $context['bundle'] : null;
 
@@ -35,7 +33,7 @@ class View
 
         $template = $this->factory->getBundler()->getService($bundle, 'view_router')->dispatch($url);
 
-        return $this->factory->getTemplating()->render($template . '.' . $format, $vars);
+        return $this->factory->getTemplating()->render($template, $vars);
     }
 
     public function getTemplateBundle()
@@ -48,16 +46,10 @@ class View
         return $this->url;
     }
 
-    public function getTemplateFormat()
-    {
-        return $this->format;
-    }
-
-    public function setTemplate($bundle, $url, $format = null)
+    public function setTemplate($bundle, $url)
     {
         $this->bundle = $bundle;
         $this->url = $url;
-        $this->format = $format;
 
         return $this;
     }
@@ -72,13 +64,6 @@ class View
     public function setTemplateUrl($url)
     {
         $this->url = $url;
-
-        return $this;
-    }
-
-    public function setTemplateFormat($format)
-    {
-        $this->format = $format;
 
         return $this;
     }

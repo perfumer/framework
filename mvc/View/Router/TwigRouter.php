@@ -28,8 +28,10 @@ class TwigRouter implements RouterInterface
         }
     }
 
-    public function dispatch($template)
+    public function dispatch($url)
     {
-        return $this->namespace ? '@' . $this->namespace . '/' . $template : $template;
+        $url .= '.twig';
+
+        return $this->namespace ? '@' . $this->namespace . '/' . $url : $url;
     }
 }
