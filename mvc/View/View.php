@@ -22,14 +22,13 @@ class View
         $this->factory = $factory;
     }
 
-    public function render($bundle = null, $url = null, $vars = [], array $context = [])
+    public function render($bundle = null, $url = null, $vars = [])
     {
         $bundle = $bundle ?: $this->bundle;
         $url = $url ?: $this->url;
         $vars = $vars ? array_merge($this->vars, $vars) : $this->vars;
-        $context_bundle = isset($context['bundle']) ? $context['bundle'] : null;
 
-        list($bundle, $url) = $this->factory->getBundler()->overrideTemplate($bundle, $url, $context_bundle);
+        list($bundle, $url) = $this->factory->getBundler()->overrideTemplate($bundle, $url);
 
         $template = $this->factory->getBundler()->getService($bundle, 'view_router')->dispatch($url);
 

@@ -80,28 +80,28 @@ class Core
         $this->start()->send();
 
         foreach ($this->background_jobs as $job)
-            $this->execute($job[0], $job[1], $job[2], $job[3], $job[4]);
+            $this->execute($job[0], $job[1], $job[2], $job[3]);
     }
 
-    public function execute($bundle, $url, $action, array $args = [], array $context = [])
+    public function execute($bundle, $url, $action, array $args = [])
     {
-        $request = $this->initializeRequest($bundle, $url, $action, $args, $context);
+        $request = $this->initializeRequest($bundle, $url, $action, $args);
 
         return $this->executeRequest($request);
     }
 
-    public function forward($bundle, $url, $action, array $args = [], array $context = [])
+    public function forward($bundle, $url, $action, array $args = [])
     {
         $this->current_initial = null;
 
-        $this->next = $this->initializeRequest($bundle, $url, $action, $args, $context);
+        $this->next = $this->initializeRequest($bundle, $url, $action, $args);
 
         throw new ForwardException();
     }
 
-    public function addBackgroundJob($bundle, $url, $action, array $args = [], array $context = [])
+    public function addBackgroundJob($bundle, $url, $action, array $args = [])
     {
-        $this->background_jobs[] = [$bundle, $url, $action, $args, $context];
+        $this->background_jobs[] = [$bundle, $url, $action, $args];
 
         return $this;
     }
@@ -126,11 +126,9 @@ class Core
     /**
      * @return Request
      */
-    protected function initializeRequest($bundle, $url, $action, array $args = [], array $context = [])
+    protected function initializeRequest($bundle, $url, $action, array $args = [])
     {
-        $context_bundle = isset($context['bundle']) ? $context['bundle'] : null;
-
-        list($bundle, $url, $action) = $this->bundler->overrideController($bundle, $url, $action, $context_bundle);
+        list($bundle, $url, $action) = $this->bundler->overrideController($bundle, $url, $action);
 
         return $this->bundler->getService($bundle, 'internal_router')->dispatch($url)->setBundle($bundle)->setAction($action)->setArgs($args);
     }
@@ -157,10 +155,10 @@ class Core
         }
         catch (\ReflectionException $e)
         {
-            $this->forward('framework', 'exception/html', 'controllerNotFound', [], ['bundle' => $request->getBundle()]);
+            $this->forward('framework', 'exception/html', 'controllerNotFound');
         }
 
-        $response = new Response;
+        $response = new Response();
 
         $controller = $reflection_class->newInstance($this->container, $request, $response, $reflection_class);
 

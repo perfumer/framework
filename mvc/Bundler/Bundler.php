@@ -55,45 +55,24 @@ class Bundler
                 }
             }
 
-            if (isset($manifest['global_override']))
+            if (isset($manifest['overrides']))
             {
-                $global_override = $manifest['global_override'];
+                $overrides = $manifest['overrides'];
 
-                if (isset($global_override['controller']))
+                if (isset($overrides['controller']))
                 {
-                    foreach ($global_override['controller'] as $key => $value)
+                    foreach ($overrides['controller'] as $key => $value)
                     {
                         $set = $value;
                         array_unshift($set, $manifest['name']);
-                        $this->overrides['gc#' . $key] = $set;
+                        $this->overrides['c#' . $key] = $set;
                     }
                 }
 
-                if (isset($global_override['template']))
+                if (isset($overrides['template']))
                 {
-                    foreach ($global_override['template'] as $key => $value)
-                        $this->overrides['gt#' . $key] = [$manifest['name'], $value];
-                }
-            }
-
-            if (isset($manifest['local_override']))
-            {
-                $local_override = $manifest['local_override'];
-
-                if (isset($local_override['controller']))
-                {
-                    foreach ($local_override['controller'] as $key => $value)
-                    {
-                        $set = $value;
-                        array_unshift($set, $manifest['name']);
-                        $this->overrides['lc#' . $manifest['name'] . '#' . $key] = $set;
-                    }
-                }
-
-                if (isset($local_override['template']))
-                {
-                    foreach ($local_override['template'] as $key => $value)
-                        $this->overrides['lt#' . $manifest['name'] . '#' . $key] = [$manifest['name'], $value];
+                    foreach ($overrides['template'] as $key => $value)
+                        $this->overrides['t#' . $key] = [$manifest['name'], $value];
                 }
             }
         }
@@ -106,17 +85,13 @@ class Bundler
         return $this->container->getService($service_name);
     }
 
-    public function overrideController($bundle, $url, $action, $context_bundle = null)
+    public function overrideController($bundle, $url, $action)
     {
-        $key = '#' . $bundle . '#' . $url . '#' . $action;
+        $key = 'c#' . $bundle . '#' . $url . '#' . $action;
 
-        if ($context_bundle !== null && isset($this->overrides['lc#' . $context_bundle . $key]))
+        if (isset($this->overrides[$key]))
         {
-            $result = $this->overrides['lc#' . $context_bundle . $key];
-        }
-        elseif (isset($this->overrides['gc' . $key]))
-        {
-            $result = $this->overrides['gc' . $key];
+            $result = $this->overrides[$key];
         }
         else
         {
@@ -126,17 +101,13 @@ class Bundler
         return $result;
     }
 
-    public function overrideTemplate($bundle, $url, $context_bundle = null)
+    public function overrideTemplate($bundle, $url)
     {
-        $key = '#' . $bundle . '#' . $url;
+        $key = 't#' . $bundle . '#' . $url;
 
-        if ($context_bundle !== null && isset($this->overrides['lt#' . $context_bundle . $key]))
+        if (isset($this->overrides[$key]))
         {
-            $result = $this->overrides['lt#' . $context_bundle . $key];
-        }
-        elseif (isset($this->overrides['gt' . $key]))
-        {
-            $result = $this->overrides['gt' . $key];
+            $result = $this->overrides[$key];
         }
         else
         {
