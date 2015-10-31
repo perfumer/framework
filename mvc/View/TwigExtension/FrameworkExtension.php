@@ -25,6 +25,7 @@ class FrameworkExtension extends \Twig_Extension
     {
         return [
             new \Twig_SimpleFunction('request', [$this, 'request'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('tpl', [$this, 'tpl']),
             new \Twig_SimpleFunction('param', [$this, 'param']),
             new \Twig_SimpleFunction('url', [$this, 'url'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('prefix', [$this, 'prefix']),
@@ -60,6 +61,17 @@ class FrameworkExtension extends \Twig_Extension
         }
 
         return $content;
+    }
+
+    public function tpl($bundle, $url)
+    {
+        $bundler = $this->container->getService('bundler');
+
+        list($bundle, $url) = $bundler->overrideTemplate($bundle, $url);
+
+        $template = $bundler->getService($bundle, 'view_router')->dispatch($url);
+
+        return $template;
     }
 
     public function param($name)
