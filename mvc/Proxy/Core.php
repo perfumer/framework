@@ -2,12 +2,10 @@
 
 namespace Perfumer\MVC\Proxy;
 
-use \Perfumer\Component\Container\Core as Container;
+use Perfumer\Component\Container\Core as Container;
 use Perfumer\MVC\Bundler\Bundler;
 use Perfumer\MVC\ExternalRouter\RouterInterface as ExternalRouter;
-use Perfumer\MVC\InternalRouter\RouterInterface as InternalRouter;
 use Perfumer\MVC\Proxy\Exception\ForwardException;
-use Symfony\Component\HttpFoundation\Response;
 
 class Core
 {
@@ -77,7 +75,9 @@ class Core
 
         $this->next = $this->initializeRequest($bundle, $url, $action, $args);
 
-        $this->start()->send();
+        $response = $this->start();
+
+        $this->external_router->sendResponse($response);
 
         foreach ($this->background_jobs as $job)
             $this->execute($job[0], $job[1], $job[2], $job[3]);

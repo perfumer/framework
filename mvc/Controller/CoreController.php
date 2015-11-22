@@ -4,9 +4,10 @@ namespace Perfumer\MVC\Controller;
 
 use Perfumer\Component\Container\Core as Container;
 use Perfumer\MVC\Controller\Exception\ExitActionException;
+use Perfumer\MVC\ExternalRouter\RouterInterface as ExternalRouter;
 use Perfumer\MVC\Proxy\Core as Proxy;
 use Perfumer\MVC\Proxy\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Perfumer\MVC\Proxy\Response;
 
 class CoreController
 {
@@ -138,53 +139,6 @@ class CoreController
     }
 
     /**
-     * Shortcut for ExternalRouter getPrefix() method
-     *
-     * @param $name
-     * @param $default
-     * @return mixed
-     */
-    protected function p($name = null, $default = null)
-    {
-        return $this->getProxy()->getExternalRouter()->getPrefix($name, $default);
-    }
-
-    /**
-     * Shortcut for ExternalRouter getId() method
-     *
-     * @param $index
-     * @return mixed
-     */
-    protected function i($index = null)
-    {
-        return $this->getProxy()->getExternalRouter()->getId($index);
-    }
-
-    /**
-     * Shortcut for ExternalRouter getQuery() method
-     *
-     * @param $name
-     * @param $default
-     * @return mixed
-     */
-    protected function q($name = null, $default = null)
-    {
-        return $this->getProxy()->getExternalRouter()->getQuery($name, $default);
-    }
-
-    /**
-     * Shortcut for ExternalRouter getArg() method
-     *
-     * @param $name
-     * @param $default
-     * @return mixed
-     */
-    protected function a($name = null, $default = null)
-    {
-        return $this->getProxy()->getExternalRouter()->getArg($name, $default);
-    }
-
-    /**
      * Shortcut for Translator translate() method
      *
      * @param $key
@@ -194,20 +148,6 @@ class CoreController
     public function t($key, $placeholders = [])
     {
         return $this->getTranslator()->translate($key, $placeholders);
-    }
-
-    /**
-     * Shortcut for ExternalRouter generateUrl() method
-     *
-     * @param $url
-     * @param $id
-     * @param $query
-     * @param $prefixes
-     * @return string
-     */
-    public function generateUrl($url, $id = null, $query = [], $prefixes = [])
-    {
-        return $this->getProxy()->getExternalRouter()->generateUrl($url, $id, $query, $prefixes);
     }
 
     /**
@@ -258,6 +198,19 @@ class CoreController
     protected function getResponse()
     {
         return $this->_response;
+    }
+
+    /**
+     * @return ExternalRouter
+     */
+    public function getExternalRouter()
+    {
+        return $this->_container->getService('external_router');
+    }
+
+    public function getExternalResponse()
+    {
+        return $this->getExternalRouter()->getExternalResponse();
     }
 
     /**

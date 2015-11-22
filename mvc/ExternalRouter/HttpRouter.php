@@ -4,9 +4,16 @@ namespace Perfumer\MVC\ExternalRouter;
 
 use Perfumer\Helper\Arr;
 use Perfumer\MVC\Proxy\Exception\ProxyException;
+use Perfumer\MVC\Proxy\Response;
+use Symfony\Component\HttpFoundation\Response as ExternalResponse;
 
 class HttpRouter implements RouterInterface
 {
+    /**
+     * @var ExternalResponse
+     */
+    protected $response;
+
     protected $input;
 
     protected $http_prefixes = [];
@@ -146,6 +153,19 @@ class HttpRouter implements RouterInterface
         }
 
         return [$bundle, $url, $action, []];
+    }
+
+    public function getExternalResponse()
+    {
+        if ($this->response === null)
+            $this->response = new ExternalResponse();
+
+        return $this->response;
+    }
+
+    public function sendResponse(Response $response)
+    {
+        $this->getExternalResponse()->setContent($response->getContent())->send();
     }
 
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])

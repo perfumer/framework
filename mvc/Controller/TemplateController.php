@@ -41,7 +41,7 @@ class TemplateController extends CoreController
             $view = $this->getView();
 
             if (!$view->getTemplateBundle())
-                $view->setTemplateBundle($this->getCurrent()->getBundle());
+                $view->setTemplateBundle($current->getBundle());
 
             if (!$view->getTemplateUrl())
                 $view->setTemplateUrl($current->getUrl() . '/' . $current->getAction());
