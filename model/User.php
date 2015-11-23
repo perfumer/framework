@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\MVC\Model;
+namespace Perfumer\Model;
 
 use App\Model\Base\User as BaseUser;
 use App\Model\DelegationQuery;

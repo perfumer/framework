@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\MVC\Model;
+namespace Perfumer\Model;
 
 use App\Model\Base\Delegation as BaseDelegation;
 

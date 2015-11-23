@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\MVC\Model;
+namespace Perfumer\Model;
 
 use App\Model\Base\File as BaseFile;
 use Propel\Runtime\Connection\ConnectionInterface;
