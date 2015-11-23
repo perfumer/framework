@@ -2,7 +2,7 @@
 
 namespace Perfumer\MVC\Bundler;
 
-use Perfumer\Component\Container\Core as Container;
+use Perfumer\Component\Container\Container;
 
 class Bundler
 {

@@ -2,7 +2,7 @@
 
 namespace Perfumer\MVC\Console;
 
-use Perfumer\Component\Container\Core as Container;
+use Perfumer\Component\Container\Container;
 use Perfumer\MVC\Console\Exception\ForwardException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

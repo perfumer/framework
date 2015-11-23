@@ -2,7 +2,7 @@
 
 namespace Perfumer\MVC\Console\Command;
 
-use Perfumer\Component\Container\Core as Container;
+use Perfumer\Component\Container\Container;
 use Perfumer\MVC\Console\Exception\ExitActionException;
 use Perfumer\MVC\Console\Request;
 

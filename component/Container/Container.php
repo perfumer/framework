@@ -19,7 +19,7 @@ use Perfumer\Helper\Arr;
  * @copyright  (c) 2014 Ilyas Makashev
  * @license    MIT
  */
-class Core
+class Container
 {
     // Service definitions array
     protected $service_map = [];

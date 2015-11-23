@@ -2,7 +2,7 @@
 
 namespace Perfumer\MVC\Proxy;
 
-use Perfumer\Component\Container\Core as Container;
+use Perfumer\Component\Container\Container;
 use Perfumer\MVC\Bundler\Bundler;
 use Perfumer\MVC\ExternalRouter\RouterInterface as ExternalRouter;
 use Perfumer\MVC\Proxy\Exception\ForwardException;

@@ -2,12 +2,12 @@
 
 namespace Perfumer\MVC\View\TwigExtension;
 
-use Perfumer\Component\Container\Core as Container;
+use Perfumer\Component\Container\Container;
 
 class FrameworkExtension extends \Twig_Extension
 {
     /**
-     * @var \Perfumer\Component\Container\Core
+     * @var Container
      */
     protected $container;
 
