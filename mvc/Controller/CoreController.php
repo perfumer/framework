@@ -64,7 +64,7 @@ class CoreController
         $this->_reflection_class = $reflection_class;
     }
 
-    public function process()
+    public function _run()
     {
         $this->before();
 

@@ -162,6 +162,6 @@ class Core
 
         $controller = $reflection_class->newInstance($this->container, $request, $response, $reflection_class);
 
-        return $reflection_class->getMethod('process')->invoke($controller);
+        return $reflection_class->getMethod('_run')->invoke($controller);
     }
 }
