@@ -5,7 +5,7 @@ namespace Perfumer\MVC\Controller;
 use Perfumer\Component\Container\Core as Container;
 use Perfumer\MVC\Controller\Exception\ExitActionException;
 use Perfumer\MVC\ExternalRouter\RouterInterface as ExternalRouter;
-use Perfumer\MVC\Proxy\Core as Proxy;
+use Perfumer\MVC\Proxy\Proxy;
 use Perfumer\MVC\Proxy\Request;
 use Perfumer\MVC\Proxy\Response;
 

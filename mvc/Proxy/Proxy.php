@@ -7,7 +7,7 @@ use Perfumer\MVC\Bundler\Bundler;
 use Perfumer\MVC\ExternalRouter\RouterInterface as ExternalRouter;
 use Perfumer\MVC\Proxy\Exception\ForwardException;
 
-class Core
+class Proxy
 {
     /**
      * @var Container
