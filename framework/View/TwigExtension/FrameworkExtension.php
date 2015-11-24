@@ -3,6 +3,9 @@
 namespace Perfumer\Framework\View\TwigExtension;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Framework\Bundler\Bundler;
+use Perfumer\Framework\ExternalRouter\RouterInterface as ExternalRouter;
+use Perfumer\Framework\Proxy\Proxy;
 
 class FrameworkExtension extends \Twig_Extension
 {
@@ -11,9 +14,27 @@ class FrameworkExtension extends \Twig_Extension
      */
     protected $container;
 
+    /**
+     * @var Bundler
+     */
+    protected $bundler;
+
+    /**
+     * @var Proxy
+     */
+    protected $proxy;
+
+    /**
+     * @var ExternalRouter
+     */
+    protected $external_router;
+
     public function __construct(Container $container)
     {
         $this->container = $container;
+        $this->bundler = $this->container->getService('bundler');
+        $this->proxy = $this->container->getService('proxy');
+        $this->external_router = $this->container->getService('external_router');
     }
 
     public function getName()
@@ -38,8 +59,6 @@ class FrameworkExtension extends \Twig_Extension
 
     public function request($bundle, $url, $action, array $args = [], $cache_key = null, $cache_lifetime = 3600)
     {
-        $proxy = $this->container->getService('proxy');
-
         if ($cache_key !== null)
         {
             $cache = $this->container->getService('cache')->getItem($cache_key);
@@ -50,14 +69,14 @@ class FrameworkExtension extends \Twig_Extension
             {
                 $cache->lock();
 
-                $content = $proxy->execute($bundle, $url, $action, $args)->getContent();
+                $content = $this->proxy->execute($bundle, $url, $action, $args)->getContent();
 
                 $cache->set($content, $cache_lifetime);
             }
         }
         else
         {
-            $content = $proxy->execute($bundle, $url, $action, $args)->getContent();
+            $content = $this->proxy->execute($bundle, $url, $action, $args)->getContent();
         }
 
         return $content;
@@ -65,11 +84,9 @@ class FrameworkExtension extends \Twig_Extension
 
     public function tpl($bundle, $url)
     {
-        $bundler = $this->container->getService('bundler');
+        list($bundle, $url) = $this->bundler->overrideTemplate($bundle, $url);
 
-        list($bundle, $url) = $bundler->overrideTemplate($bundle, $url);
-
-        $template = $bundler->getService($bundle, 'view_router')->dispatch($url);
+        $template = $this->bundler->getService($bundle, 'view_router')->dispatch($url);
 
         return $template;
     }
@@ -81,36 +98,31 @@ class FrameworkExtension extends \Twig_Extension
 
     public function url($url, $id = null, $query = [], $prefixes = [])
     {
-        return $this->getExternalRouter()->generateUrl($url, $id, $query, $prefixes);
+        return $this->external_router->generateUrl($url, $id, $query, $prefixes);
     }
 
     public function prefix($name = null)
     {
-        return $this->getExternalRouter()->getPrefix($name);
+        return $this->external_router->getPrefix($name);
     }
 
     public function id($index = null)
     {
-        return $this->getExternalRouter()->getId($index);
+        return $this->external_router->getId($index);
     }
 
     public function query($name = null)
     {
-        return $this->getExternalRouter()->getQuery($name);
+        return $this->external_router->getQuery($name);
     }
 
     public function arg($name = null)
     {
-        return $this->getExternalRouter()->getArg($name);
+        return $this->external_router->getArg($name);
     }
 
     public function t($key, $placeholders = [])
     {
         return $this->container->getService('translator')->translate($key, $placeholders);
-    }
-
-    private function getExternalRouter()
-    {
-        return $this->container->getService('proxy')->getExternalRouter();
     }
 }
