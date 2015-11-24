@@ -18,7 +18,7 @@ class HttpRouterExtension extends \Twig_Extension
 
     public function getName()
     {
-        return 'http_router__extension';
+        return 'http_router_extension';
     }
 
     public function getFunctions()
