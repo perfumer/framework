@@ -18,8 +18,8 @@
     "autoload": {
         "psr-4": {
             "Perfumer\\Component\\": "component/",
+            "Perfumer\\Framework\\": "framework/",
             "Perfumer\\Helper\\": "helper/",
-            "Perfumer\\MVC\\": "mvc/",
             "Perfumer\\Model\\": "model/"
         }
     },
