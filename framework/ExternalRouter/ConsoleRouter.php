@@ -18,8 +18,9 @@ class ConsoleRouter implements RouterInterface
     public function dispatch()
     {
         $argv = $_SERVER['argv'];
-        $bundle = $argv[0];
-        $url = $argv[1];
+        $bundle = $argv[1];
+        $url = $argv[2];
+        array_shift($argv);
         array_shift($argv);
         array_shift($argv);
 
