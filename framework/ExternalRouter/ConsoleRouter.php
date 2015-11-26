@@ -22,7 +22,6 @@ class ConsoleRouter implements RouterInterface
         $url = $argv[2];
         array_shift($argv);
         array_shift($argv);
-        array_shift($argv);
 
         $args = \CommandLine::parseArgs($argv);
 
