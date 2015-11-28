@@ -4,15 +4,20 @@ namespace Perfumer\Framework\Proxy;
 
 class Event
 {
-    protected $data;
+    protected $vars;
 
-    public function __construct(array $data = [])
+    public function __construct(array $vars = [])
     {
-        $this->data = $data;
+        $this->vars = $vars;
     }
 
-    public function getData()
+    public function getVars()
     {
-        return $this->data;
+        return $this->vars;
+    }
+
+    public function getVar($name, $default = null)
+    {
+        return isset($this->vars[$name]) ? isset($this->vars[$name]) : $default;
     }
 }
