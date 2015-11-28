@@ -44,6 +44,16 @@ class Proxy
      */
     protected $background_jobs = [];
 
+    /**
+     * @var array
+     */
+    protected $sync_subscribers = [];
+
+    /**
+     * @var array
+     */
+    protected $async_subscribers = [];
+
     public function __construct(Container $container)
     {
         $this->container = $container;
@@ -104,6 +114,25 @@ class Proxy
         $this->background_jobs[] = [$bundle, $url, $action, $args];
 
         return $this;
+    }
+
+    public function trigger($event_name, Event $event)
+    {
+        if (isset($this->async_subscribers[$event_name]))
+        {
+            foreach ($this->async_subscribers[$event_name] as $subscriber)
+            {
+                $this->addBackgroundJob($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
+            }
+        }
+
+        if (isset($this->sync_subscribers[$event_name]))
+        {
+            foreach ($this->sync_subscribers[$event_name] as $subscriber)
+            {
+                $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
+            }
+        }
     }
 
     /**
