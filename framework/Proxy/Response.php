@@ -4,6 +4,8 @@ namespace Perfumer\Framework\Proxy;
 
 class Response
 {
+    protected $status = true;
+
     protected $content;
 
     public function getContent()
@@ -14,6 +16,18 @@ class Response
     public function setContent($content)
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = (bool) $status;
 
         return $this;
     }
