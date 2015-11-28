@@ -136,7 +136,7 @@ class CoreController
      * @param $placeholders
      * @return string
      */
-    public function t($key, $placeholders = [])
+    protected function t($key, $placeholders = [])
     {
         return $this->getTranslator()->translate($key, $placeholders);
     }
@@ -194,12 +194,12 @@ class CoreController
     /**
      * @return ExternalRouter
      */
-    public function getExternalRouter()
+    protected function getExternalRouter()
     {
         return $this->_container->getService('external_router');
     }
 
-    public function getExternalResponse()
+    protected function getExternalResponse()
     {
         return $this->getExternalRouter()->getExternalResponse();
     }
