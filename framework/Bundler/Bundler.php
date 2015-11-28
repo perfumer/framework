@@ -11,8 +11,26 @@ class Bundler
      */
     protected $container;
 
+    /**
+     * @var array
+     */
+
     protected $manifests = [];
+
+    /**
+     * @var array
+     */
     protected $overrides = [];
+
+    /**
+     * @var array
+     */
+    protected $sync_subscribers = [];
+
+    /**
+     * @var array
+     */
+    protected $async_subscribers = [];
 
     public function __construct(Container $container)
     {
@@ -75,6 +93,43 @@ class Bundler
                         $this->overrides['t#' . $key] = [$manifest['name'], $value];
                 }
             }
+
+            if (isset($manifest['subscribers']))
+            {
+                $subscribers = $manifest['subscribers'];
+
+                if (isset($subscribers['sync']))
+                {
+                    foreach ($subscribers['sync'] as $event_name => $controllers)
+                    {
+                        if (!isset($this->sync_subscribers[$event_name]))
+                            $this->sync_subscribers[$event_name] = [];
+
+                        foreach ($controllers as $controller)
+                        {
+                            $set = $controller;
+                            array_unshift($set, $manifest['name']);
+                            $this->sync_subscribers[$event_name][] = $set;
+                        }
+                    }
+                }
+
+                if (isset($subscribers['async']))
+                {
+                    foreach ($subscribers['async'] as $event_name => $controllers)
+                    {
+                        if (!isset($this->async_subscribers[$event_name]))
+                            $this->async_subscribers[$event_name] = [];
+
+                        foreach ($controllers as $controller)
+                        {
+                            $set = $controller;
+                            array_unshift($set, $manifest['name']);
+                            $this->async_subscribers[$event_name][] = $set;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -115,5 +170,15 @@ class Bundler
         }
 
         return $result;
+    }
+
+    public function getSyncSubscribers($event_name)
+    {
+        return isset($this->sync_subscribers[$event_name]) ? $this->sync_subscribers[$event_name] : [];
+    }
+
+    public function getAsyncSubscribers($event_name)
+    {
+        return isset($this->async_subscribers[$event_name]) ? $this->async_subscribers[$event_name] : [];
     }
 }
