@@ -5,6 +5,7 @@ namespace Perfumer\Framework\Controller;
 use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Controller\Exception\ExitActionException;
 use Perfumer\Framework\ExternalRouter\RouterInterface as ExternalRouter;
+use Perfumer\Framework\Proxy\Event;
 use Perfumer\Framework\Proxy\Proxy;
 use Perfumer\Framework\Proxy\Request;
 use Perfumer\Framework\Proxy\Response;
@@ -116,6 +117,11 @@ class CoreController
     protected function addBackgroundJob($url, $action, array $args = [])
     {
         $this->getProxy()->addBackgroundJob($this->getCurrent()->getBundle(), $url, $action, $args);
+    }
+
+    protected function trigger($event_name, Event $event)
+    {
+        $this->getProxy()->trigger($event_name, $event);
     }
 
     /**
