@@ -18,6 +18,6 @@ class Event
 
     public function getVar($name, $default = null)
     {
-        return isset($this->vars[$name]) ? isset($this->vars[$name]) : $default;
+        return isset($this->vars[$name]) ? $this->vars[$name] : $default;
     }
 }
