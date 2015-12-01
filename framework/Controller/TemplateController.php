@@ -25,7 +25,7 @@ class TemplateController extends CoreController
         if (!method_exists($this, $current->getAction()))
             $this->getProxy()->forward('framework', 'exception/html', 'actionNotFound');
 
-        $this->getView()->mapGroup('app');//->addVar('user', $this->getUser(), 'app');
+        $this->getView()->mapGroup('app');
     }
 
     protected function after()
@@ -35,6 +35,7 @@ class TemplateController extends CoreController
             $current = $this->getCurrent();
 
             $this->getView()->addVars([
+                'bundle' => $current->getBundle(),
                 'main' => $this->getMain(),
                 'initial' => $this->getInitial(),
                 'current' => $current
