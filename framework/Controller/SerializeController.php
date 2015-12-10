@@ -32,7 +32,7 @@ class SerializeController extends CoreController
         $this->getView()->addVars([
             'status' => true,
             'message' => '',
-            'content' => ''
+            'content' => null
         ]);
 
         $this->getView()->mapGroup('errors');
