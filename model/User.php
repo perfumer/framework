@@ -111,21 +111,16 @@ class User extends BaseUser
 
         foreach ($roles as $role)
         {
-            $permissions = $role->getPermissions();
+            $permission = $role->getPermission();
+            $permission = explode('.', $permission);
 
-            foreach ($permissions as $permission)
+            for ($i = 1; $i <= count($permission); $i++)
             {
-                $token = $permission->getToken();
-                $token = explode('.', $token);
+                $sub_permission = array_slice($permission, 0, $i);
+                $sub_permission = implode('.', $sub_permission);
 
-                for ($i = 1; $i <= count($token); $i++)
-                {
-                    $sub_token = array_slice($token, 0, $i);
-                    $sub_token = implode('.', $sub_token);
-
-                    if (!in_array($sub_token, $this->permissions))
-                        $this->permissions[] = $sub_token;
-                }
+                if (!in_array($sub_permission, $this->permissions))
+                    $this->permissions[] = $sub_permission;
             }
         }
 
