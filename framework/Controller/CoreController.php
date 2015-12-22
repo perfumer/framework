@@ -127,12 +127,13 @@ class CoreController
     /**
      * Shortcut for DI Container getService() method
      *
-     * @param $name
+     * @param string $name
+     * @param array $parameters
      * @return mixed
      */
-    protected function s($name)
+    protected function s($name, array $parameters = [])
     {
-        return $this->getContainer()->getService($name);
+        return $this->getContainer()->getService($name, $parameters);
     }
 
     /**

@@ -105,11 +105,13 @@ class Container
      * Get service instance.
      *
      * @param string $name
+     * @param array $parameters
      * @return mixed
      * @access public
      * @uses \ReflectionClass
+     * @throws ContainerException
      */
-    public function getService($name)
+    public function getService($name, array $parameters = [])
     {
         // Shared services are preserved through whole request
         if (isset($this->services[$name]))
@@ -127,7 +129,7 @@ class Container
         // "Init" directive is a callable that returns instance of service
         if (isset($definition['init']) && is_callable($definition['init']))
         {
-            $service_class = $definition['init']($this);
+            $service_class = $definition['init']($this, $parameters);
         }
         else
         {
@@ -163,7 +165,7 @@ class Container
 
         // "After" directive is a callable that is called after instantiation of service object
         if (isset($definition['after']) && is_callable($definition['after']))
-            $definition['after']($this, $service_class);
+            $definition['after']($this, $service_class, $parameters);
 
         // Preserve shared service
         if (isset($definition['shared']) && $definition['shared'] === true)
