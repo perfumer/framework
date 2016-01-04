@@ -12,11 +12,6 @@ class SerializeController extends CoreController
      */
     protected $_view;
 
-    /*
-     * Default serialize method
-     */
-    protected $_serializer = 'json';
-
     protected function before()
     {
         parent::before();
@@ -27,7 +22,7 @@ class SerializeController extends CoreController
             $this->getProxy()->forward('framework', 'exception/html', 'actionNotFound');
 
         if (!method_exists($this, $current->getAction()))
-            $this->getProxy()->forward('framework', 'exception/' . $this->_serializer, 'actionNotFound');
+            $this->getProxy()->forward('framework', 'exception/json', 'actionNotFound');
 
         $this->getView()->addVars([
             'status' => true,
