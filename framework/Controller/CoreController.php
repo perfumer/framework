@@ -9,7 +9,6 @@ use Perfumer\Framework\Proxy\Event;
 use Perfumer\Framework\Proxy\Proxy;
 use Perfumer\Framework\Proxy\Request;
 use Perfumer\Framework\Proxy\Response;
-use Perfumer\Framework\View\View;
 
 class CoreController
 {
