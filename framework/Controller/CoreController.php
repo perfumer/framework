@@ -211,14 +211,6 @@ class CoreController
         return $this->getExternalRouter()->getExternalResponse();
     }
 
-    /**
-     * @return View
-     */
-    protected function getViewInstance()
-    {
-        return $this->getContainer()->getService('view_factory')->getInstance();
-    }
-
     protected function getAuth()
     {
         if ($this->_auth === null)

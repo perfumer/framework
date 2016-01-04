@@ -4,68 +4,12 @@ namespace Perfumer\Framework\View;
 
 use Perfumer\Framework\View\Exception\ViewException;
 
-class View
+abstract class AbstractView
 {
-    /**
-     * @var ViewFactory
-     */
-    protected $factory;
-
     protected $vars = [];
     protected $groups = [];
 
-    protected $bundle;
-    protected $url;
-
-    public function __construct(ViewFactory $factory)
-    {
-        $this->factory = $factory;
-    }
-
-    public function render($bundle = null, $url = null, $vars = [])
-    {
-        $bundle = $bundle ?: $this->bundle;
-        $url = $url ?: $this->url;
-        $vars = $vars ? array_merge($this->vars, $vars) : $this->vars;
-
-        list($bundle, $url) = $this->factory->getBundler()->overrideTemplate($bundle, $url);
-
-        $template = $this->factory->getBundler()->getService($bundle, 'view_router')->dispatch($url);
-
-        return $this->factory->getTemplating()->render($template, $vars);
-    }
-
-    public function getTemplateBundle()
-    {
-        return $this->bundle;
-    }
-
-    public function getTemplateUrl()
-    {
-        return $this->url;
-    }
-
-    public function setTemplate($bundle, $url)
-    {
-        $this->bundle = $bundle;
-        $this->url = $url;
-
-        return $this;
-    }
-
-    public function setTemplateBundle($bundle)
-    {
-        $this->bundle = $bundle;
-
-        return $this;
-    }
-
-    public function setTemplateUrl($url)
-    {
-        $this->url = $url;
-
-        return $this;
-    }
+    abstract public function render();
 
     public function getVar($name, $group = null)
     {
@@ -148,23 +92,5 @@ class View
         $this->groups[$name] = &$base;
 
         return $this;
-    }
-
-    public function serializeVars($serializer = null)
-    {
-        if ($serializer === 'json')
-        {
-            $data = json_encode($this->vars);
-        }
-        elseif (is_callable($serializer))
-        {
-            $data = $serializer($this->vars);
-        }
-        else
-        {
-            $data = serialize($this->vars);
-        }
-
-        return $data;
     }
 }

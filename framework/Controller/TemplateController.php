@@ -2,12 +2,12 @@
 
 namespace Perfumer\Framework\Controller;
 
-use Perfumer\Framework\View\View;
+use Perfumer\Framework\View\TemplateView;
 
 class TemplateController extends CoreController
 {
     /**
-     * @var View
+     * @var TemplateView
      */
     protected $_view;
 
@@ -58,12 +58,12 @@ class TemplateController extends CoreController
     }
 
     /**
-     * @return View
+     * @return TemplateView
      */
     protected function getView()
     {
         if ($this->_view === null)
-            $this->_view = $this->getViewInstance();
+            $this->_view = $this->s('view.template');
 
         return $this->_view;
     }

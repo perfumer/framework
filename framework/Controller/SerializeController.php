@@ -3,12 +3,12 @@
 namespace Perfumer\Framework\Controller;
 
 use Perfumer\Framework\Controller\Exception\ExitActionException;
-use Perfumer\Framework\View\View;
+use Perfumer\Framework\View\SerializeView;
 
 class SerializeController extends CoreController
 {
     /**
-     * @var View
+     * @var SerializeView
      */
     protected $_view;
 
@@ -40,7 +40,7 @@ class SerializeController extends CoreController
 
     protected function after()
     {
-        $content = $this->getView()->serializeVars($this->_serializer);
+        $content = $this->getView()->render();
 
         $this->getResponse()->setContent($content);
 
@@ -48,12 +48,12 @@ class SerializeController extends CoreController
     }
 
     /**
-     * @return View
+     * @return SerializeView
      */
     protected function getView()
     {
         if ($this->_view === null)
-            $this->_view = $this->getViewInstance();
+            $this->_view = $this->s('view.serialize');
 
         return $this->_view;
     }
