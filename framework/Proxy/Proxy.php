@@ -174,7 +174,7 @@ class Proxy
         }
         catch (\ReflectionException $e)
         {
-            $this->forward('framework', 'exception/html', 'controllerNotFound');
+            $this->forward('framework', 'exception/template', 'controllerNotFoundAction');
         }
 
         $response = new Response();

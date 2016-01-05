@@ -59,12 +59,12 @@ class TemplateController extends CoreController
 
     protected function pageNotFound()
     {
-        $this->getProxy()->forward('framework', 'exception/template', 'pageNotFound');
+        $this->getProxy()->forward('framework', 'exception/template', 'pageNotFoundAction');
     }
 
     protected function actionNotFound()
     {
-        $this->getProxy()->forward('framework', 'exception/template', 'actionNotFound');
+        $this->getProxy()->forward('framework', 'exception/template', 'actionNotFoundAction');
     }
 
     /**

@@ -44,12 +44,12 @@ class SerializeController extends CoreController
 
     protected function pageNotFound()
     {
-        $this->getProxy()->forward('framework', 'exception/serialize', 'pageNotFound');
+        $this->getProxy()->forward('framework', 'exception/serialize', 'pageNotFoundAction');
     }
 
     protected function actionNotFound()
     {
-        $this->getProxy()->forward('framework', 'exception/serialize', 'actionNotFound');
+        $this->getProxy()->forward('framework', 'exception/serialize', 'actionNotFoundAction');
     }
 
     /**
