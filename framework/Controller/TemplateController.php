@@ -4,7 +4,7 @@ namespace Perfumer\Framework\Controller;
 
 use Perfumer\Framework\View\TemplateView;
 
-class TemplateController extends CoreController
+class TemplateController extends AbstractController
 {
     /**
      * @var TemplateView
@@ -16,14 +16,6 @@ class TemplateController extends CoreController
     protected function before()
     {
         parent::before();
-
-        $current = $this->getCurrent();
-
-        if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
-            $this->actionNotFoundException();
-
-        if (!method_exists($this, $current->getAction()))
-            $this->actionNotFoundException();
 
         $this->getView()->mapGroup('app');
     }

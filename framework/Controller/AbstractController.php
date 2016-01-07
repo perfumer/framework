@@ -10,7 +10,7 @@ use Perfumer\Framework\Proxy\Proxy;
 use Perfumer\Framework\Proxy\Request;
 use Perfumer\Framework\Proxy\Response;
 
-class CoreController
+abstract class AbstractController
 {
     /**
      * @var Container
@@ -67,10 +67,18 @@ class CoreController
 
     public function _run()
     {
+        $current = $this->getCurrent();
+
+        if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
+            $this->actionNotFoundException();
+
+        if (!method_exists($this, $current->getAction()))
+            $this->actionNotFoundException();
+
         $this->before();
 
-        $action = $this->getCurrent()->getAction();
-        $args = $this->getCurrent()->getArgs();
+        $action = $current->getAction();
+        $args = $current->getArgs();
 
         try
         {
@@ -92,6 +100,10 @@ class CoreController
     protected function after()
     {
     }
+
+    abstract protected function pageNotFoundException();
+
+    abstract protected function actionNotFoundException();
 
     /**
      * @return array

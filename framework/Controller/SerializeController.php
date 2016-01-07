@@ -5,7 +5,7 @@ namespace Perfumer\Framework\Controller;
 use Perfumer\Framework\Controller\Exception\ExitActionException;
 use Perfumer\Framework\View\SerializeView;
 
-class SerializeController extends CoreController
+class SerializeController extends AbstractController
 {
     /**
      * @var SerializeView
@@ -15,14 +15,6 @@ class SerializeController extends CoreController
     protected function before()
     {
         parent::before();
-
-        $current = $this->getCurrent();
-
-        if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
-            $this->actionNotFoundException();
-
-        if (!method_exists($this, $current->getAction()))
-            $this->actionNotFoundException();
 
         $this->getView()->addVars([
             'status' => true,
