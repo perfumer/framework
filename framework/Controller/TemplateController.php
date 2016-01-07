@@ -20,10 +20,10 @@ class TemplateController extends CoreController
         $current = $this->getCurrent();
 
         if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
-            $this->actionNotFound();
+            $this->actionNotFoundException();
 
         if (!method_exists($this, $current->getAction()))
-            $this->actionNotFound();
+            $this->actionNotFoundException();
 
         $this->getView()->mapGroup('app');
     }
@@ -57,14 +57,14 @@ class TemplateController extends CoreController
         parent::after();
     }
 
-    protected function pageNotFound()
+    protected function pageNotFoundException()
     {
-        $this->getProxy()->forward('framework', 'exception/template', 'pageNotFoundAction');
+        $this->getProxy()->forward('framework', 'exception/template', 'pageNotFound');
     }
 
-    protected function actionNotFound()
+    protected function actionNotFoundException()
     {
-        $this->getProxy()->forward('framework', 'exception/template', 'actionNotFoundAction');
+        $this->getProxy()->forward('framework', 'exception/template', 'actionNotFound');
     }
 
     /**

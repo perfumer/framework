@@ -19,10 +19,10 @@ class SerializeController extends CoreController
         $current = $this->getCurrent();
 
         if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
-            $this->actionNotFound();
+            $this->actionNotFoundException();
 
         if (!method_exists($this, $current->getAction()))
-            $this->actionNotFound();
+            $this->actionNotFoundException();
 
         $this->getView()->addVars([
             'status' => true,
@@ -42,14 +42,14 @@ class SerializeController extends CoreController
         parent::after();
     }
 
-    protected function pageNotFound()
+    protected function pageNotFoundException()
     {
-        $this->getProxy()->forward('framework', 'exception/serialize', 'pageNotFoundAction');
+        $this->getProxy()->forward('framework', 'exception/serialize', 'pageNotFound');
     }
 
-    protected function actionNotFound()
+    protected function actionNotFoundException()
     {
-        $this->getProxy()->forward('framework', 'exception/serialize', 'actionNotFoundAction');
+        $this->getProxy()->forward('framework', 'exception/serialize', 'actionNotFound');
     }
 
     /**
