@@ -6,6 +6,8 @@ use Perfumer\Framework\Proxy\Response;
 
 interface RouterInterface
 {
+    public function getName();
+
     public function dispatch();
 
     public function getExternalResponse();

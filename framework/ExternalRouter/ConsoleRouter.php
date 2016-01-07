@@ -15,6 +15,11 @@ class ConsoleRouter implements RouterInterface
     protected $options = [];
     protected $arguments = [];
 
+    public function getName()
+    {
+        return 'console_router';
+    }
+
     public function dispatch()
     {
         $argv = $_SERVER['argv'];

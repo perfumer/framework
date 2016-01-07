@@ -39,6 +39,11 @@ class HttpRouter implements RouterInterface
         $this->options = array_merge($default_options, $options);
     }
 
+    public function getName()
+    {
+        return 'http_router';
+    }
+
     public function dispatch()
     {
         $action = strtolower($_SERVER['REQUEST_METHOD']);
