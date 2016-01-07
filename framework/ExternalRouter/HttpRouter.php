@@ -40,12 +40,14 @@ class HttpRouter implements RouterInterface
     {
         // Define bundle
         $bundle = 'app';
+        $bundle_settings = [];
 
         foreach ($this->bundles as $route)
         {
             if (!empty($route['domain']) && $route['domain'] === $_SERVER['SERVER_NAME'])
             {
                 $bundle = $route['bundle'];
+                $bundle_settings = $route;
                 break;
             }
         }
@@ -60,7 +62,7 @@ class HttpRouter implements RouterInterface
             'prefix_options' => [],
         ];
 
-        $settings = array_merge($default_settings, $this->bundles[$bundle]);
+        $settings = array_merge($default_settings, $bundle_settings);
 
         $this->bundle_prefixes = $settings['prefixes'];
 
