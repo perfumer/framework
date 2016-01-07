@@ -112,7 +112,7 @@ abstract class AbstractController
      */
     protected function getAllowedMethods()
     {
-        return ['get', 'post', 'head', 'options'];
+        return ['get', 'post', 'head', 'options', 'action'];
     }
 
     protected function execute($url, $action, array $args = [])
