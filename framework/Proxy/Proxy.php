@@ -4,7 +4,7 @@ namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Bundler\Bundler;
-use Perfumer\Framework\ExternalRouter\RouterInterface as ExternalRouter;
+use Perfumer\Framework\BundleRouter\RouterInterface as BundleRouter;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 
 class Proxy
@@ -20,9 +20,9 @@ class Proxy
     protected $bundler;
 
     /**
-     * @var ExternalRouter
+     * @var BundleRouter
      */
-    protected $external_router;
+    protected $bundle_router;
 
     /**
      * @var Request
@@ -48,15 +48,15 @@ class Proxy
     {
         $this->container = $container;
         $this->bundler = $container->getService('bundler');
-        $this->external_router = $container->getService('external_router');
+        $this->bundle_router = $container->getService('bundle_router');
     }
 
     /**
-     * @return ExternalRouter
+     * @return BundleRouter
      */
-    public function getExternalRouter()
+    public function getBundleRouter()
     {
-        return $this->external_router;
+        return $this->bundle_router;
     }
 
     public function getRequestPool()
@@ -71,13 +71,17 @@ class Proxy
 
     public function run()
     {
-        list($bundle, $url, $action, $args) = $this->external_router->dispatch();
+        $bundle = $this->bundle_router->dispatch();
+
+        $external_router = $this->bundler->getService($bundle, 'external_router');
+
+        list($url, $action, $args) = $external_router->dispatch();
 
         $this->next = $this->initializeRequest($bundle, $url, $action, $args);
 
         $response = $this->start();
 
-        $this->external_router->sendResponse($response);
+        $external_router->sendResponse($response);
 
         foreach ($this->background_jobs as $job)
             $this->execute($job[0], $job[1], $job[2], $job[3]);

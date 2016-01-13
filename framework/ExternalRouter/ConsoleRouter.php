@@ -23,7 +23,6 @@ class ConsoleRouter implements RouterInterface
     public function dispatch()
     {
         $argv = $_SERVER['argv'];
-        $bundle = $argv[1];
         $url = $argv[2];
         array_shift($argv);
         array_shift($argv);
@@ -42,7 +41,7 @@ class ConsoleRouter implements RouterInterface
             }
         }
 
-        return [$bundle, $url, 'action', []];
+        return [$url, 'action', []];
     }
 
     public function getOption($name, $alias = null, $default = null)

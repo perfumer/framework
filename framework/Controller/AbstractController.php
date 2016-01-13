@@ -214,7 +214,7 @@ abstract class AbstractController
      */
     protected function getExternalRouter()
     {
-        return $this->_container->getService('external_router');
+        return $this->_container->getService('bundler')->getService($this->getCurrent()->getBundle(), 'external_router');
     }
 
     protected function getExternalResponse()

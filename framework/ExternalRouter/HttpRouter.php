@@ -16,9 +16,7 @@ class HttpRouter implements RouterInterface
 
     protected $input;
 
-    protected $bundles = [];
-
-    protected $bundle_prefixes = [];
+    protected $options = [];
 
     protected $http_prefixes = [];
     protected $http_id;
@@ -26,9 +24,18 @@ class HttpRouter implements RouterInterface
     protected $http_query = [];
     protected $http_args = [];
 
-    public function __construct($bundles = [])
+    public function __construct($options = [])
     {
-        $this->bundles = $bundles;
+        $default_options = [
+            'auto_null' => true,
+            'auto_trim' => true,
+            'data_type' => 'query_string',
+            'default_url' => 'home',
+            'prefixes' => [],
+            'prefix_options' => [],
+        ];
+
+        $this->options = array_merge($default_options, $options);
     }
 
     public function getName()
@@ -38,41 +45,13 @@ class HttpRouter implements RouterInterface
 
     public function dispatch()
     {
-        // Define bundle
-        $bundle = 'app';
-        $bundle_settings = [];
-
-        foreach ($this->bundles as $route)
-        {
-            if (!empty($route['domain']) && $route['domain'] === $_SERVER['SERVER_NAME'])
-            {
-                $bundle = $route['bundle'];
-                $bundle_settings = $route;
-                break;
-            }
-        }
-
-        // Define bundle settings
-        $default_settings = [
-            'auto_null' => true,
-            'auto_trim' => true,
-            'data_type' => 'query_string',
-            'default_url' => 'home',
-            'prefixes' => [],
-            'prefix_options' => [],
-        ];
-
-        $settings = array_merge($default_settings, $bundle_settings);
-
-        $this->bundle_prefixes = $settings['prefixes'];
-
         $action = strtolower($_SERVER['REQUEST_METHOD']);
 
-        if ($prefixes = $settings['prefixes'])
+        if ($prefixes = $this->options['prefixes'])
         {
             $this->http_prefixes = array_fill_keys($prefixes, null);
 
-            $prefix_options = $settings['prefix_options'];
+            $prefix_options = $this->options['prefix_options'];
 
             if (is_array($prefix_options))
             {
@@ -86,7 +65,7 @@ class HttpRouter implements RouterInterface
 
         if ($_SERVER['PATH_INFO'] == '/')
         {
-            $url = $settings['default_url'];
+            $url = $this->options['default_url'];
         }
         else
         {
@@ -99,11 +78,11 @@ class HttpRouter implements RouterInterface
                 $url = substr($url, 0, $hyphen_pos);
             }
 
-            if ($prefixes = $settings['prefixes'])
+            if ($prefixes = $this->options['prefixes'])
             {
                 $url = explode('/', $url);
 
-                $prefix_options = $settings['prefix_options'];
+                $prefix_options = $this->options['prefix_options'];
 
                 while ($prefixes && $url)
                 {
@@ -118,13 +97,13 @@ class HttpRouter implements RouterInterface
                     }
                 }
 
-                $url = count($url) > 0 ? implode('/', $url) : $settings['default_url'];
+                $url = count($url) > 0 ? implode('/', $url) : $this->options['default_url'];
             }
         }
 
         $this->input = file_get_contents("php://input");
 
-        $data_type = $settings['data_type'];
+        $data_type = $this->options['data_type'];
 
         // Get query parameters and args depending from type of data in the http request body
         if ($data_type == 'query_string')
@@ -154,18 +133,18 @@ class HttpRouter implements RouterInterface
         }
 
         // Trim all args if auto_trim setting enabled
-        if ($settings['auto_trim'])
+        if ($this->options['auto_trim'])
         {
             $this->http_args = Arr::trim($this->http_args);
         }
 
         // Convert empty strings to null values if auto_null setting enabled
-        if ($settings['auto_null'])
+        if ($this->options['auto_null'])
         {
             $this->http_args = Arr::convertValues($this->http_args, '', null);
         }
 
-        return [$bundle, $url, $action, []];
+        return [$url, $action, []];
     }
 
     public function getExternalResponse()
@@ -185,11 +164,11 @@ class HttpRouter implements RouterInterface
     {
         $generated_url = '/' . trim($url, '/');
 
-        if ($this->bundle_prefixes)
+        if ($this->options['prefixes'])
         {
             if ($prefixes)
             {
-                $prefixes = Arr::fetch($prefixes, $this->bundle_prefixes);
+                $prefixes = Arr::fetch($prefixes, $this->options['prefixes']);
                 $prefixes = array_merge($this->getPrefix(), $prefixes);
             }
             else
@@ -229,7 +208,7 @@ class HttpRouter implements RouterInterface
 
     public function setPrefix($name, $value)
     {
-        if (!in_array($name, $this->bundle_prefixes))
+        if (!in_array($name, $this->options['prefixes']))
             throw new ProxyException('Prefix "' . $name . '" is not registered in configuration');
 
         $this->http_prefixes[$name] = $value;
