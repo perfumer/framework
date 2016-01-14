@@ -148,6 +148,11 @@ class HttpRouter implements RouterInterface
         return [$url, $action, []];
     }
 
+    public function getControllerNotFound()
+    {
+        return $this->options['controller_not_found'];
+    }
+
     public function getExternalResponse()
     {
         if ($this->response === null)
