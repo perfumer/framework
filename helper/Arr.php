@@ -48,8 +48,13 @@ class Arr
 
     public static function trim(array $array, $char = ' ')
     {
-        foreach ($array as &$value)
-            $value = is_array($value) ? self::trim($value, $char) : trim($value, $char);
+        foreach ($array as &$value) {
+            if (is_array($value)) {
+                $value = self::trim($value, $char);
+            } elseif (is_string($value)) {
+                $value = trim($value, $char);
+            }
+        }
 
         return $array;
     }
