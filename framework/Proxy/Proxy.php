@@ -5,6 +5,7 @@ namespace Perfumer\Framework\Proxy;
 use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Bundler\Bundler;
 use Perfumer\Framework\BundleRouter\RouterInterface as BundleRouter;
+use Perfumer\Framework\ExternalRouter\RouterInterface as ExternalRouter;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 
 class Proxy
@@ -23,6 +24,11 @@ class Proxy
      * @var BundleRouter
      */
     protected $bundle_router;
+
+    /**
+     * @var ExternalRouter
+     */
+    protected $external_router;
 
     /**
      * @var Request
@@ -59,6 +65,14 @@ class Proxy
         return $this->bundle_router;
     }
 
+    /**
+     * @return ExternalRouter
+     */
+    public function getExternalRouter()
+    {
+        return $this->external_router;
+    }
+
     public function getRequestPool()
     {
         return $this->request_pool;
@@ -73,15 +87,15 @@ class Proxy
     {
         $bundle = $this->bundle_router->dispatch();
 
-        $external_router = $this->bundler->getService($bundle, 'external_router');
+        $this->external_router = $this->bundler->getService($bundle, 'external_router');
 
-        list($url, $action, $args) = $external_router->dispatch();
+        list($url, $action, $args) = $this->external_router->dispatch();
 
         $this->next = $this->initializeRequest($bundle, $url, $action, $args);
 
         $response = $this->start();
 
-        $external_router->sendResponse($response);
+        $this->external_router->sendResponse($response);
 
         foreach ($this->background_jobs as $job)
             $this->execute($job[0], $job[1], $job[2], $job[3]);
@@ -178,9 +192,7 @@ class Proxy
         }
         catch (\ReflectionException $e)
         {
-            $external_router = $this->bundler->getService($request->getBundle(), 'external_router');
-
-            $controller_not_found = $external_router->getControllerNotFound();
+            $controller_not_found = $this->external_router->getControllerNotFound();
 
             $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
         }
