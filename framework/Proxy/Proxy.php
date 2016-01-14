@@ -178,7 +178,11 @@ class Proxy
         }
         catch (\ReflectionException $e)
         {
-            $this->forward('framework', 'exception/template', 'controllerNotFound');
+            $external_router = $this->bundler->getService($request->getBundle(), 'external_router');
+
+            $controller_not_found = $external_router->getControllerNotFound();
+
+            $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
         }
 
         $response = new Response();

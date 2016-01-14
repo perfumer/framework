@@ -33,6 +33,7 @@ class HttpRouter implements RouterInterface
             'default_url' => 'home',
             'prefixes' => [],
             'prefix_options' => [],
+            'controller_not_found' => ['framework', 'exception/template', 'controllerNotFound']
         ];
 
         $this->options = array_merge($default_options, $options);
