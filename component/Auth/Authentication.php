@@ -77,6 +77,7 @@ class Authentication
     {
         $default_options = [
             'model' => '\\App\\Model\\User',
+            'username_field' => 'username',
             'acl' => false,
             'application' => false,
             'update_gap' => 3600
@@ -368,14 +369,14 @@ class Authentication
 
     protected function updateSessionData()
     {
-        $this->user->revealRoles();
-
         $_user = [
             'model' => $this->options['model'],
             'data' => $this->user->toArray(TableMap::TYPE_FIELDNAME)
         ];
 
         if ($this->options['acl']) {
+            $this->user->revealRoles();
+
             $_user['permissions'] = $this->user->getPermissions();
             $_user['role_ids'] = $this->user->getRoleIds();
         }
@@ -420,11 +421,10 @@ class Authentication
         $this->status = $status;
 
         if ($this->session !== null) {
-            echo 123;
             $this->session->destroy();
         }
 
-        if ($this->token !== null) {echo $this->token;
+        if ($this->token !== null) {
             $this->token_handler->deleteToken();
         }
     }

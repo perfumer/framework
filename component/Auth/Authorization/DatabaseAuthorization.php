@@ -24,7 +24,7 @@ class DatabaseAuthorization extends Authentication
 
             $query = $this->options['model'] . 'Query';
 
-            $user = $query::create()->findOneByUsername($username);
+            $user = $query::create()->findOneBy($this->options['username_field'], $username);
 
             if (!$user)
                 throw new AuthException(self::STATUS_INVALID_USERNAME);
