@@ -82,9 +82,6 @@ trait CreateTransfer
             $attachment->setSize($size);
             $attachment->setPath($target_folder . $digest . '.' . $file->getExtension());
 
-            if ($this->getUser()->isLogged())
-                $attachment->setCreator($this->getUser());
-
             if (isset($_POST['model_id']))
                 $attachment->setModelId((int) $_POST['model_id']);
 
