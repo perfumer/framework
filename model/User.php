@@ -11,34 +11,9 @@ use Propel\Runtime\Collection\ObjectCollection;
 
 class User extends BaseUser
 {
-    protected $profiles = [];
     protected $is_logged = false;
     protected $role_ids = [];
     protected $permissions = [];
-
-    public function getProfile($group_name)
-    {
-        if (array_key_exists($group_name, $this->profiles))
-            return $this->profiles[$group_name];
-
-        $user_group = UserGroupQuery::create()
-            ->filterByUserId($this->getId())
-            ->filterByGroupName($group_name)
-            ->findOne();
-
-        if ($user_group)
-        {
-            $query = 'App\\Model\\' . $group_name . 'Query';
-
-            $this->profiles[$group_name] = $query::create()->findPk($user_group->getGroupId());
-        }
-        else
-        {
-            $this->profiles[$group_name] = null;
-        }
-
-        return $this->profiles[$group_name];
-    }
 
     public function hashPassword($v)
     {
@@ -73,22 +48,6 @@ class User extends BaseUser
     public function isLogged()
     {
         return $this->is_logged;
-    }
-
-    public function inGroup($groups)
-    {
-        if (!is_array($groups))
-            $groups = [$groups];
-
-        if (array_filter(Arr::fetch($this->profiles, $groups)))
-            return true;
-
-        $user_group = UserGroupQuery::create()
-            ->filterByUserId($this->getId())
-            ->filterByGroupName($groups, Criteria::IN)
-            ->findOne();
-
-        return (bool) $user_group;
     }
 
     public function isGranted($permissions)

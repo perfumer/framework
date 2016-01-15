@@ -6,8 +6,6 @@ use App\Model\Application;
 use App\Model\ApplicationQuery;
 use App\Model\Session as SessionEntry;
 use App\Model\SessionQuery as SessionEntryQuery;
-use App\Model\User;
-use App\Model\UserQuery;
 use Perfumer\Component\Auth\Exception\AuthException;
 use Perfumer\Component\Auth\TokenHandler\AbstractHandler as TokenHandler;
 use Perfumer\Component\Session\Core as SessionService;
@@ -23,16 +21,15 @@ class Authentication
     const STATUS_EXPIRED_TOKEN = 50;
     const STATUS_INVALID_APPLICATION = 60;
     const STATUS_INVALID_CREDENTIALS = 70;
-    const STATUS_INVALID_GROUP = 80;
-    const STATUS_INVALID_PASSWORD = 90;
-    const STATUS_INVALID_TOKEN = 100;
-    const STATUS_INVALID_USER = 110;
-    const STATUS_INVALID_USERNAME = 120;
-    const STATUS_NO_APPLICATION = 130;
-    const STATUS_NO_TOKEN = 140;
-    const STATUS_REMOTE_SERVER_ERROR = 150;
-    const STATUS_SIGNED_IN = 160;
-    const STATUS_SIGNED_OUT = 170;
+    const STATUS_INVALID_PASSWORD = 80;
+    const STATUS_INVALID_TOKEN = 90;
+    const STATUS_INVALID_USER = 100;
+    const STATUS_INVALID_USERNAME = 110;
+    const STATUS_NO_APPLICATION = 120;
+    const STATUS_NO_TOKEN = 130;
+    const STATUS_REMOTE_SERVER_ERROR = 140;
+    const STATUS_SIGNED_IN = 150;
+    const STATUS_SIGNED_OUT = 160;
 
     /**
      * @var SessionService
@@ -49,9 +46,6 @@ class Authentication
      */
     protected $token_handler;
 
-    /**
-     * @var \App\Model\User
-     */
     protected $user;
 
     /**
@@ -82,16 +76,17 @@ class Authentication
     public function __construct(SessionService $session_service, TokenHandler $token_handler, $options = [])
     {
         $default_options = [
-            'update_gap' => 3600,
-            'groups' => [],
-            'application' => false
+            'model' => '\\App\\Model\\User',
+            'acl' => false,
+            'application' => false,
+            'update_gap' => 3600
         ];
 
         $this->options = array_merge($default_options, $options);
 
         $this->session_service = $session_service;
         $this->token_handler = $token_handler;
-        $this->user = new User();
+        $this->user = new $this->options['model']();
 
         $this->token = $this->token_handler->getToken();
 
@@ -179,6 +174,11 @@ class Authentication
                 if ($_session_entry->getExpiredAt() !== null && $_session_entry->getExpiredAt()->diff(new \DateTime())->invert == 0)
                     throw new AuthException(self::STATUS_EXPIRED_TOKEN);
 
+                $user = $this->retrieveUser($_session_entry->getModelId());
+
+                if (!$user)
+                    throw new AuthException(self::STATUS_INVALID_USER);
+
                 if ($this->options['application'])
                 {
                     if ($_session_entry->getApplicationId() === null)
@@ -190,8 +190,6 @@ class Authentication
                         $application = $_session_entry->getApplication();
                     }
                 }
-
-                $user = $_session_entry->getUser();
 
                 $this->session_entry = $_session_entry;
 
@@ -213,7 +211,7 @@ class Authentication
 
                     if(time() - $this->session->get('_updated_at') >= $this->options['update_gap'])
                     {
-                        $user = UserQuery::create()->findPk($_user['data']['id']);
+                        $user = $this->retrieveUser($_user['data']['id']);
 
                         if (!$user)
                             throw new AuthException(self::STATUS_INVALID_USER);
@@ -230,11 +228,17 @@ class Authentication
                     }
                     else
                     {
-                        $user = new User();
+                        if ($_user['model'] !== $this->options['model'])
+                            throw new AuthException(self::STATUS_INVALID_USER);
+
+                        $user = new $this->options['model']();
                         $user->fromArray($_user['data'], TableMap::TYPE_FIELDNAME);
-                        $user->setPermissions($_user['permissions']);
-                        $user->setRoleIds($_user['role_ids']);
                         $user->setNew(false);
+
+                        if ($this->options['acl']) {
+                            $user->setPermissions($_user['permissions']);
+                            $user->setRoleIds($_user['role_ids']);
+                        }
 
                         if ($this->options['application'])
                         {
@@ -254,9 +258,6 @@ class Authentication
                     return;
                 }
             }
-
-            if ($this->options['groups'] && !$user->inGroup($this->options['groups']))
-                throw new AuthException(self::STATUS_INVALID_GROUP);
 
             if ($user->isDisabled())
                 throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
@@ -290,6 +291,13 @@ class Authentication
         $this->reset(self::STATUS_SIGNED_OUT);
     }
 
+    protected function retrieveUser($id)
+    {
+        $query = $this->options['model'] . 'Query';
+
+        return $query::create()->findPk($id);
+    }
+
     protected function startSession()
     {
         if ($this->session !== null)
@@ -303,7 +311,8 @@ class Authentication
 
         $this->session_entry = new SessionEntry();
         $this->session_entry->setToken($this->token);
-        $this->session_entry->setUser($this->user);
+        $this->session_entry->setModelId($this->user->getId());
+        $this->session_entry->setModelName($this->options['model']);
 
         if ($this->options['application'])
             $this->session_entry->setApplication($this->application);
@@ -362,10 +371,14 @@ class Authentication
         $this->user->revealRoles();
 
         $_user = [
-            'data' => $this->user->toArray(TableMap::TYPE_FIELDNAME),
-            'permissions' => $this->user->getPermissions(),
-            'role_ids' => $this->user->getRoleIds()
+            'model' => $this->options['model'],
+            'data' => $this->user->toArray(TableMap::TYPE_FIELDNAME)
         ];
+
+        if ($this->options['acl']) {
+            $_user['permissions'] = $this->user->getPermissions();
+            $_user['role_ids'] = $this->user->getRoleIds();
+        }
 
         $this->session->set('_user', $_user)->set('_updated_at', time());
 
@@ -385,7 +398,8 @@ class Authentication
             $user = $this->user;
 
         $_sessions = SessionEntryQuery::create()
-            ->filterByUser($user)
+            ->filterByModelId($user->getId())
+            ->filterByModelName(get_class($user))
             ->filterByExpiredAt(new \DateTime(), '>=')
             ->find();
 
@@ -400,15 +414,18 @@ class Authentication
 
     protected function reset($status)
     {
-        $this->user = new User();
+        $this->user = new $this->options['model']();
         $this->application = null;
 
         $this->status = $status;
 
-        if ($this->session !== null)
+        if ($this->session !== null) {
+            echo 123;
             $this->session->destroy();
+        }
 
-        if ($this->token !== null)
+        if ($this->token !== null) {echo $this->token;
             $this->token_handler->deleteToken();
+        }
     }
 }

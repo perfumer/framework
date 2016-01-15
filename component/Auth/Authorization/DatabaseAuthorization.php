@@ -3,7 +3,6 @@
 namespace Perfumer\Component\Auth\Authorization;
 
 use App\Model\ApplicationQuery;
-use App\Model\UserQuery;
 use Perfumer\Component\Auth\Authentication;
 use Perfumer\Component\Auth\Exception\AuthException;
 
@@ -23,7 +22,9 @@ class DatabaseAuthorization extends Authentication
                 $this->application = $application;
             }
 
-            $user = UserQuery::create()->findOneByUsername($username);
+            $query = $this->options['model'] . 'Query';
+
+            $user = $query::create()->findOneByUsername($username);
 
             if (!$user)
                 throw new AuthException(self::STATUS_INVALID_USERNAME);
@@ -32,9 +33,6 @@ class DatabaseAuthorization extends Authentication
             {
                 if (!$user->validatePassword($password))
                     throw new AuthException(self::STATUS_INVALID_PASSWORD);
-
-                if ($this->options['groups'] && !$user->inGroup($this->options['groups']))
-                    throw new AuthException(self::STATUS_INVALID_GROUP);
 
                 if ($user->isDisabled())
                     throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
