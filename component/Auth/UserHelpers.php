@@ -33,7 +33,7 @@ trait UserHelpers
 
     public function setLogged($is_logged)
     {
-        $this->is_logged = (boolean) $is_logged;
+        $this->is_logged = (bool) $is_logged;
 
         return $this;
     }
@@ -54,7 +54,7 @@ trait UserHelpers
         if (!is_array($permissions))
             $permissions = [$permissions];
 
-        return array_intersect($this->permissions, $permissions);
+        return (bool) array_intersect($this->permissions, $permissions);
     }
 
     public function revealRoles()

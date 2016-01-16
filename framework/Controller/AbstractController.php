@@ -45,11 +45,6 @@ abstract class AbstractController
     protected $_translator;
 
     /**
-     * @var \App\Model\User
-     */
-    protected $_user;
-
-    /**
      * Default name of Auth service
      *
      * @var string
@@ -241,14 +236,8 @@ abstract class AbstractController
         return $this->_translator;
     }
 
-    /**
-     * @return \App\Model\User
-     */
     protected function getUser()
     {
-        if ($this->_user === null)
-            $this->_user = $this->getAuth()->getUser();
-
-        return $this->_user;
+        return $this->getAuth()->getUser();
     }
 }
