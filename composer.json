@@ -19,8 +19,7 @@
         "psr-4": {
             "Perfumer\\Component\\": "component/",
             "Perfumer\\Framework\\": "framework/",
-            "Perfumer\\Helper\\": "helper/",
-            "Perfumer\\Model\\": "model/"
+            "Perfumer\\Helper\\": "helper/"
         }
     },
     "config": {

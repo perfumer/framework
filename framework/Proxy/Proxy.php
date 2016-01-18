@@ -48,7 +48,7 @@ class Proxy
     /**
      * @var array
      */
-    protected $background_jobs = [];
+    protected $deferred = [];
 
     public function __construct(Container $container)
     {
@@ -97,7 +97,7 @@ class Proxy
 
         $this->external_router->sendResponse($response);
 
-        foreach ($this->background_jobs as $job)
+        foreach ($this->deferred as $job)
             $this->execute($job[0], $job[1], $job[2], $job[3]);
     }
 
@@ -117,9 +117,9 @@ class Proxy
         throw new ForwardException();
     }
 
-    public function addBackgroundJob($bundle, $url, $action, array $args = [])
+    public function defer($bundle, $url, $action, array $args = [])
     {
-        $this->background_jobs[] = [$bundle, $url, $action, $args];
+        $this->deferred[] = [$bundle, $url, $action, $args];
 
         return $this;
     }
@@ -130,7 +130,7 @@ class Proxy
         {
             foreach ($subscribers as $subscriber)
             {
-                $this->addBackgroundJob($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
+                $this->defer($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
             }
         }
 

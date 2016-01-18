@@ -120,9 +120,9 @@ abstract class AbstractController
         $this->getProxy()->forward($this->getCurrent()->getBundle(), $url, $action, $args);
     }
 
-    protected function addBackgroundJob($url, $action, array $args = [])
+    protected function defer($url, $action, array $args = [])
     {
-        $this->getProxy()->addBackgroundJob($this->getCurrent()->getBundle(), $url, $action, $args);
+        $this->getProxy()->defer($this->getCurrent()->getBundle(), $url, $action, $args);
     }
 
     protected function trigger($event_name, Event $event)
