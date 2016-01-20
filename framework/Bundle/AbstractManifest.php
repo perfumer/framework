@@ -4,7 +4,7 @@ namespace Perfumer\Framework\Bundle;
 
 use Perfumer\Framework\Bundle\Exception\BundleException;
 
-abstract class Manifest
+abstract class AbstractManifest
 {
     abstract public function getName();
 
