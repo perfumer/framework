@@ -37,19 +37,10 @@ abstract class AbstractController
      */
     protected $_reflection_class;
 
-    protected $_auth;
-
     /**
      * @var \Perfumer\Component\Translator\Core
      */
     protected $_translator;
-
-    /**
-     * Default name of Auth service
-     *
-     * @var string
-     */
-    protected $_auth_service_name = 'auth';
 
     public function __construct(Container $container, Request $request, Response $response, \ReflectionClass $reflection_class)
     {
@@ -217,14 +208,6 @@ abstract class AbstractController
         return $this->getExternalRouter()->getExternalResponse();
     }
 
-    protected function getAuth()
-    {
-        if ($this->_auth === null)
-            $this->_auth = $this->getContainer()->getService($this->_auth_service_name);
-
-        return $this->_auth;
-    }
-
     /**
      * @return \Perfumer\Component\Translator\Core
      */
@@ -234,10 +217,5 @@ abstract class AbstractController
             $this->_translator = $this->getContainer()->getService('translator');
 
         return $this->_translator;
-    }
-
-    protected function getUser()
-    {
-        return $this->getAuth()->getUser();
     }
 }
