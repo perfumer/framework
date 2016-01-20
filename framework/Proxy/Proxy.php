@@ -3,7 +3,7 @@
 namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\Container;
-use Perfumer\Framework\Bundler\Bundler;
+use Perfumer\Framework\Bundle\Bundler;
 use Perfumer\Framework\BundleRouter\RouterInterface as BundleRouter;
 use Perfumer\Framework\ExternalRouter\RouterInterface as ExternalRouter;
 use Perfumer\Framework\Proxy\Exception\ForwardException;

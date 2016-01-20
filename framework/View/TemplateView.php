@@ -2,7 +2,7 @@
 
 namespace Perfumer\Framework\View;
 
-use Perfumer\Framework\Bundler\Bundler;
+use Perfumer\Framework\Bundle\Bundler;
 
 class TemplateView extends AbstractView
 {
