@@ -46,7 +46,7 @@ class Bundler
 
         foreach ($manifests as $manifest)
         {
-            /** @var Manifest $manifest */
+            /** @var AbstractManifest $manifest */
 
             $this->manifests[$manifest->getName()] = $manifest;
 
@@ -66,12 +66,12 @@ class Bundler
 
             foreach ($manifest->getControllerOverrides() as $key => $value) {
                 $set = $value;
-                array_unshift($set, $manifest['name']);
+                array_unshift($set, $manifest->getName());
                 $this->overrides['c#' . $key] = $set;
             }
 
             foreach ($manifest->getTemplateOverrides() as $key => $value) {
-                $this->overrides['t#' . $key] = [$manifest['name'], $value];
+                $this->overrides['t#' . $key] = [$manifest->getName(), $value];
             }
 
 
@@ -83,7 +83,7 @@ class Bundler
 
                 foreach ($controllers as $controller) {
                     $set = $controller;
-                    array_unshift($set, $manifest['name']);
+                    array_unshift($set, $manifest->getName());
                     $this->sync_subscribers[$event_name][] = $set;
                 }
             }
@@ -96,7 +96,7 @@ class Bundler
 
                 foreach ($controllers as $controller) {
                     $set = $controller;
-                    array_unshift($set, $manifest['name']);
+                    array_unshift($set, $manifest->getName());
                     $this->async_subscribers[$event_name][] = $set;
                 }
             }
@@ -105,7 +105,7 @@ class Bundler
 
     public function getService($bundle, $alias)
     {
-        /** @var Manifest $manifest */
+        /** @var AbstractManifest $manifest */
 
         $manifest = $this->manifests[$bundle];
 
