@@ -313,7 +313,7 @@ class Authentication
         $this->session_entry = new SessionEntry();
         $this->session_entry->setToken($this->token);
         $this->session_entry->setModelId($this->user->getId());
-        $this->session_entry->setModelName($this->options['model']);
+        $this->session_entry->setModelName(get_class($this->user));
 
         if ($this->options['application'])
             $this->session_entry->setApplication($this->application);
