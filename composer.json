@@ -19,6 +19,7 @@
         "psr-4": {
             "Perfumer\\Component\\": "component/",
             "Perfumer\\Framework\\": "framework/",
+            "Perfumer\\FrameworkBundle\\": "framework-bundle/",
             "Perfumer\\Helper\\": "helper/"
         }
     },
