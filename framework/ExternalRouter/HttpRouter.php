@@ -44,6 +44,11 @@ class HttpRouter implements RouterInterface
         return 'http_router';
     }
 
+    public function isHttp()
+    {
+        return true;
+    }
+
     public function dispatch()
     {
         $action = strtolower($_SERVER['REQUEST_METHOD']);

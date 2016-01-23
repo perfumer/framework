@@ -6,18 +6,9 @@ use Perfumer\Framework\Controller\PlainController as BaseController;
 
 class PlainController extends BaseController
 {
-    protected $_is_http_request = false;
-
-    protected function before()
-    {
-        parent::before();
-
-        $this->_is_http_request = ($this->getExternalRouter()->getName() === 'http_router');
-    }
-
     public function pageNotFound()
     {
-        if ($this->_is_http_request)
+        if ($this->getExternalRouter()->isHttp())
             $this->getExternalResponse()->setStatusCode(404);
 
         $this->getResponse()->setContent('Page not found');
@@ -25,7 +16,7 @@ class PlainController extends BaseController
 
     public function controllerNotFound()
     {
-        if ($this->_is_http_request)
+        if ($this->getExternalRouter()->isHttp())
             $this->getExternalResponse()->setStatusCode(404);
 
         $this->getResponse()->setContent('Controller not found');
@@ -33,8 +24,8 @@ class PlainController extends BaseController
 
     public function actionNotFound()
     {
-        if ($this->_is_http_request)
-            $this->getExternalResponse()->setStatusCode(405);
+        if ($this->getExternalRouter()->isHttp())
+            $this->getExternalResponse()->setStatusCode(404);
 
         $this->getResponse()->setContent('Action not found');
     }

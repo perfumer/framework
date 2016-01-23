@@ -31,6 +31,11 @@ class ConsoleRouter implements RouterInterface
         return 'console_router';
     }
 
+    public function isHttp()
+    {
+        return false;
+    }
+
     public function dispatch()
     {
         $argv = $_SERVER['argv'];

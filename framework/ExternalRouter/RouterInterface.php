@@ -8,6 +8,8 @@ interface RouterInterface
 {
     public function getName();
 
+    public function isHttp();
+
     public function dispatch();
 
     public function getExternalResponse();
