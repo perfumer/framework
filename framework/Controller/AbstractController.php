@@ -6,6 +6,7 @@ use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Controller\Exception\ExitActionException;
 use Perfumer\Framework\ExternalRouter\RouterInterface as ExternalRouter;
 use Perfumer\Framework\Proxy\Event;
+use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Proxy;
 use Perfumer\Framework\Proxy\Request;
 use Perfumer\Framework\Proxy\Response;
@@ -206,6 +207,20 @@ abstract class AbstractController
     protected function getExternalResponse()
     {
         return $this->getExternalRouter()->getExternalResponse();
+    }
+
+    /**
+     * @param string $url
+     * @param int $status_code
+     * @throws ProxyException
+     */
+    protected function redirect($url, $status_code = 302)
+    {
+        if (!$this->getExternalRouter()->isHttp()) {
+            throw new ProxyException('Redirect is not available for non-http external routers');
+        }
+
+        $this->getProxy()->forward('framework', 'http', 'redirect', [$url, $status_code]);
     }
 
     /**
