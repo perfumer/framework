@@ -88,12 +88,7 @@ class Authentication
         $this->session_pool = $session_pool;
         $this->token_handler = $token_handler;
         $this->user = new $this->options['model']();
-
         $this->token = $this->token_handler->getToken();
-
-        if ($this->token !== null) {
-            $this->session = $this->session_pool->get($this->token);
-        }
     }
 
     /**
@@ -192,9 +187,9 @@ class Authentication
 
             $user = null;
             $application = null;
+            $session = $this->session_pool->get($this->token);
 
-            if (!$this->session_pool->has($this->token))
-            {
+            if (!$this->session_pool->has($this->token)) {
                 $_session_entry = $this->retrieveSessionEntry($this->token);
 
                 if (!$_session_entry) {
@@ -220,15 +215,19 @@ class Authentication
                 }
 
                 $this->session_entry = $_session_entry;
-                $this->session = $this->session_pool->get($this->token);
 
                 $update_session = true;
-            }
-            else
-            {
+            } else {
                 $_user = $this->session->get('_user');
 
-                if (isset($_user['data']['id'])) {
+                if (!isset($_user['data']) || !isset($_user['data']['id'])) {
+                    // This is anonymous user, but has some data in session
+                    $this->status = self::STATUS_ANONYMOUS;
+
+                    $this->token_handler->setToken($this->token);
+
+                    return;
+                } else {
                     if ($this->options['application']) {
                         $_application = $this->session->get('_application');
 
@@ -273,13 +272,6 @@ class Authentication
                             $application->setNew(false);
                         }
                     }
-                } else {
-                    // This is anonymous user, but has some data in session
-                    $this->status = self::STATUS_ANONYMOUS;
-
-                    $this->token_handler->setToken($this->token);
-
-                    return;
                 }
             }
 
@@ -295,6 +287,7 @@ class Authentication
             $this->user->setLogged(true);
 
             $this->application = $application;
+            $this->session = $session;
 
             $this->status = self::STATUS_AUTHENTICATED;
 
