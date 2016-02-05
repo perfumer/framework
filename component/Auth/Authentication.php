@@ -218,7 +218,7 @@ class Authentication
 
                 $update_session = true;
             } else {
-                $_user = $this->session->get('_user');
+                $_user = $session->get('_user');
 
                 if (!isset($_user['data']) || !isset($_user['data']['id'])) {
                     // This is anonymous user, but has some data in session
@@ -229,14 +229,14 @@ class Authentication
                     return;
                 } else {
                     if ($this->options['application']) {
-                        $_application = $this->session->get('_application');
+                        $_application = $session->get('_application');
 
                         if (!isset($_application['data']) || !isset($_application['data']['id'])) {
                             throw new AuthException(self::STATUS_NO_APPLICATION);
                         }
                     }
 
-                    if(time() - $this->session->get('_updated_at') >= $this->options['update_gap']) {
+                    if(time() - $session->get('_updated_at') >= $this->options['update_gap']) {
                         $user = $this->retrieveUser($_user['data']['id']);
 
                         if (!$user) {
