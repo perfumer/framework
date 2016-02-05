@@ -185,8 +185,7 @@ class Authentication
     {
         $update_session = false;
 
-        try
-        {
+        try {
             if ($this->token === null) {
                 throw new AuthException(self::STATUS_NO_TOKEN);
             }
@@ -304,9 +303,7 @@ class Authentication
             if ($update_session) {
                 $this->updateSession();
             }
-        }
-        catch (AuthException $e)
-        {
+        } catch (AuthException $e) {
             $this->reset($e->getMessage());
         }
     }
