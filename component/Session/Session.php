@@ -5,7 +5,7 @@ namespace Perfumer\Component\Session;
 use Perfumer\Helper\Text;
 use Stash\Pool as Cache;
 
-class Core
+class Session
 {
     /**
      * @var \Stash\Pool

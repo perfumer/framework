@@ -2,7 +2,6 @@
 
 namespace Perfumer\Component\Session;
 
-use Perfumer\Component\Session\Core as Session;
 use Stash\Pool as Cache;
 
 class Item
