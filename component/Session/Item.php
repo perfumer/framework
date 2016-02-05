@@ -5,36 +5,46 @@ namespace Perfumer\Component\Session;
 class Item
 {
     /**
+     * @var string
+     */
+    protected $id;
+
+    /**
      * @var Session
      */
     protected $session;
 
-    protected $id;
-
-    protected $is_destroyed = false;
-
-    public function __construct(Session $session, array $options)
+    public function __construct($id, Session $session)
     {
+        $this->id = $id;
         $this->session = $session;
-
-        $this->id = $options['id'];
     }
 
+    /**
+     * @return string
+     */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $key
+     * @param null $default
+     * @return mixed
+     */
     public function get($key, $default = null)
     {
-        if ($this->is_destroyed)
-            return $default;
-
         $item = $this->getCache()->getItem('_session/' . $this->id . '/' . $key);
 
         return $item->isMiss() ? $default : $item->get();
     }
 
+    /**
+     * @param $key
+     * @param null $default
+     * @return mixed
+     */
     public function getOnce($key, $default = null)
     {
         $value = $this->get($key, $default);
@@ -44,44 +54,39 @@ class Item
         return $value;
     }
 
+    /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
     public function set($key, $value)
     {
-        if (!$this->is_destroyed)
-        {
-            $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->getLifetime());
-            $this->getCache()->getItem('_session/' . $this->id)->set(time() + $this->$this->getLifetime(), $this->$this->getLifetime());
-        }
+        $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->getLifetime());
+        $this->getCache()->getItem('_session/' . $this->id)->set(time() + $this->$this->getLifetime(), $this->$this->getLifetime());
 
         return $this;
     }
 
+    /**
+     * @param $key
+     * @return bool
+     */
     public function has($key)
     {
-        if ($this->is_destroyed)
-            return false;
-
         return !$this->getCache()->getItem('_session/' . $this->id . '/' . $key)->isMiss();
     }
 
+    /**
+     * @param $key
+     */
     public function delete($key)
     {
-        if (!$this->is_destroyed)
-            $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->clear();
-
-        return $this;
+        $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->clear();
     }
 
     public function destroy()
     {
-        if (!$this->is_destroyed)
-            $this->getCache()->getItem('_session/' . $this->id)->clear();
-
-        $this->is_destroyed = true;
-    }
-
-    public function isDestroyed()
-    {
-        return $this->is_destroyed;
+        $this->getCache()->getItem('_session/' . $this->id)->clear();
     }
 
     public function getCache()
