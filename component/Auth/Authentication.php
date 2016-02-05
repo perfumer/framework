@@ -8,8 +8,8 @@ use App\Model\Session as SessionEntry;
 use App\Model\SessionQuery as SessionEntryQuery;
 use Perfumer\Component\Auth\Exception\AuthException;
 use Perfumer\Component\Auth\TokenHandler\AbstractHandler as TokenHandler;
-use Perfumer\Component\Session\Core as SessionService;
-use Perfumer\Component\Session\Item as SessionCell;
+use Perfumer\Component\Session\Pool as SessionPool;
+use Perfumer\Component\Session\Session;
 use Propel\Runtime\Map\TableMap;
 
 class Authentication
@@ -32,12 +32,12 @@ class Authentication
     const STATUS_SIGNED_OUT = 160;
 
     /**
-     * @var SessionService
+     * @var SessionPool
      */
-    protected $session_service;
+    protected $session_pool;
 
     /**
-     * @var SessionCell
+     * @var Session
      */
     protected $session;
 
@@ -73,10 +73,10 @@ class Authentication
      */
     protected $options = [];
 
-    public function __construct(SessionService $session_service, TokenHandler $token_handler, $options = [])
+    public function __construct(SessionPool $session_pool, TokenHandler $token_handler, $options = [])
     {
         $default_options = [
-            'model' => '\\App\\Model\\User',
+            'model' => 'App\\Model\\User',
             'username_field' => 'username',
             'acl' => false,
             'application' => false,
@@ -85,14 +85,14 @@ class Authentication
 
         $this->options = array_merge($default_options, $options);
 
-        $this->session_service = $session_service;
+        $this->session_pool = $session_pool;
         $this->token_handler = $token_handler;
         $this->user = new $this->options['model']();
 
         $this->token = $this->token_handler->getToken();
 
         if ($this->token !== null)
-            $this->session = $this->session_service->get($this->token);
+            $this->session = $this->session_pool->get($this->token);
     }
 
     public function isLogged()
@@ -129,9 +129,9 @@ class Authentication
 
     public function getSession()
     {
-        if ($this->session === null || $this->session->isDestroyed())
+        if ($this->session === null)
         {
-            $this->session = $this->session_service->get();
+            $this->session = $this->session_pool->get();
 
             $this->token_handler->setToken($this->session->getId());
         }
@@ -165,7 +165,7 @@ class Authentication
             $user = null;
             $application = null;
 
-            if (!$this->session_service->has($this->token))
+            if (!$this->session_pool->has($this->token))
             {
                 $_session_entry = SessionEntryQuery::create()->findOneByToken($this->token);
 
@@ -304,7 +304,7 @@ class Authentication
         if ($this->session !== null)
             $this->session->destroy();
 
-        $this->session = $this->session_service->get();
+        $this->session = $this->session_pool->get();
 
         $this->updateSessionData();
 
@@ -331,7 +331,7 @@ class Authentication
         if ($this->session !== null)
             $this->session->destroy();
 
-        $this->session = $this->session_service->get();
+        $this->session = $this->session_pool->get();
 
         $this->updateSessionData();
 
@@ -406,7 +406,7 @@ class Authentication
 
         foreach ($_sessions as $_session)
         {
-            $session = $this->session_service->get($_session->getToken());
+            $session = $this->session_pool->get($_session->getToken());
 
             if ($session->has('_updated_at'))
                 $session->set('_updated_at', 0);
