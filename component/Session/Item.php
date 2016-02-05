@@ -2,8 +2,6 @@
 
 namespace Perfumer\Component\Session;
 
-use Stash\Pool as Cache;
-
 class Item
 {
     /**
@@ -11,24 +9,15 @@ class Item
      */
     protected $session;
 
-    /**
-     * @var Cache
-     */
-    protected $cache;
-
     protected $id;
-
-    protected $lifetime;
 
     protected $is_destroyed = false;
 
-    public function __construct(Session $session, Cache $cache, array $options)
+    public function __construct(Session $session, array $options)
     {
         $this->session = $session;
-        $this->cache = $cache;
 
         $this->id = $options['id'];
-        $this->lifetime = (int) $options['lifetime'];
     }
 
     public function getId()
@@ -41,7 +30,7 @@ class Item
         if ($this->is_destroyed)
             return $default;
 
-        $item = $this->cache->getItem('_session/' . $this->id . '/' . $key);
+        $item = $this->getCache()->getItem('_session/' . $this->id . '/' . $key);
 
         return $item->isMiss() ? $default : $item->get();
     }
@@ -59,8 +48,8 @@ class Item
     {
         if (!$this->is_destroyed)
         {
-            $this->cache->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->lifetime);
-            $this->cache->getItem('_session/' . $this->id)->set(time() + $this->lifetime, $this->lifetime);
+            $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->getLifetime());
+            $this->getCache()->getItem('_session/' . $this->id)->set(time() + $this->$this->getLifetime(), $this->$this->getLifetime());
         }
 
         return $this;
@@ -71,13 +60,13 @@ class Item
         if ($this->is_destroyed)
             return false;
 
-        return !$this->cache->getItem('_session/' . $this->id . '/' . $key)->isMiss();
+        return !$this->getCache()->getItem('_session/' . $this->id . '/' . $key)->isMiss();
     }
 
     public function delete($key)
     {
         if (!$this->is_destroyed)
-            $this->cache->getItem('_session/' . $this->id . '/' . $key)->clear();
+            $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->clear();
 
         return $this;
     }
@@ -85,7 +74,7 @@ class Item
     public function destroy()
     {
         if (!$this->is_destroyed)
-            $this->cache->getItem('_session/' . $this->id)->clear();
+            $this->getCache()->getItem('_session/' . $this->id)->clear();
 
         $this->is_destroyed = true;
     }
@@ -93,5 +82,15 @@ class Item
     public function isDestroyed()
     {
         return $this->is_destroyed;
+    }
+
+    public function getCache()
+    {
+        return $this->session->getCache();
+    }
+
+    public function getLifetime()
+    {
+        return $this->session->getLifetime();
     }
 }

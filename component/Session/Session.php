@@ -32,9 +32,8 @@ class Session
         if (isset($this->items[$id]))
             return $this->items[$id];
 
-        $this->items[$id] = new Item($this, $this->cache, [
-            'id' => $id,
-            'lifetime' => $this->lifetime
+        $this->items[$id] = new Item($this, [
+            'id' => $id
         ]);
 
         return $this->items[$id];
@@ -48,6 +47,16 @@ class Session
     public function destroy($id)
     {
         $this->get($id)->destroy();
+    }
+
+    public function getCache()
+    {
+        return $this->cache;
+    }
+
+    public function getLifetime()
+    {
+        return $this->lifetime;
     }
 
     protected function generateId()
