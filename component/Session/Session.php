@@ -2,98 +2,100 @@
 
 namespace Perfumer\Component\Session;
 
-use Perfumer\Helper\Text;
-use Stash\Pool as Cache;
-
 class Session
 {
     /**
-     * @var Cache
+     * @var string
      */
-    protected $cache;
+    protected $id;
 
     /**
-     * @var array
+     * @var Pool
      */
-    protected $items = [];
+    protected $pool;
 
-    /**
-     * @var int
-     */
-    protected $lifetime = 3600;
-
-    public function __construct(Cache $cache, array $options = [])
+    public function __construct($id, Pool $pool)
     {
-        $this->cache = $cache;
-
-        if (isset($options['lifetime'])) {
-            $this->lifetime = (int) $options['lifetime'];
-        }
-    }
-
-    /**
-     * @param string $id
-     * @return Item
-     */
-    public function get($id = null)
-    {
-        if ($id === null) {
-            $id = $this->generateId();
-        }
-
-        if (isset($this->items[$id])) {
-            return $this->items[$id];
-        }
-
-        $this->items[$id] = new Item($id, $this);
-
-        return $this->items[$id];
-    }
-
-    /**
-     * @param string $id
-     * @return bool
-     */
-    public function has($id)
-    {
-        return !$this->cache->getItem('_session/' . $id)->isMiss();
-    }
-
-    /**
-     * @param string $id
-     */
-    public function destroy($id)
-    {
-        $this->get($id)->destroy();
-    }
-
-    /**
-     * @return Cache
-     */
-    public function getCache()
-    {
-        return $this->cache;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLifetime()
-    {
-        return $this->lifetime;
+        $this->id = $id;
+        $this->pool = $pool;
     }
 
     /**
      * @return string
      */
-    protected function generateId()
+    public function getId()
     {
-        do {
-            $id = Text::generateString(20);
+        return $this->id;
+    }
 
-            $item = $this->cache->getItem('_session/' . $id);
-        } while (!$item->isMiss() || isset($this->items[$id]));
+    /**
+     * @param $key
+     * @param $default
+     * @return mixed
+     */
+    public function get($key, $default = null)
+    {
+        $item = $this->getCache()->getItem('_session/' . $this->id . '/' . $key);
 
-        return $id;
+        return $item->isMiss() ? $default : $item->get();
+    }
+
+    /**
+     * @param $key
+     * @param $default
+     * @return mixed
+     */
+    public function getOnce($key, $default = null)
+    {
+        $value = $this->get($key, $default);
+
+        $this->delete($key);
+
+        return $value;
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function set($key, $value)
+    {
+        $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->getLifetime());
+        $this->getCache()->getItem('_session/' . $this->id)->set(time() + $this->$this->getLifetime(), $this->$this->getLifetime());
+
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @return bool
+     */
+    public function has($key)
+    {
+        return !$this->getCache()->getItem('_session/' . $this->id . '/' . $key)->isMiss();
+    }
+
+    /**
+     * @param $key
+     */
+    public function delete($key)
+    {
+        $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->clear();
+    }
+
+    public function destroy()
+    {
+        $this->getCache()->getItem('_session/' . $this->id)->clear();
+    }
+
+    public function getCache()
+    {
+        return $this->pool->getCache();
+    }
+
+    public function getLifetime()
+    {
+        return $this->pool->getLifetime();
     }
 }
