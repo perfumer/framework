@@ -76,7 +76,7 @@ class Authentication
     public function __construct(SessionPool $session_pool, TokenHandler $token_handler, $options = [])
     {
         $default_options = [
-            'model' => 'App\\Model\\User',
+            'model' => '\\App\\Model\\User',
             'username_field' => 'username',
             'acl' => false,
             'application' => false,
