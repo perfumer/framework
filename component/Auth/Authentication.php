@@ -7,7 +7,7 @@ use App\Model\ApplicationQuery;
 use App\Model\Session as SessionEntry;
 use App\Model\SessionQuery as SessionEntryQuery;
 use Perfumer\Component\Auth\Exception\AuthException;
-use Perfumer\Component\Auth\TokenHandler\AbstractHandler as TokenHandler;
+use Perfumer\Component\Session\TokenHandler\AbstractHandler as TokenHandler;
 use Perfumer\Component\Session\Pool as SessionPool;
 use Perfumer\Component\Session\Session;
 use Propel\Runtime\Map\TableMap;

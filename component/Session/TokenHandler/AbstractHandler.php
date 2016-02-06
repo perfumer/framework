@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Auth\TokenHandler;
+namespace Perfumer\Component\Session\TokenHandler;
 
 abstract class AbstractHandler
 {

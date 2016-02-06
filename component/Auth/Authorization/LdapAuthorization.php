@@ -6,8 +6,8 @@ use App\Model\User;
 use App\Model\UserQuery;
 use Perfumer\Component\Auth\Authentication;
 use Perfumer\Component\Auth\Exception\AuthException;
-use Perfumer\Component\Auth\TokenHandler\AbstractHandler as TokenHandler;
-use Perfumer\Component\Session\Core as SessionService;
+use Perfumer\Component\Session\TokenHandler\AbstractHandler as TokenHandler;
+use Perfumer\Component\Session\Pool as SessionService;
 
 class LdapAuthorization extends Authentication
 {

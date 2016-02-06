@@ -1,15 +1,20 @@
 <?php
 
-namespace Perfumer\Component\Auth\TokenHandler;
+namespace Perfumer\Component\Session\TokenHandler;
 
-class HttpHeaderHandler extends AbstractHandler
+use Perfumer\Helper\Cookie;
+
+class CookieHandler extends AbstractHandler
 {
+    protected $cookie;
+
     protected $options = [];
 
-    public function __construct($options = [])
+    public function __construct(Cookie $cookie, $options = [])
     {
+        $this->cookie = $cookie;
+
         $default_options = [
-            'header' => 'HTTP_TOKEN',
             'lifetime' => 3600
         ];
 
@@ -18,15 +23,17 @@ class HttpHeaderHandler extends AbstractHandler
 
     public function getToken()
     {
-        return isset($_SERVER[$this->options['header']]) ? $_SERVER[$this->options['header']] : null;
+        return $this->cookie->get('_session');
     }
 
     public function setToken($token)
     {
+        $this->cookie->set('_session', $token, $this->options['lifetime']);
     }
 
     public function deleteToken()
     {
+        $this->cookie->delete('_session');
     }
 
     public function getTokenLifetime()
