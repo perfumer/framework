@@ -2,7 +2,7 @@
 
 namespace Perfumer\Component\Session\TokenHandler;
 
-use Perfumer\Helper\Cookie;
+use Perfumer\Component\Session\Cookie;
 
 class CookieHandler extends AbstractHandler
 {

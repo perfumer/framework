@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Helper;
+namespace Perfumer\Component\Session;
 
 class Cookie
 {
