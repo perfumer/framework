@@ -4,14 +4,19 @@ namespace Perfumer\Helper;
 
 class Text
 {
+    /**
+     * @param int $length
+     * @return string
+     */
     public static function generateString($length = 8)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         $string = '';
 
-        for ($i = 0; $i < $length; $i++)
+        for ($i = 0; $i < $length; $i++) {
             $string .= $characters[rand(0, 47)];
+        }
 
         return $string;
     }
