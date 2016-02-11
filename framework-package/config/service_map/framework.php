@@ -6,7 +6,7 @@ return [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\InternalRouter\\DirectoryRouter',
         'arguments' => [[
-            'prefix' => 'Perfumer\\FrameworkBundle\\Controller',
+            'prefix' => 'Perfumer\\FrameworkPackage\\Controller',
             'suffix' => 'Controller'
         ]]
     ],

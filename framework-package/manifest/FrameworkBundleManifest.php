@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\FrameworkBundle\Manifest;
+namespace Perfumer\FrameworkPackage\Manifest;
 
 use Perfumer\Framework\Bundle\AbstractManifest;
 

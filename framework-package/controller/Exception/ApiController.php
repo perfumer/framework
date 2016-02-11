@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\FrameworkBundle\Controller\Exception;
+namespace Perfumer\FrameworkPackage\Controller\Exception;
 
 use Perfumer\Framework\Controller\SerializeController;
 
