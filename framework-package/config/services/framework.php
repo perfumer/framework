@@ -39,7 +39,9 @@ return [
     'twig' => [
         'shared' => true,
         'class' => 'Twig_Environment',
-        'arguments' => ['#twig.filesystem_loader']
+        'arguments' => ['#twig.filesystem_loader', [
+            'cache' => __DIR__ . '/../../tmp/twig/'
+        ]]
     ],
 
     'twig.filesystem_loader' => [
@@ -85,7 +87,7 @@ return [
         'shared' => true,
         'class' => 'Stash\\Driver\\FileSystem',
         'after' => function(\Perfumer\Component\Container\Container $container, \Stash\Driver\FileSystem $driver) {
-            $driver->setOptions();
+            $driver->setOptions(['path' => __DIR__ . '/../../tmp/cache/']);
         }
     ],
 
