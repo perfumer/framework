@@ -3,17 +3,6 @@ namespace Perfumer\Component\Container\Storage;
 
 use Perfumer\Helper\Arr;
 
-/**
- * DefaultStorage
- * Uses php-variables to store parameters.
- *
- * @package    perfumer/container
- * @category   storage
- * @author     Ilyas Makashev mehmatovec@gmail.com
- * @link       https://github.com/blumfontein/perfumer-container
- * @copyright  (c) 2014 Ilyas Makashev
- * @license    MIT
- */
 class DefaultStorage extends AbstractStorage
 {
     /**
@@ -41,8 +30,9 @@ class DefaultStorage extends AbstractStorage
      */
     public function setParam($group, $name, $value)
     {
-        if (!isset($this->params[$group]))
+        if (!isset($this->params[$group])) {
             $this->params[$group] = [];
+        }
 
         $this->params[$group][$name] = $value;
 
@@ -59,34 +49,42 @@ class DefaultStorage extends AbstractStorage
      */
     public function setParamGroup($group, array $values)
     {
-        if (!isset($this->params[$group]))
+        if (!isset($this->params[$group])) {
             $this->params[$group] = [];
+        }
 
         $this->params[$group] = $values;
 
         return true;
     }
 
+    /**
+     * @param $group
+     * @param array $values
+     * @return bool
+     */
     public function addParamGroup($group, array $values)
     {
-        if (!isset($this->params[$group]))
+        if (!isset($this->params[$group])) {
             $this->params[$group] = [];
+        }
 
         $this->params[$group] = array_merge($this->params[$group], $values);
 
         return true;
     }
 
+    /**
+     * @param $group
+     * @param array $keys
+     * @return bool
+     */
     public function deleteParamGroup($group, array $keys = [])
     {
-        if (isset($this->params[$group]))
-        {
-            if ($keys)
-            {
+        if (isset($this->params[$group])) {
+            if ($keys) {
                 $this->params[$group] = Arr::deleteKeys($this->params[$group], $keys);
-            }
-            else
-            {
+            } else {
                 unset($this->params[$group]);
             }
         }

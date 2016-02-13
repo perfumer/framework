@@ -17,13 +17,6 @@ namespace Perfumer\Component\Container\Storage;
  * AbstractStorage provides simple implementation of the method setParamGroup(), but you may want to overwrite it
  * in your storage due to performance reasons.
  *
- * @package    perfumer/container
- * @category   storage
- * @author     Ilyas Makashev mehmatovec@gmail.com
- * @link       https://github.com/blumfontein/perfumer-container
- * @copyright  (c) 2014 Ilyas Makashev
- * @license    MIT
- * @abstract
  */
 abstract class AbstractStorage implements StorageInterface
 {

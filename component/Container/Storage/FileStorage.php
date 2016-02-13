@@ -1,19 +1,6 @@
 <?php
 namespace Perfumer\Component\Container\Storage;
 
-/**
- * FileStorage
- * Uses php-files to store parameters.
- * You must register folders and files with your parameters first.
- * All folders and files must be registered before first "getParamGroup" call.
- *
- * @package    perfumer/container
- * @category   storage
- * @author     Ilyas Makashev mehmatovec@gmail.com
- * @link       https://github.com/blumfontein/perfumer-container
- * @copyright  (c) 2014 Ilyas Makashev
- * @license    MIT
- */
 class FileStorage extends AbstractStorage
 {
     /**
@@ -26,8 +13,7 @@ class FileStorage extends AbstractStorage
      */
     public function registerFile($file)
     {
-        if (is_file($file))
-        {
+        if (is_file($file)) {
             $params = require $file;
 
             $this->params = array_merge($this->params, $params);
@@ -76,11 +62,21 @@ class FileStorage extends AbstractStorage
         return false;
     }
 
+    /**
+     * @param $group
+     * @param array $values
+     * @return bool
+     */
     public function addParamGroup($group, array $values)
     {
         return false;
     }
 
+    /**
+     * @param $group
+     * @param array $keys
+     * @return bool
+     */
     public function deleteParamGroup($group, array $keys = [])
     {
         return false;

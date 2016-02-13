@@ -127,48 +127,44 @@ class Container
     public function getService($name, array $parameters = [])
     {
         // Shared services are preserved through whole request
-        if (isset($this->services[$name]))
+        if (isset($this->services[$name])) {
             return $this->services[$name];
+        }
 
-        if (!isset($this->service_map[$name]))
+        if (!isset($this->service_map[$name])) {
             throw new ContainerException('Service "' . $name . '" is not registered.');
+        }
 
         $definition = $this->service_map[$name];
 
         // Alias is a link to another definition
-        if (isset($definition['alias']))
+        if (isset($definition['alias'])) {
             return $this->getService($definition['alias']);
+        }
 
         // "Init" directive is a callable that returns instance of service
-        if (isset($definition['init']) && is_callable($definition['init']))
-        {
+        if (isset($definition['init']) && is_callable($definition['init'])) {
             $service_class = $definition['init']($this, $parameters);
-        }
-        else
-        {
+        } else {
             $arguments = [];
 
             // Array of arguments which are given to constructor method
-            if (isset($definition['arguments']))
+            if (isset($definition['arguments'])) {
                 $arguments = $this->resolveArrayOfArguments($definition['arguments']);
+            }
 
             // Service is made by static method
-            if (isset($definition['static']))
-            {
+            if (isset($definition['static'])) {
                 $service_class = call_user_func_array([$definition['class'], $definition['static']], $arguments);
 
-                if ($service_class === false)
+                if ($service_class === false) {
                     throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
-            }
-            else
-            {
-                // Service is made by normal constructor
-                try
-                {
-                    $reflection_class = new \ReflectionClass($definition['class']);
                 }
-                catch (\ReflectionException $e)
-                {
+            } else {
+                // Service is made by normal constructor
+                try {
+                    $reflection_class = new \ReflectionClass($definition['class']);
+                } catch (\ReflectionException $e) {
                     throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
                 }
 
@@ -177,12 +173,14 @@ class Container
         }
 
         // "After" directive is a callable that is called after instantiation of service object
-        if (isset($definition['after']) && is_callable($definition['after']))
+        if (isset($definition['after']) && is_callable($definition['after'])) {
             $definition['after']($this, $service_class, $parameters);
+        }
 
         // Preserve shared service
-        if (isset($definition['shared']) && $definition['shared'] === true)
+        if (isset($definition['shared']) && $definition['shared'] === true) {
             $this->services[$name] = $service_class;
+        }
 
         return $service_class;
     }
@@ -199,24 +197,16 @@ class Container
     {
         $arguments = [];
 
-        foreach ($array as $key => $value)
-        {
-            if ($value === 'container')
-            {
+        foreach ($array as $key => $value) {
+            if ($value === 'container') {
                 $arguments[$key] = $this;
-            }
-            elseif (is_array($value))
-            {
+            } elseif (is_array($value)) {
                 $arguments[$key] = $this->resolveArrayOfArguments($value);
-            }
-            elseif (is_string($value) && $value && in_array($value[0], ['#', '@']))
-            {
+            } elseif (is_string($value) && $value && in_array($value[0], ['#', '@'])) {
                 $name = substr($value, 1);
 
                 $arguments[$key] = ($value[0] == '#') ? $this->getService($name) : $this->getParam($name);
-            }
-            else
-            {
+            } else {
                 $arguments[$key] = $value;
             }
         }
@@ -234,11 +224,13 @@ class Container
      */
     public function getParamGroup($group)
     {
-        if (!isset($this->params[$group]))
+        if (!isset($this->params[$group])) {
             $this->loadGroup($group);
+        }
 
-        if (!isset($this->params[$group]))
+        if (!isset($this->params[$group])) {
             $this->params[$group] = [];
+        }
 
         return $this->params[$group];
     }
@@ -259,11 +251,13 @@ class Container
     {
         list($group, $name) = $this->extractParamKey($key);
 
-        if (!isset($this->params[$group]))
+        if (!isset($this->params[$group])) {
             $this->loadGroup($group);
+        }
 
-        if (!isset($this->params[$group]))
+        if (!isset($this->params[$group])) {
             $this->params[$group] = [];
+        }
 
         return isset($this->params[$group][$name]) ? $this->params[$group][$name] : $default;
     }
@@ -278,12 +272,10 @@ class Container
      */
     protected function loadGroup($group)
     {
-        foreach ($this->storages as $storage)
-        {
+        foreach ($this->storages as $storage) {
             $param_group = $storage->getParamGroup($group);
 
-            if ($param_group)
-            {
+            if ($param_group) {
                 $this->params[$group] = $param_group;
                 return;
             }
@@ -304,8 +296,9 @@ class Container
     {
         $saved = $this->storages[$storage]->setParamGroup($group, $values);
 
-        if ($saved && isset($this->params[$group]))
+        if ($saved && isset($this->params[$group])) {
             $this->params[$group] = $values;
+        }
 
         return $saved;
     }
@@ -320,8 +313,9 @@ class Container
     {
         $saved = $this->storages[$storage]->addParamGroup($group, $values);
 
-        if ($saved && isset($this->params[$group]))
+        if ($saved && isset($this->params[$group])) {
             $this->params[$group] = array_merge($this->params[$group], $values);
+        }
 
         return $saved;
     }
@@ -336,14 +330,10 @@ class Container
     {
         $deleted = $this->storages[$storage]->deleteParamGroup($group, $keys);
 
-        if ($deleted && isset($this->params[$group]))
-        {
-            if ($keys)
-            {
+        if ($deleted && isset($this->params[$group])) {
+            if ($keys) {
                 $this->params[$group] = Arr::deleteKeys($this->params[$group], $keys);
-            }
-            else
-            {
+            } else {
                 unset($this->params[$group]);
             }
         }
@@ -367,8 +357,9 @@ class Container
 
         $saved = $this->storages[$storage]->setParam($group, $name, $value);
 
-        if ($saved && isset($this->params[$group]))
+        if ($saved && isset($this->params[$group])) {
             $this->params[$group][$name] = $value;
+        }
 
         return $saved;
     }
@@ -389,11 +380,13 @@ class Container
     {
         $parts = explode('.', $key, 2);
 
-        if (!$parts[0])
+        if (!$parts[0]) {
             throw new ContainerException('Parameter group can not be empty.');
+        }
 
-        if ($parts[1] === null)
+        if ($parts[1] === null) {
             throw new ContainerException('Parameter name can not be null.');
+        }
 
         return $parts;
     }
