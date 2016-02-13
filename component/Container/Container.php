@@ -202,7 +202,7 @@ class Container
             if ($value === 'container') {
                 $arguments[$key] = $this;
             } elseif (is_array($value)) {
-                $arguments[$key] = $this->resolveArrayOfArguments($value);
+                $arguments[$key] = $this->resolveArrayOfArguments($value, $parameters);
             } elseif (is_string($value) && $value && in_array($value[0], ['#', '@', '$'])) {
                 $name = substr($value, 1);
 
