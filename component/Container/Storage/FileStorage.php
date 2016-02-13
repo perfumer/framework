@@ -1,4 +1,5 @@
 <?php
+
 namespace Perfumer\Component\Container\Storage;
 
 class FileStorage extends AbstractStorage

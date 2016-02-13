@@ -239,9 +239,6 @@ class Container
      * getParam
      * Get parameter by key string
      *
-     * @example getParam('db.name') -> mixed value
-     * @example getParam('db.') -> mixed value
-     * @example getParam('name') -> exception
      * @param string $key
      * @param mixed $default
      * @return mixed
@@ -368,8 +365,8 @@ class Container
      * extractParamKey
      * Divide string containing name of the group and parameter to two parts.
      *
-     * @example extractParamKey('db.name') -> ['db', 'name']
-     * @example extractParamKey('db.') -> ['db', '']
+     * @example extractParamKey('db/name') -> ['db', 'name']
+     * @example extractParamKey('db/') -> ['db', '']
      * @example extractParamKey('name') -> exception
      * @param string $key
      * @return array
@@ -378,7 +375,7 @@ class Container
      */
     protected function extractParamKey($key)
     {
-        $parts = explode('.', $key, 2);
+        $parts = explode('/', $key, 2);
 
         if (!$parts[0]) {
             throw new ContainerException('Parameter group can not be empty.');
