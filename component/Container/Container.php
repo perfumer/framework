@@ -8,31 +8,35 @@ use Perfumer\Component\Container\Storage\FileStorage;
 use Perfumer\Component\Container\Storage\StorageInterface;
 use Perfumer\Helper\Arr;
 
-/**
- * Core
- * Core class of Container
- *
- * @package    perfumer/container
- * @category   core
- * @author     Ilyas Makashev mehmatovec@gmail.com
- * @link       https://github.com/blumfontein/perfumer-container
- * @copyright  (c) 2014 Ilyas Makashev
- * @license    MIT
- */
 class Container
 {
-    // Service definitions array
+    /**
+     * @var array
+     * Service definitions array
+     */
     protected $service_map = [];
 
-    // Shared service objects
+    /**
+     * @var array
+     * Shared service objects
+     */
     protected $services = [];
 
-    // Storage services
+    /**
+     * @var array
+     * Storage services
+     */
     protected $storages = [];
 
-    // Parameters array, divided to groups
+    /**
+     * @var array
+     * Parameters array, divided to groups
+     */
     protected $params = [];
 
+    /**
+     * Container constructor.
+     */
     public function __construct()
     {
         $this->storages['default'] = new DefaultStorage();
@@ -59,8 +63,8 @@ class Container
      * registerServiceMap
      * Register files containing service definitions.
      *
-     * @param string $file - path to file with service definitions
-     * @access public
+     * @param string $file
+     * @return $this
      */
     public function registerServiceMap($file)
     {
@@ -71,6 +75,11 @@ class Container
         return $this;
     }
 
+    /**
+     * @param $name
+     * @param $service
+     * @return $this
+     */
     public function registerService($name, $service)
     {
         $this->services[$name] = $service;
@@ -82,9 +91,9 @@ class Container
      * registerStorage
      * Register storage services.
      *
-     * @param string $name
+     * @param $name
      * @param StorageInterface $storage
-     * @access public
+     * @return $this
      */
     public function registerStorage($name, StorageInterface $storage)
     {
@@ -93,6 +102,10 @@ class Container
         return $this;
     }
 
+    /**
+     * @param $name
+     * @return $this
+     */
     public function unregisterStorage($name)
     {
         unset($this->storages[$name]);
@@ -297,6 +310,12 @@ class Container
         return $saved;
     }
 
+    /**
+     * @param $group
+     * @param array $values
+     * @param string $storage
+     * @return mixed
+     */
     public function addParamGroup($group, array $values, $storage = 'default')
     {
         $saved = $this->storages[$storage]->addParamGroup($group, $values);
@@ -307,6 +326,12 @@ class Container
         return $saved;
     }
 
+    /**
+     * @param $group
+     * @param array $keys
+     * @param string $storage
+     * @return mixed
+     */
     public function deleteParamGroup($group, array $keys = [], $storage = 'default')
     {
         $deleted = $this->storages[$storage]->deleteParamGroup($group, $keys);
