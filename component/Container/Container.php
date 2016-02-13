@@ -150,7 +150,7 @@ class Container
 
             // Array of arguments which are given to constructor method
             if (isset($definition['arguments'])) {
-                $arguments = $this->resolveArrayOfArguments($definition['arguments']);
+                $arguments = $this->resolveArrayOfArguments($definition['arguments'], $parameters);
             }
 
             // Service is made by static method
@@ -190,10 +190,11 @@ class Container
      * Getting array of values which replaced placeholders in the array of arguments in the service definition.
      *
      * @param array $array
+     * @param array $parameters
      * @return array
      * @access protected
      */
-    protected function resolveArrayOfArguments($array)
+    protected function resolveArrayOfArguments($array, $parameters = [])
     {
         $arguments = [];
 
@@ -202,10 +203,20 @@ class Container
                 $arguments[$key] = $this;
             } elseif (is_array($value)) {
                 $arguments[$key] = $this->resolveArrayOfArguments($value);
-            } elseif (is_string($value) && $value && in_array($value[0], ['#', '@'])) {
+            } elseif (is_string($value) && $value && in_array($value[0], ['#', '@', '$'])) {
                 $name = substr($value, 1);
 
-                $arguments[$key] = ($value[0] == '#') ? $this->getService($name) : $this->getParam($name);
+                switch ($value[0]) {
+                    case '#':
+                        $arguments[$key] = $this->getService($name);
+                        break;
+                    case '@':
+                        $arguments[$key] = $this->getParam($name);
+                        break;
+                    case '$':
+                        $arguments[$key] = (isset($parameters[$name])) ? $parameters[$name] : null;
+                        break;
+                }
             } else {
                 $arguments[$key] = $value;
             }
