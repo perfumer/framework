@@ -15,13 +15,13 @@ class FrameworkBundleManifest extends AbstractManifest
     {
         return 'Perfumer framework bundle manifest';
     }
+
     public function getServices()
     {
         return [
-            __DIR__ . '/../config/service_map/framework.php',
+            __DIR__ . '/../config/services/framework.php',
         ];
     }
-
 
     public function getAliases()
     {

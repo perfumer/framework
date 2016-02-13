@@ -1,6 +1,19 @@
 <?php
 
 return [
+    // Storage engines
+    'storage.database' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Component\\Container\\Storage\\DatabaseStorage'
+    ],
+
+    // Requesting
+    'proxy' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Proxy\\Proxy',
+        'arguments' => ['container']
+    ],
+
     // Framework bundle default routers
     'framework.internal_router' => [
         'shared' => true,
