@@ -2,7 +2,7 @@
 
 namespace Perfumer\Component\Container\Storage;
 
-use App\Model\StorageQuery;
+use App\Model\ParameterQuery;
 use Perfumer\Helper\Arr;
 use Propel\Runtime\ActiveQuery\Criteria;
 
@@ -21,13 +21,13 @@ class DatabaseStorage extends AbstractStorage
         if (!isset($this->params[$group])) {
             $this->params[$group] = [];
 
-            $params = StorageQuery::create()
+            $parameters = ParameterQuery::create()
                 ->filterByGroup($group)
                 ->select(['name', 'value'])
                 ->find();
 
-            foreach ($params as $param) {
-                $this->params[$group][$param['name']] = $param['value'];
+            foreach ($parameters as $parameter) {
+                $this->params[$group][$parameter['name']] = $parameter['value'];
             }
         }
 
@@ -52,13 +52,13 @@ class DatabaseStorage extends AbstractStorage
 
         $this->params[$group][$name] = $value;
 
-        $storage = StorageQuery::create()
+        $parameter = ParameterQuery::create()
             ->filterByGroup($group)
             ->filterByName($name)
             ->findOneOrCreate();
 
-        $storage->setValue($value);
-        $storage->save();
+        $parameter->setValue($value);
+        $parameter->save();
 
         return true;
     }
@@ -73,13 +73,13 @@ class DatabaseStorage extends AbstractStorage
      */
     public function setParamGroup($group, array $values)
     {
-        $storage = StorageQuery::create()
+        $parameters = ParameterQuery::create()
             ->filterByGroup($group)
             ->filterByName(array_keys($values), Criteria::NOT_IN)
             ->find();
 
-        if ($storage) {
-            $storage->delete();
+        if ($parameters) {
+            $parameters->delete();
         }
 
         $this->addParamGroup($group, $values);
@@ -101,13 +101,13 @@ class DatabaseStorage extends AbstractStorage
         $this->params[$group] = array_merge($this->params[$group], $values);
 
         foreach ($values as $name => $value) {
-            $storage = StorageQuery::create()
+            $parameter = ParameterQuery::create()
                 ->filterByGroup($group)
                 ->filterByName($name)
                 ->findOneOrCreate();
 
-            $storage->setValue($value);
-            $storage->save();
+            $parameter->setValue($value);
+            $parameter->save();
         }
 
         return true;
@@ -120,30 +120,21 @@ class DatabaseStorage extends AbstractStorage
      */
     public function deleteParamGroup($group, array $keys = [])
     {
+        ParameterQuery::create()
+            ->filterByGroup($group)
+            ->_if($keys)
+                ->filterByName($keys, Criteria::IN)
+            ->_endif()
+            ->find()
+            ->delete();
+
         if ($keys) {
             if (isset($this->params[$group])) {
                 $this->params[$group] = Arr::deleteKeys($this->params[$group], $keys);
             }
-
-            $storage = StorageQuery::create()
-                ->filterByGroup($group)
-                ->filterByName($keys, Criteria::IN)
-                ->find();
-
-            if ($storage) {
-                $storage->delete();
-            }
         } else {
             if (isset($this->params[$group])) {
                 unset($this->params[$group]);
-            }
-
-            $storage = StorageQuery::create()
-                ->filterByGroup($group)
-                ->find();
-
-            if ($storage) {
-                $storage->delete();
             }
         }
 
