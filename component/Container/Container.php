@@ -2,13 +2,14 @@
 
 namespace Perfumer\Component\Container;
 
+use Interop\Container\ContainerInterface;
 use Perfumer\Component\Container\Exception\ContainerException;
 use Perfumer\Component\Container\Storage\DefaultStorage;
 use Perfumer\Component\Container\Storage\FileStorage;
 use Perfumer\Component\Container\Storage\StorageInterface;
 use Perfumer\Helper\Arr;
 
-class Container
+class Container implements ContainerInterface
 {
     /**
      * @var array
@@ -41,6 +42,25 @@ class Container
     {
         $this->storages['default'] = new DefaultStorage();
         $this->storages['file'] = new FileStorage();
+    }
+
+    /**
+     * @param string $entry
+     * @param array $parameters
+     * @return mixed
+     */
+    public function get($entry, array $parameters = [])
+    {
+        return $this->getService($entry, $parameters);
+    }
+
+    /**
+     * @param string $entry
+     * @throws ContainerException
+     */
+    public function has($entry)
+    {
+        throw new ContainerException('Method "has" has not been implemented yet');
     }
 
     /**
