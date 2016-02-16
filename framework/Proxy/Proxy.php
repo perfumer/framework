@@ -50,6 +50,10 @@ class Proxy
      */
     protected $deferred = [];
 
+    /**
+     * Proxy constructor.
+     * @param Container $container
+     */
     public function __construct(Container $container)
     {
         $this->container = $container;
@@ -73,11 +77,17 @@ class Proxy
         return $this->external_router;
     }
 
+    /**
+     * @return array
+     */
     public function getRequestPool()
     {
         return $this->request_pool;
     }
 
+    /**
+     * @return Request
+     */
     public function getMain()
     {
         return $this->request_pool[0];
@@ -97,10 +107,18 @@ class Proxy
 
         $this->external_router->sendResponse($response);
 
-        foreach ($this->deferred as $job)
+        foreach ($this->deferred as $job) {
             $this->execute($job[0], $job[1], $job[2], $job[3]);
+        }
     }
 
+    /**
+     * @param string $bundle
+     * @param string $url
+     * @param string $action
+     * @param array $args
+     * @return Response
+     */
     public function execute($bundle, $url, $action, array $args = [])
     {
         $request = $this->initializeRequest($bundle, $url, $action, $args);
@@ -108,6 +126,13 @@ class Proxy
         return $this->executeRequest($request);
     }
 
+    /**
+     * @param string $bundle
+     * @param string $url
+     * @param string $action
+     * @param array $args
+     * @throws ForwardException
+     */
     public function forward($bundle, $url, $action, array $args = [])
     {
         $this->current_initial = null;
@@ -117,6 +142,13 @@ class Proxy
         throw new ForwardException();
     }
 
+    /**
+     * @param string $bundle
+     * @param string $url
+     * @param string $action
+     * @param array $args
+     * @return $this
+     */
     public function defer($bundle, $url, $action, array $args = [])
     {
         $this->deferred[] = [$bundle, $url, $action, $args];
@@ -124,20 +156,20 @@ class Proxy
         return $this;
     }
 
+    /**
+     * @param string $event_name
+     * @param Event $event
+     */
     public function trigger($event_name, Event $event)
     {
-        if ($subscribers = $this->bundler->getAsyncSubscribers($event_name))
-        {
-            foreach ($subscribers as $subscriber)
-            {
+        if ($subscribers = $this->bundler->getAsyncSubscribers($event_name)) {
+            foreach ($subscribers as $subscriber) {
                 $this->defer($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
             }
         }
 
-        if ($subscribers = $this->bundler->getSyncSubscribers($event_name))
-        {
-            foreach ($subscribers as $subscriber)
-            {
+        if ($subscribers = $this->bundler->getSyncSubscribers($event_name)) {
+            foreach ($subscribers as $subscriber) {
                 $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
             }
         }
@@ -148,12 +180,9 @@ class Proxy
      */
     protected function start()
     {
-        try
-        {
+        try {
             $response = $this->executeRequest($this->next);
-        }
-        catch (ForwardException $e)
-        {
+        } catch (ForwardException $e) {
             return $this->start();
         }
 
@@ -161,6 +190,10 @@ class Proxy
     }
 
     /**
+     * @param string $bundle
+     * @param string $url
+     * @param string $action
+     * @param array $args
      * @return Request
      */
     protected function initializeRequest($bundle, $url, $action, array $args = [])
@@ -170,28 +203,28 @@ class Proxy
         return $this->bundler->getService($bundle, 'internal_router')->dispatch($url)->setBundle($bundle)->setAction($action)->setArgs($args);
     }
 
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws ForwardException
+     */
     protected function executeRequest(Request $request)
     {
-        if (count($this->request_pool) != 0)
+        if (count($this->request_pool) != 0) {
             $request->setMain($this->getMain());
+        }
 
         $this->request_pool[] = $request;
 
-        if ($this->current_initial === null)
-        {
+        if ($this->current_initial === null) {
             $this->current_initial = $request;
-        }
-        else
-        {
+        } else {
             $request->setInitial($this->current_initial);
         }
 
-        try
-        {
+        try {
             $reflection_class = new \ReflectionClass($request->getController());
-        }
-        catch (\ReflectionException $e)
-        {
+        } catch (\ReflectionException $e) {
             $controller_not_found = $this->external_router->getControllerNotFound();
 
             $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
