@@ -56,10 +56,11 @@ class Profiler
     }
 
     /**
+     * @param string|null $key
      * @return array
      */
-    public function getFinished()
+    public function getFinished($key = null)
     {
-        return $this->finished;
+        return isset($this->finished[$key]) ? $this->finished[$key] : $this->finished;
     }
 }
