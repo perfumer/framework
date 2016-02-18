@@ -3,6 +3,7 @@
 namespace Perfumer\Framework\Bundle;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Framework\Bundle\Exception\BundleException;
 
 class Bundler
 {
@@ -32,13 +33,17 @@ class Bundler
      */
     protected $async_subscribers = [];
 
+    /**
+     * Bundler constructor.
+     * @param Container $container
+     */
     public function __construct(Container $container)
     {
         $this->container = $container;
     }
 
     /**
-     * @param $bundles_file
+     * @param string $bundles_file
      */
     public function importBundlesFile($bundles_file)
     {
@@ -103,8 +108,18 @@ class Bundler
         }
     }
 
+    /**
+     * @param string $bundle
+     * @param string $alias
+     * @return mixed
+     * @throws Exception\BundleException
+     */
     public function getService($bundle, $alias)
     {
+        if (!isset($this->manifests[$bundle])) {
+            throw new BundleException('Bundle "' . $bundle . '" is not found.');
+        }
+
         /** @var AbstractManifest $manifest */
 
         $manifest = $this->manifests[$bundle];
@@ -114,43 +129,56 @@ class Bundler
         return $this->container->getService($service_name);
     }
 
+    /**
+     * @param string $bundle
+     * @param string $url
+     * @param string $action
+     * @return array
+     */
     public function overrideController($bundle, $url, $action)
     {
         $key = 'c#' . $bundle . '#' . $url . '#' . $action;
 
-        if (isset($this->overrides[$key]))
-        {
+        if (isset($this->overrides[$key])) {
             $result = $this->overrides[$key];
-        }
-        else
-        {
+        } else {
             $result = [$bundle, $url, $action];
         }
 
         return $result;
     }
 
+    /**
+     * @param string $bundle
+     * @param string $url
+     * @return array
+     */
     public function overrideTemplate($bundle, $url)
     {
         $key = 't#' . $bundle . '#' . $url;
 
-        if (isset($this->overrides[$key]))
-        {
+        if (isset($this->overrides[$key])) {
             $result = $this->overrides[$key];
-        }
-        else
-        {
+        } else {
             $result = [$bundle, $url];
         }
 
         return $result;
     }
 
+    /**
+     * @param string $event_name
+     * @return array
+     */
     public function getSyncSubscribers($event_name)
     {
         return isset($this->sync_subscribers[$event_name]) ? $this->sync_subscribers[$event_name] : [];
     }
 
+    /**
+     * @param string $event_name
+     * @return array
+     */
     public function getAsyncSubscribers($event_name)
     {
         return isset($this->async_subscribers[$event_name]) ? $this->async_subscribers[$event_name] : [];
