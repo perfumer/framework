@@ -2,6 +2,8 @@
 
 namespace Perfumer\Framework\Proxy;
 
+use Perfumer\Helper\Arr;
+
 class Profiler
 {
     /**
@@ -34,7 +36,7 @@ class Profiler
         if (isset($this->started[$key])) {
             $microtime = microtime(true);
 
-            $this->finished[$key] = $microtime - $this->started[$key];
+            $this->finished[$key] = round(1000 * ($microtime - $this->started[$key]), 1);
 
             unset($this->started[$key]);
         }
@@ -56,11 +58,19 @@ class Profiler
     }
 
     /**
-     * @param string|null $key
-     * @return array
+     * @param array|string|null $key
+     * @return mixed
      */
     public function getFinished($key = null)
     {
-        return isset($this->finished[$key]) ? $this->finished[$key] : $this->finished;
+        if ($key === null) {
+            return $this->finished;
+        }
+
+        if (is_array($key)) {
+            return Arr::fetch($this->finished, $key);
+        }
+
+        return isset($this->finished[$key]) ? $this->finished[$key] : null;
     }
 }
