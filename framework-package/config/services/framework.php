@@ -24,6 +24,11 @@ return [
         'arguments' => ['container']
     ],
 
+    'profiler' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Proxy\\Profiler'
+    ],
+
     // View
     'view.template' => [
         'class' => 'Perfumer\\Framework\\View\\TemplateView',
