@@ -45,22 +45,26 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param string $entry
+     * Simple shortcut for getService() method
+     *
+     * @param string $id
      * @param array $parameters
      * @return mixed
      */
-    public function get($entry, array $parameters = [])
+    public function get($id, array $parameters = [])
     {
-        return $this->getService($entry, $parameters);
+        return $this->getService($id, $parameters);
     }
 
     /**
-     * @param string $entry
-     * @throws ContainerException
+     * Simple shortcut for hasService() method
+     *
+     * @param string $id
+     * @return bool
      */
-    public function has($entry)
+    public function has($id)
     {
-        throw new ContainerException('Method "has" has not been implemented yet');
+        return $this->hasService($id);
     }
 
     /**
@@ -134,6 +138,15 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param $name
+     * @return bool
+     */
+    public function hasService($name)
+    {
+        return isset($this->service_map[$name]);
+    }
+
+    /**
      * getService
      * Get service instance.
      *
@@ -151,8 +164,8 @@ class Container implements ContainerInterface
             return $this->services[$name];
         }
 
-        if (!isset($this->service_map[$name])) {
-            throw new ContainerException('Service "' . $name . '" is not registered.');
+        if (!$this->hasService($name)) {
+            throw new ContainerException('No definition found for service "' . $name . '".');
         }
 
         $definition = $this->service_map[$name];
