@@ -11,7 +11,7 @@ use Perfumer\Framework\Proxy\Proxy;
 use Perfumer\Framework\Proxy\Request;
 use Perfumer\Framework\Proxy\Response;
 
-abstract class AbstractController
+abstract class AbstractController implements ControllerInterface
 {
     /**
      * @var Container

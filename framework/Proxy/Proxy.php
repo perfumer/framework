@@ -3,10 +3,12 @@
 namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Framework\Controller\ControllerInterface;
 use Perfumer\Framework\Bundle\Bundler;
 use Perfumer\Framework\BundleRouter\RouterInterface as BundleRouter;
 use Perfumer\Framework\ExternalRouter\RouterInterface as ExternalRouter;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
+use Perfumer\Framework\Proxy\Exception\ProxyException;
 
 class Proxy
 {
@@ -206,7 +208,7 @@ class Proxy
     /**
      * @param Request $request
      * @return Response
-     * @throws ForwardException
+     * @throws ProxyException
      */
     protected function executeRequest(Request $request)
     {
@@ -222,16 +224,31 @@ class Proxy
             $request->setInitial($this->current_initial);
         }
 
-        try {
-            $reflection_class = new \ReflectionClass($request->getController());
-        } catch (\ReflectionException $e) {
-            $controller_not_found = $this->external_router->getControllerNotFound();
+        $controller_class = $request->getController();
 
-            $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
+        if ($this->container->has($controller_class)) {
+            $controller = $this->container->get($controller_class);
+        } else {
+            try {
+                $reflection_class = new \ReflectionClass($request->getController());
+
+                $controller = $reflection_class->newInstance($this->container, $request, $reflection_class);
+            } catch (\ReflectionException $e) {
+                $controller_not_found = $this->external_router->getControllerNotFound();
+
+                $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
+            }
+
         }
 
-        $controller = $reflection_class->newInstance($this->container, $request, $reflection_class);
+        /** @var ControllerInterface $controller $response */
 
-        return $reflection_class->getMethod('_run')->invoke($controller);
+        $response = $controller->_run();
+
+        if (!$response instanceof Response) {
+            throw new ProxyException('Method "_run" of controller must return object of type Response.');
+        }
+
+        return $response;
     }
 }
