@@ -230,9 +230,7 @@ class Proxy
             $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
         }
 
-        $response = new Response();
-
-        $controller = $reflection_class->newInstance($this->container, $request, $response, $reflection_class);
+        $controller = $reflection_class->newInstance($this->container, $request, $reflection_class);
 
         return $reflection_class->getMethod('_run')->invoke($controller);
     }

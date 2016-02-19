@@ -43,12 +43,12 @@ abstract class AbstractController
      */
     protected $_translator;
 
-    public function __construct(Container $container, Request $request, Response $response, \ReflectionClass $reflection_class)
+    public function __construct(Container $container, Request $request, \ReflectionClass $reflection_class)
     {
         $this->_container = $container;
         $this->_proxy = $container->getService('proxy');
         $this->_current = $request;
-        $this->_response = $response;
+        $this->_response = new Response();
         $this->_reflection_class = $reflection_class;
     }
 
