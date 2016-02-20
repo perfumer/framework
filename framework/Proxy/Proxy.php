@@ -59,8 +59,8 @@ class Proxy
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->bundler = $container->getService('bundler');
-        $this->bundle_router = $container->getService('bundle_router');
+        $this->bundler = $container->get('bundler');
+        $this->bundle_router = $container->get('bundle_router');
     }
 
     /**
@@ -241,7 +241,7 @@ class Proxy
 
         }
 
-        /** @var ControllerInterface $controller $response */
+        /** @var ControllerInterface $controller */
 
         $response = $controller->_run();
 

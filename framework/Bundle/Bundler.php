@@ -60,7 +60,7 @@ class Bundler
             }
 
             foreach ($manifest->getStorages() as $storage) {
-                $this->container->registerStorage($storage, $this->container->getService($storage));
+                $this->container->registerStorage($storage, $this->container->get($storage));
             }
 
             $file_storage = $this->container->getFileStorage();
@@ -126,7 +126,7 @@ class Bundler
 
         $service_name = $manifest->getAliasedService($alias);
 
-        return $this->container->getService($service_name);
+        return $this->container->get($service_name);
     }
 
     /**

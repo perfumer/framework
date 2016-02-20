@@ -46,7 +46,7 @@ abstract class AbstractController implements ControllerInterface
     public function __construct(Container $container, Request $request, \ReflectionClass $reflection_class)
     {
         $this->_container = $container;
-        $this->_proxy = $container->getService('proxy');
+        $this->_proxy = $container->get('proxy');
         $this->_current = $request;
         $this->_response = new Response();
         $this->_reflection_class = $reflection_class;
@@ -131,7 +131,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function s($name, array $parameters = [])
     {
-        return $this->getContainer()->getService($name, $parameters);
+        return $this->getContainer()->get($name, $parameters);
     }
 
     /**
@@ -229,7 +229,7 @@ abstract class AbstractController implements ControllerInterface
     protected function getTranslator()
     {
         if ($this->_translator === null)
-            $this->_translator = $this->getContainer()->getService('translator');
+            $this->_translator = $this->getContainer()->get('translator');
 
         return $this->_translator;
     }

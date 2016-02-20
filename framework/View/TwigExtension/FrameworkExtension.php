@@ -33,11 +33,11 @@ class FrameworkExtension extends \Twig_Extension
 
     public function request($bundle, $url, $action, array $args = [], $cache_key = null, $cache_lifetime = 3600)
     {
-        $proxy = $this->container->getService('proxy');
+        $proxy = $this->container->get('proxy');
 
         if ($cache_key !== null)
         {
-            $cache = $this->container->getService('cache')->getItem($cache_key);
+            $cache = $this->container->get('cache')->getItem($cache_key);
 
             $content = $cache->get();
 
@@ -60,7 +60,7 @@ class FrameworkExtension extends \Twig_Extension
 
     public function tpl($bundle, $url)
     {
-        $bundler = $this->container->getService('bundler');
+        $bundler = $this->container->get('bundler');
 
         list($bundle, $url) = $bundler->overrideTemplate($bundle, $url);
 
@@ -76,6 +76,6 @@ class FrameworkExtension extends \Twig_Extension
 
     public function t($key, $placeholders = [])
     {
-        return $this->container->getService('translator')->translate($key, $placeholders);
+        return $this->container->get('translator')->translate($key, $placeholders);
     }
 }

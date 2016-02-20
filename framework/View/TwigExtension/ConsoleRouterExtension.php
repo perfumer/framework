@@ -41,6 +41,6 @@ class ConsoleRouterExtension extends \Twig_Extension
 
     private function getExternalRouter()
     {
-        return $this->container->getService('proxy')->getExternalRouter();
+        return $this->container->get('proxy')->getExternalRouter();
     }
 }

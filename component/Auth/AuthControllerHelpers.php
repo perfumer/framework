@@ -19,7 +19,7 @@ trait AuthControllerHelpers
     protected function getAuth()
     {
         if ($this->_auth === null)
-            $this->_auth = $this->getContainer()->getService($this->_auth_service_name);
+            $this->_auth = $this->getContainer()->get($this->_auth_service_name);
 
         return $this->_auth;
     }
