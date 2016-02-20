@@ -45,26 +45,84 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Simple shortcut for getService() method
+     * get
+     * Get service instance.
      *
-     * @param string $id
+     * @param string $name
      * @param array $parameters
      * @return mixed
+     * @access public
+     * @uses \ReflectionClass
+     * @throws ContainerException
      */
-    public function get($id, array $parameters = [])
+    public function get($name, array $parameters = [])
     {
-        return $this->getService($id, $parameters);
+        // Shared services are preserved through whole request
+        if (isset($this->services[$name])) {
+            return $this->services[$name];
+        }
+
+        if (!$this->has($name)) {
+            throw new ContainerException('No definition found for service "' . $name . '".');
+        }
+
+        $definition = $this->service_map[$name];
+
+        // Alias is a link to another definition
+        if (isset($definition['alias'])) {
+            return $this->get($definition['alias']);
+        }
+
+        // "Init" directive is a callable that returns instance of service
+        if (isset($definition['init']) && is_callable($definition['init'])) {
+            $service_class = $definition['init']($this, $parameters);
+        } else {
+            $arguments = [];
+
+            // Array of arguments which are given to constructor method
+            if (isset($definition['arguments'])) {
+                $arguments = $this->resolveArrayOfArguments($definition['arguments'], $parameters);
+            }
+
+            // Service is made by static method
+            if (isset($definition['static'])) {
+                $service_class = call_user_func_array([$definition['class'], $definition['static']], $arguments);
+
+                if ($service_class === false) {
+                    throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+                }
+            } else {
+                // Service is made by normal constructor
+                try {
+                    $reflection_class = new \ReflectionClass($definition['class']);
+                } catch (\ReflectionException $e) {
+                    throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+                }
+
+                $service_class = $reflection_class->newInstanceArgs($arguments);
+            }
+        }
+
+        // "After" directive is a callable that is called after instantiation of service object
+        if (isset($definition['after']) && is_callable($definition['after'])) {
+            $definition['after']($this, $service_class, $parameters);
+        }
+
+        // Preserve shared service
+        if (isset($definition['shared']) && $definition['shared'] === true) {
+            $this->services[$name] = $service_class;
+        }
+
+        return $service_class;
     }
 
     /**
-     * Simple shortcut for hasService() method
-     *
      * @param string $id
      * @return bool
      */
     public function has($id)
     {
-        return $this->hasService($id);
+        return isset($this->service_map[$id]);
     }
 
     /**
@@ -138,84 +196,15 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param $name
-     * @return bool
-     */
-    public function hasService($name)
-    {
-        return isset($this->service_map[$name]);
-    }
-
-    /**
-     * getService
-     * Get service instance.
+     * Simple shortcut for get() method
      *
-     * @param string $name
+     * @param string $id
      * @param array $parameters
      * @return mixed
-     * @access public
-     * @uses \ReflectionClass
-     * @throws ContainerException
      */
-    public function getService($name, array $parameters = [])
+    public function getService($id, array $parameters = [])
     {
-        // Shared services are preserved through whole request
-        if (isset($this->services[$name])) {
-            return $this->services[$name];
-        }
-
-        if (!$this->hasService($name)) {
-            throw new ContainerException('No definition found for service "' . $name . '".');
-        }
-
-        $definition = $this->service_map[$name];
-
-        // Alias is a link to another definition
-        if (isset($definition['alias'])) {
-            return $this->getService($definition['alias']);
-        }
-
-        // "Init" directive is a callable that returns instance of service
-        if (isset($definition['init']) && is_callable($definition['init'])) {
-            $service_class = $definition['init']($this, $parameters);
-        } else {
-            $arguments = [];
-
-            // Array of arguments which are given to constructor method
-            if (isset($definition['arguments'])) {
-                $arguments = $this->resolveArrayOfArguments($definition['arguments'], $parameters);
-            }
-
-            // Service is made by static method
-            if (isset($definition['static'])) {
-                $service_class = call_user_func_array([$definition['class'], $definition['static']], $arguments);
-
-                if ($service_class === false) {
-                    throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
-                }
-            } else {
-                // Service is made by normal constructor
-                try {
-                    $reflection_class = new \ReflectionClass($definition['class']);
-                } catch (\ReflectionException $e) {
-                    throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
-                }
-
-                $service_class = $reflection_class->newInstanceArgs($arguments);
-            }
-        }
-
-        // "After" directive is a callable that is called after instantiation of service object
-        if (isset($definition['after']) && is_callable($definition['after'])) {
-            $definition['after']($this, $service_class, $parameters);
-        }
-
-        // Preserve shared service
-        if (isset($definition['shared']) && $definition['shared'] === true) {
-            $this->services[$name] = $service_class;
-        }
-
-        return $service_class;
+        return $this->get($id, $parameters);
     }
 
     /**
@@ -241,7 +230,7 @@ class Container implements ContainerInterface
 
                 switch ($value[0]) {
                     case '#':
-                        $arguments[$key] = $this->getService($name);
+                        $arguments[$key] = $this->get($name);
                         break;
                     case '@':
                         $arguments[$key] = $this->getParam($name);
