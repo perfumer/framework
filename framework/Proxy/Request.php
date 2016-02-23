@@ -41,17 +41,17 @@ class Request
 
     public function __construct($bundle, $resource, $action, $args = [], $options = [])
     {
-        $this->bundle = $bundle;
-        $this->resource = $resource;
-        $this->action = $action;
-        $this->args = $args;
+        $this->bundle = (string) $bundle;
+        $this->resource = (string) $resource;
+        $this->action = (string) $action;
+        $this->args = (array) $args;
 
         $default_options = [
             'prefix' => 'App\\Controller',
             'suffix' => 'Controller'
         ];
 
-        $this->options = array_merge($default_options, $options);
+        $this->options = array_merge($default_options, (array) $options);
     }
 
     /**

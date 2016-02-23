@@ -138,7 +138,6 @@ return [
 
     // Framework bundle default routers
     'framework.request' => [
-        'shared' => true,
         'class' => 'Perfumer\\Framework\\Proxy\\Request',
         'arguments' => ['$0', '$1', '$2', '$3', [
             'prefix' => 'Perfumer\\FrameworkPackage\\Controller',
