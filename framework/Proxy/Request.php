@@ -22,12 +22,7 @@ class Request
     /**
      * @var string
      */
-    protected $url;
-
-    /**
-     * @var string
-     */
-    protected $controller;
+    protected $resource;
 
     /**
      * @var string
@@ -38,6 +33,11 @@ class Request
      * @var array
      */
     protected $args;
+
+    /**
+     * @var string
+     */
+    protected $controller;
 
     /**
      * @param Request $request
@@ -96,6 +96,14 @@ class Request
     /**
      * @return string
      */
+    public function getIdentity()
+    {
+        return $this->bundle . '.' . $this->resource . '.' . $this->action;
+    }
+
+    /**
+     * @return string
+     */
     public function getBundle()
     {
         return $this->bundle;
@@ -115,18 +123,18 @@ class Request
     /**
      * @return string
      */
-    public function getUrl()
+    public function getResource()
     {
-        return $this->url;
+        return $this->resource;
     }
 
     /**
-     * @param string $url
+     * @param string $resource
      * @return $this
      */
-    public function setUrl($url)
+    public function setResource($resource)
     {
-        $this->url = $url;
+        $this->resource = $resource;
 
         return $this;
     }

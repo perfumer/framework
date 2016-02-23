@@ -18,15 +18,15 @@ class DirectoryRouter implements RouterInterface
         $this->options = array_merge($default_options, $options);
     }
 
-    public function dispatch($url)
+    public function dispatch($resource)
     {
-        $path = explode('/', $url);
+        $path = explode('/', $resource);
 
         $controller = $this->options['prefix'] . '\\' . implode('\\', array_map('ucfirst', $path)) . $this->options['suffix'];
 
         $request = new Request();
 
-        $request->setUrl($url)->setController($controller);
+        $request->setResource($resource)->setController($controller);
 
         return $request;
     }

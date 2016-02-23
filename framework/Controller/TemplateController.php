@@ -39,7 +39,7 @@ class TemplateController extends AbstractController
                 $view->setTemplateBundle($current->getBundle());
 
             if (!$view->getTemplateUrl())
-                $view->setTemplateUrl($current->getUrl() . '/' . $current->getAction());
+                $view->setTemplateUrl($current->getResource() . '/' . $current->getAction());
 
             $content = $view->render();
 
