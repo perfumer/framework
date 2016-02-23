@@ -196,18 +196,6 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Simple shortcut for get() method
-     *
-     * @param string $id
-     * @param array $parameters
-     * @return mixed
-     */
-    public function getService($id, array $parameters = [])
-    {
-        return $this->get($id, $parameters);
-    }
-
-    /**
      * resolveArrayOfArguments
      * Getting array of values which replaced placeholders in the array of arguments in the service definition.
      *
