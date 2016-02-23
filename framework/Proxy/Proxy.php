@@ -101,9 +101,9 @@ class Proxy
 
         $this->external_router = $this->bundler->getService($bundle, 'external_router');
 
-        list($url, $action, $args) = $this->external_router->dispatch();
+        list($resource, $action, $args) = $this->external_router->dispatch();
 
-        $this->next = $this->initializeRequest($bundle, $url, $action, $args);
+        $this->next = $this->initializeRequest($bundle, $resource, $action, $args);
 
         $response = $this->start();
 
@@ -116,30 +116,30 @@ class Proxy
 
     /**
      * @param string $bundle
-     * @param string $url
+     * @param string $resource
      * @param string $action
      * @param array $args
      * @return Response
      */
-    public function execute($bundle, $url, $action, array $args = [])
+    public function execute($bundle, $resource, $action, array $args = [])
     {
-        $request = $this->initializeRequest($bundle, $url, $action, $args);
+        $request = $this->initializeRequest($bundle, $resource, $action, $args);
 
         return $this->executeRequest($request);
     }
 
     /**
      * @param string $bundle
-     * @param string $url
+     * @param string $resource
      * @param string $action
      * @param array $args
      * @throws ForwardException
      */
-    public function forward($bundle, $url, $action, array $args = [])
+    public function forward($bundle, $resource, $action, array $args = [])
     {
         $this->current_initial = null;
 
-        $this->next = $this->initializeRequest($bundle, $url, $action, $args);
+        $this->next = $this->initializeRequest($bundle, $resource, $action, $args);
 
         throw new ForwardException();
     }
@@ -151,9 +151,9 @@ class Proxy
      * @param array $args
      * @return $this
      */
-    public function defer($bundle, $url, $action, array $args = [])
+    public function defer($bundle, $resource, $action, array $args = [])
     {
-        $this->deferred[] = [$bundle, $url, $action, $args];
+        $this->deferred[] = [$bundle, $resource, $action, $args];
 
         return $this;
     }
@@ -193,16 +193,16 @@ class Proxy
 
     /**
      * @param string $bundle
-     * @param string $url
+     * @param string $resource
      * @param string $action
      * @param array $args
      * @return Request
      */
-    protected function initializeRequest($bundle, $url, $action, array $args = [])
+    protected function initializeRequest($bundle, $resource, $action, array $args = [])
     {
-        list($bundle, $url, $action) = $this->bundler->overrideController($bundle, $url, $action);
+        list($bundle, $resource, $action) = $this->bundler->overrideController($bundle, $resource, $action);
 
-        return $this->bundler->getService($bundle, 'internal_router')->dispatch($url)->setBundle($bundle)->setAction($action)->setArgs($args);
+        return $this->bundler->getService($bundle, 'request', [$bundle, $resource, $action, $args]);
     }
 
     /**

@@ -22,8 +22,7 @@ class TemplateController extends AbstractController
 
     protected function after()
     {
-        if ($this->getRendering())
-        {
+        if ($this->getRendering()) {
             $current = $this->getCurrent();
 
             $this->getView()->addVars([
@@ -35,11 +34,13 @@ class TemplateController extends AbstractController
 
             $view = $this->getView();
 
-            if (!$view->getTemplateBundle())
+            if (!$view->getTemplateBundle()) {
                 $view->setTemplateBundle($current->getBundle());
+            }
 
-            if (!$view->getTemplateUrl())
+            if (!$view->getTemplateUrl()) {
                 $view->setTemplateUrl($current->getResource() . '/' . $current->getAction());
+            }
 
             $content = $view->render();
 
@@ -64,8 +65,9 @@ class TemplateController extends AbstractController
      */
     protected function getView()
     {
-        if ($this->_view === null)
+        if ($this->_view === null) {
             $this->_view = $this->s('view.template');
+        }
 
         return $this->_view;
     }

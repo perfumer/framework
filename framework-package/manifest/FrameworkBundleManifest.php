@@ -26,7 +26,7 @@ class FrameworkBundleManifest extends AbstractManifest
     public function getAliases()
     {
         return [
-            'internal_router' => 'framework.internal_router',
+            'request' => 'framework.request',
             'view_router' => 'framework.view_router'
         ];
     }

@@ -35,9 +35,24 @@ class Request
     protected $args;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $controller;
+    protected $options = [];
+
+    public function __construct($bundle, $resource, $action, $args = [], $options = [])
+    {
+        $this->bundle = $bundle;
+        $this->resource = $resource;
+        $this->action = $action;
+        $this->args = $args;
+
+        $default_options = [
+            'prefix' => 'App\\Controller',
+            'suffix' => 'Controller'
+        ];
+
+        $this->options = array_merge($default_options, $options);
+    }
 
     /**
      * @param Request $request
@@ -110,17 +125,6 @@ class Request
     }
 
     /**
-     * @param string $bundle
-     * @return $this
-     */
-    public function setBundle($bundle)
-    {
-        $this->bundle = $bundle;
-
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getResource()
@@ -129,33 +133,13 @@ class Request
     }
 
     /**
-     * @param string $resource
-     * @return $this
-     */
-    public function setResource($resource)
-    {
-        $this->resource = $resource;
-
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getController()
     {
-        return $this->controller;
-    }
+        $path = explode('/', $this->resource);
 
-    /**
-     * @param string $controller
-     * @return $this
-     */
-    public function setController($controller)
-    {
-        $this->controller = $controller;
-
-        return $this;
+        return $this->options['prefix'] . '\\' . implode('\\', array_map('ucfirst', $path)) . $this->options['suffix'];
     }
 
     /**
@@ -167,32 +151,10 @@ class Request
     }
 
     /**
-     * @param string $action
-     * @return $this
-     */
-    public function setAction($action)
-    {
-        $this->action = $action;
-
-        return $this;
-    }
-
-    /**
      * @return array
      */
     public function getArgs()
     {
         return $this->args;
-    }
-
-    /**
-     * @param array $args
-     * @return $this
-     */
-    public function setArgs(array $args)
-    {
-        $this->args = $args;
-
-        return $this;
     }
 }

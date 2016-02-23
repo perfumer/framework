@@ -102,21 +102,41 @@ abstract class AbstractController implements ControllerInterface
         return ['get', 'post', 'head', 'options', 'action'];
     }
 
-    protected function execute($url, $action, array $args = [])
+    /**
+     * @param $resource
+     * @param $action
+     * @param array $args
+     * @return Response
+     */
+    protected function execute($resource, $action, array $args = [])
     {
-        return $this->getProxy()->execute($this->getCurrent()->getBundle(), $url, $action, $args);
+        return $this->getProxy()->execute($this->getCurrent()->getBundle(), $resource, $action, $args);
     }
 
-    protected function forward($url, $action, array $args = [])
+    /**
+     * @param $resource
+     * @param $action
+     * @param array $args
+     */
+    protected function forward($resource, $action, array $args = [])
     {
-        $this->getProxy()->forward($this->getCurrent()->getBundle(), $url, $action, $args);
+        $this->getProxy()->forward($this->getCurrent()->getBundle(), $resource, $action, $args);
     }
 
-    protected function defer($url, $action, array $args = [])
+    /**
+     * @param $resource
+     * @param $action
+     * @param array $args
+     */
+    protected function defer($resource, $action, array $args = [])
     {
-        $this->getProxy()->defer($this->getCurrent()->getBundle(), $url, $action, $args);
+        $this->getProxy()->defer($this->getCurrent()->getBundle(), $resource, $action, $args);
     }
 
+    /**
+     * @param $event_name
+     * @param Event $event
+     */
     protected function trigger($event_name, Event $event)
     {
         $this->getProxy()->trigger($event_name, $event);

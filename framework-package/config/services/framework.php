@@ -137,10 +137,10 @@ return [
     ],
 
     // Framework bundle default routers
-    'framework.internal_router' => [
+    'framework.request' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\InternalRouter\\DirectoryRouter',
-        'arguments' => [[
+        'class' => 'Perfumer\\Framework\\Proxy\\Request',
+        'arguments' => ['$0', '$1', '$2', '$3', [
             'prefix' => 'Perfumer\\FrameworkPackage\\Controller',
             'suffix' => 'Controller'
         ]]
