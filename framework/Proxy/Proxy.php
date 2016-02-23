@@ -146,7 +146,7 @@ class Proxy
 
     /**
      * @param string $bundle
-     * @param string $url
+     * @param string $resource
      * @param string $action
      * @param array $args
      * @return $this
