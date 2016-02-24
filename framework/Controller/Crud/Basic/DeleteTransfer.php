@@ -11,7 +11,7 @@ trait DeleteTransfer
         $this->deletePermission();
 
         if ($this->getProxy()->getExternalRouter()->getArg('id') === null)
-            $this->setErrorMessageAndExit($this->getTranslator()->translate('_crud.object_not_found'));
+            $this->setErrorMessageAndExit($this->t('_crud.object_not_found'));
 
         $model = $this->getModel();
 
@@ -37,7 +37,7 @@ trait DeleteTransfer
         {
             $con->rollback();
 
-            $this->setErrorMessage($this->getTranslator()->translate('_crud.internal_error'));
+            $this->setErrorMessage($this->t('_crud.internal_error'));
         }
     }
 
@@ -66,6 +66,6 @@ trait DeleteTransfer
 
     protected function deleteSuccessMessage($model)
     {
-        return $this->getTranslator()->translate('_crud.deleted');
+        return $this->t('_crud.deleted');
     }
 }

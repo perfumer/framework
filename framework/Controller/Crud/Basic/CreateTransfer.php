@@ -53,7 +53,7 @@ trait CreateTransfer
             {
                 $con->rollback();
 
-                $this->setErrorMessage($this->getTranslator()->translate('_crud.internal_error'));
+                $this->setErrorMessage($this->t('_crud.internal_error'));
             }
         }
     }
@@ -85,6 +85,6 @@ trait CreateTransfer
 
     protected function postSuccessMessage($model, array $fields)
     {
-        return $this->getTranslator()->translate('_crud.created');
+        return $this->t('_crud.created');
     }
 }

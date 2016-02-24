@@ -15,7 +15,7 @@ trait UpdateTransfer
         $this->putPermission();
 
         if ($this->getProxy()->getExternalRouter()->getArg('id') === null)
-            $this->setErrorMessageAndExit($this->getTranslator()->translate('_crud.object_not_found'));
+            $this->setErrorMessageAndExit($this->t('_crud.object_not_found'));
 
         $fields = Arr::fetch($this->getProxy()->getExternalRouter()->getArg(), $this->putFields(), true);
 
@@ -54,7 +54,7 @@ trait UpdateTransfer
             {
                 $con->rollback();
 
-                $this->setErrorMessage($this->getTranslator()->translate('_crud.internal_error'));
+                $this->setErrorMessage($this->t('_crud.internal_error'));
             }
         }
     }
@@ -86,6 +86,6 @@ trait UpdateTransfer
 
     protected function putSuccessMessage($model, array $fields)
     {
-        return $this->getTranslator()->translate('_crud.updated');
+        return $this->t('_crud.updated');
     }
 }

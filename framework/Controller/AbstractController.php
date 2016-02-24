@@ -38,11 +38,6 @@ abstract class AbstractController implements ControllerInterface
      */
     protected $_reflection_class;
 
-    /**
-     * @var \Perfumer\Component\Translator\Core
-     */
-    protected $_translator;
-
     public function __construct(Container $container, Request $request, \ReflectionClass $reflection_class)
     {
         $this->_container = $container;
@@ -163,7 +158,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function t($key, $placeholders = [])
     {
-        return $this->getTranslator()->translate($key, $placeholders);
+        return $this->getContainer()->get('translator')->translate($key, $placeholders);
     }
 
     /**
@@ -241,16 +236,5 @@ abstract class AbstractController implements ControllerInterface
         }
 
         $this->getProxy()->forward('framework', 'http', 'redirect', [$url, $status_code]);
-    }
-
-    /**
-     * @return \Perfumer\Component\Translator\Core
-     */
-    protected function getTranslator()
-    {
-        if ($this->_translator === null)
-            $this->_translator = $this->getContainer()->get('translator');
-
-        return $this->_translator;
     }
 }
