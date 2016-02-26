@@ -129,7 +129,7 @@ abstract class AbstractView
      * @return $this
      * @throws ViewException
      */
-    public function mapGroup($name, $parent = null)
+    public function addGroup($name, $parent = null)
     {
         if ($parent === null) {
             $this->vars[$name] = [];
@@ -137,7 +137,7 @@ abstract class AbstractView
             $base = &$this->vars[$name];
         } else {
             if (!isset($this->groups[$parent])) {
-                throw new ViewException('The group "' . $parent . '" is not mapped yet.');
+                throw new ViewException('The group "' . $parent . '" is not added yet.');
             }
 
             $this->groups[$parent][$name] = [];

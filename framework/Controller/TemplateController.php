@@ -12,7 +12,7 @@ class TemplateController extends AbstractController
     {
         parent::before();
 
-        $this->getView()->mapGroup('app');
+        $this->getView()->addGroup('app');
     }
 
     protected function after()

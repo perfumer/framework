@@ -17,7 +17,7 @@ class SerializeController extends AbstractController
             'content' => null
         ]);
 
-        $this->getView()->mapGroup('errors');
+        $this->getView()->addGroup('errors');
     }
 
     protected function after()

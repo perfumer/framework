@@ -17,7 +17,7 @@ class PlatesProvider implements ProviderInterface
     protected $namespace;
 
     /**
-     * TwigFilesystemProvider constructor.
+     * PlatesProvider constructor.
      * @param Engine $plates
      * @param string $root_path
      * @param string $namespace
