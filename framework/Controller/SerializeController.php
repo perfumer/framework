@@ -7,11 +7,6 @@ use Perfumer\Framework\View\SerializeView;
 
 class SerializeController extends AbstractController
 {
-    /**
-     * @var SerializeView
-     */
-    protected $_view;
-
     protected function before()
     {
         parent::before();
@@ -49,10 +44,7 @@ class SerializeController extends AbstractController
      */
     protected function getView()
     {
-        if ($this->_view === null)
-            $this->_view = $this->s('view.serialize');
-
-        return $this->_view;
+        return parent::getView();
     }
 
     protected function getStatus()

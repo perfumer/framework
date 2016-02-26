@@ -6,11 +6,6 @@ use Perfumer\Framework\View\TemplateView;
 
 class TemplateController extends AbstractController
 {
-    /**
-     * @var TemplateView
-     */
-    protected $_view;
-
     protected $_rendering = true;
 
     protected function before()
@@ -34,12 +29,8 @@ class TemplateController extends AbstractController
 
             $view = $this->getView();
 
-            if (!$view->getTemplateBundle()) {
-                $view->setTemplateBundle($current->getBundle());
-            }
-
-            if (!$view->getTemplateUrl()) {
-                $view->setTemplateUrl($current->getResource() . '/' . $current->getAction());
+            if (!$view->getTemplate()) {
+                $view->setTemplate($current->getResource() . '/' . $current->getAction());
             }
 
             $content = $view->render();
@@ -65,11 +56,7 @@ class TemplateController extends AbstractController
      */
     protected function getView()
     {
-        if ($this->_view === null) {
-            $this->_view = $this->s('view.template');
-        }
-
-        return $this->_view;
+        return parent::getView();
     }
 
     protected function getRendering()

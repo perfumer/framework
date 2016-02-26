@@ -10,6 +10,7 @@ use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Proxy;
 use Perfumer\Framework\Proxy\Request;
 use Perfumer\Framework\Proxy\Response;
+use Perfumer\Framework\View\AbstractView;
 
 abstract class AbstractController implements ControllerInterface
 {
@@ -38,6 +39,17 @@ abstract class AbstractController implements ControllerInterface
      */
     protected $_reflection_class;
 
+    /**
+     * @var AbstractView
+     */
+    protected $_view;
+
+    /**
+     * AbstractController constructor.
+     * @param Container $container
+     * @param Request $request
+     * @param \ReflectionClass $reflection_class
+     */
     public function __construct(Container $container, Request $request, \ReflectionClass $reflection_class)
     {
         $this->_container = $container;
@@ -51,23 +63,22 @@ abstract class AbstractController implements ControllerInterface
     {
         $current = $this->getCurrent();
 
-        if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods()))
+        if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods())) {
             $this->actionNotFoundException();
+        }
 
-        if (!method_exists($this, $current->getAction()))
+        if (!method_exists($this, $current->getAction())) {
             $this->actionNotFoundException();
+        }
 
         $this->before();
 
         $action = $current->getAction();
         $args = $current->getArgs();
 
-        try
-        {
+        try {
             $this->_reflection_class->getMethod($action)->invokeArgs($this, $args);
-        }
-        catch (ExitActionException $e)
-        {
+        } catch (ExitActionException $e) {
         }
 
         $this->after();
@@ -209,6 +220,18 @@ abstract class AbstractController implements ControllerInterface
     protected function getResponse()
     {
         return $this->_response;
+    }
+
+    /**
+     * @return AbstractView
+     */
+    protected function getView()
+    {
+        if ($this->_view === null) {
+            $this->_view = $this->getContainer()->get('bundler')->getService($this->getCurrent()->getBundle(), 'view');
+        }
+
+        return $this->_view;
     }
 
     /**
