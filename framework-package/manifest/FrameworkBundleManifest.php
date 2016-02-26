@@ -27,7 +27,8 @@ class FrameworkBundleManifest extends AbstractManifest
     {
         return [
             'request' => 'framework.request',
-            'view_router' => 'framework.view_router'
+            'view' => 'framework.view',
+            'template_provider' => 'framework.view.template_provider'
         ];
     }
 }

@@ -58,13 +58,13 @@ class FrameworkExtension extends \Twig_Extension
         return $content;
     }
 
-    public function tpl($bundle, $url)
+    public function tpl($bundle, $template)
     {
         $bundler = $this->container->get('bundler');
 
-        list($bundle, $url) = $bundler->overrideTemplate($bundle, $url);
+        list($bundle, $template) = $bundler->overrideTemplate($bundle, $template);
 
-        $template = $bundler->getService($bundle, 'view_router')->dispatch($url);
+        $template = $bundler->getService($bundle, 'template_provider')->handle($template);
 
         return $template;
     }

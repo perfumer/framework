@@ -61,6 +61,14 @@ class TemplateView extends AbstractView
     }
 
     /**
+     * @return ProviderInterface
+     */
+    public function getTemplateProvider()
+    {
+        return $this->template_provider;
+    }
+
+    /**
      * @return string
      */
     public function getTemplate()
