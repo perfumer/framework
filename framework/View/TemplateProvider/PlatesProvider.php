@@ -2,12 +2,14 @@
 
 namespace Perfumer\Framework\View\TemplateProvider;
 
-class TwigFilesystemProvider implements ProviderInterface
+use League\Plates\Engine;
+
+class PlatesProvider implements ProviderInterface
 {
     /**
-     * @var \Twig_Loader_Filesystem
+     * @var Engine
      */
-    protected $loader;
+    protected $plates;
 
     /**
      * @var string
@@ -16,17 +18,17 @@ class TwigFilesystemProvider implements ProviderInterface
 
     /**
      * TwigFilesystemProvider constructor.
-     * @param \Twig_Loader_Filesystem $loader
+     * @param Engine $plates
      * @param string $root_path
      * @param string $namespace
      */
-    public function __construct(\Twig_Loader_Filesystem $loader, $root_path, $namespace)
+    public function __construct(Engine $plates, $root_path, $namespace)
     {
-        $this->loader = $loader;
+        $this->plates = $plates;
         $this->namespace = $namespace;
 
-        if (!in_array($namespace, $loader->getNamespaces())) {
-            $loader->addPath($root_path, $namespace);
+        if (!$plates->getFolders()->exists($namespace)) {
+            $plates->addFolder($namespace, $root_path);
         }
     }
 
@@ -36,6 +38,6 @@ class TwigFilesystemProvider implements ProviderInterface
      */
     public function handle($template)
     {
-        return '@' . $this->namespace . '/' . $template . '.twig';
+        return $this->namespace . '::' . $template;
     }
 }
