@@ -2,80 +2,79 @@
 
 namespace Perfumer\Framework\View;
 
-use Perfumer\Framework\Bundle\Bundler;
+use Perfumer\Framework\View\TemplateProvider\ProviderInterface;
 
 class TemplateView extends AbstractView
 {
+    /**
+     * @var mixed
+     */
     protected $templating;
 
     /**
-     * @var Bundler
+     * @var ProviderInterface
      */
-    protected $bundler;
+    protected $template_provider;
 
+    /**
+     * @var string
+     */
     protected $bundle;
-    protected $url;
 
-    public function __construct($templating, Bundler $bundler)
+    /**
+     * @var string
+     */
+    protected $template;
+
+    /**
+     * TemplateView constructor.
+     * @param mixed $templating
+     * @param ProviderInterface $template_provider
+     */
+    public function __construct($templating, ProviderInterface $template_provider)
     {
         $this->templating = $templating;
-        $this->bundler = $bundler;
+        $this->template_provider = $template_provider;
     }
 
-    public function render($bundle = null, $url = null, $vars = [])
+    /**
+     * @param string|null $template
+     * @param array $vars
+     * @return mixed
+     */
+    public function render($template = null, $vars = [])
     {
-        $bundle = $bundle ?: $this->bundle;
-        $url = $url ?: $this->url;
+        $template = $template ?: $this->template;
         $vars = $vars ? array_merge($this->vars, $vars) : $this->vars;
 
-        list($bundle, $url) = $this->bundler->overrideTemplate($bundle, $url);
-
-        $template = $this->bundler->getService($bundle, 'view_router')->dispatch($url);
+        $template = $this->template_provider->handle($template);
 
         return $this->templating->render($template, $vars);
     }
 
     /**
-     * @return Bundler
+     * @return mixed
      */
-    public function getBundler()
-    {
-        return $this->bundler;
-    }
-
     public function getTemplating()
     {
         return $this->templating;
     }
 
-    public function getTemplateBundle()
+    /**
+     * @return string
+     */
+    public function getTemplate()
     {
-        return $this->bundle;
+        return $this->template;
     }
 
-    public function getTemplateUrl()
+    /**
+     * @param string $template
+     * @return $this
+     */
+    public function setTemplate($template)
     {
-        return $this->url;
-    }
-
-    public function setTemplate($bundle, $url)
-    {
-        $this->bundle = $bundle;
-        $this->url = $url;
-
-        return $this;
-    }
-
-    public function setTemplateBundle($bundle)
-    {
-        $this->bundle = $bundle;
-
-        return $this;
-    }
-
-    public function setTemplateUrl($url)
-    {
-        $this->url = $url;
+        $this->template = $template;
 
         return $this;
     }
