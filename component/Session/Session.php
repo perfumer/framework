@@ -61,8 +61,8 @@ class Session
      */
     public function set($key, $value)
     {
-        $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->getLifetime());
         $this->getCache()->getItem('_session/' . $this->id)->set(time() + $this->getLifetime(), $this->getLifetime());
+        $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->getLifetime());
 
         return $this;
     }
