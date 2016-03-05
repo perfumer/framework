@@ -10,14 +10,26 @@ class Session
     protected $id;
 
     /**
+     * @var array
+     */
+    protected $data;
+
+    /**
      * @var Pool
      */
     protected $pool;
 
+    /**
+     * Session constructor.
+     * @param string $id
+     * @param Pool $pool
+     */
     public function __construct($id, Pool $pool)
     {
         $this->id = $id;
         $this->pool = $pool;
+
+        $this->refresh();
     }
 
     /**
@@ -29,20 +41,18 @@ class Session
     }
 
     /**
-     * @param $key
-     * @param $default
+     * @param string $key
+     * @param mixed $default
      * @return mixed
      */
     public function get($key, $default = null)
     {
-        $item = $this->getCache()->getItem('_session/' . $this->id . '/' . $key);
-
-        return $item->isMiss() ? $default : $item->get();
+        return isset($this->data[$key]) ? $this->data[$key] : $default;
     }
 
     /**
-     * @param $key
-     * @param $default
+     * @param string $key
+     * @param mixed $default
      * @return mixed
      */
     public function getOnce($key, $default = null)
@@ -55,45 +65,73 @@ class Session
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
     public function set($key, $value)
     {
-        $this->getCache()->getItem('_session/' . $this->id)->set(time() + $this->getLifetime(), $this->getLifetime());
-        $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->set($value, $this->getLifetime());
+        $this->data[$key] = $value;
+
+        $this->persist();
 
         return $this;
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @return bool
      */
     public function has($key)
     {
-        return !$this->getCache()->getItem('_session/' . $this->id . '/' . $key)->isMiss();
+        return isset($this->data[$key]);
     }
 
     /**
-     * @param $key
+     * @param string $key
+     * @return $this
      */
     public function delete($key)
     {
-        $this->getCache()->getItem('_session/' . $this->id . '/' . $key)->clear();
+        if (isset($this->data[$key])) {
+            unset($this->data[$key]);
+
+            $this->persist();
+        }
+
+        return $this;
     }
 
     public function destroy()
     {
-        $this->getCache()->getItem('_session/' . $this->id)->clear();
+        $this->data = [];
+
+        $this->getCache()->clear();
     }
 
+    public function persist()
+    {
+        $this->getCache()->set($this->data, $this->getLifetime());
+    }
+
+    public function refresh()
+    {
+        $cache = $this->getCache();
+
+        $this->data = $cache->isMiss() ? [] : $cache->get();
+    }
+
+    /**
+     * @return \Stash\Pool
+     */
     public function getCache()
     {
-        return $this->pool->getCache();
+        return $this->pool->getCache()->getItem('_session/' . $this->id);
     }
 
+    /**
+     * @return int
+     */
     public function getLifetime()
     {
         return $this->pool->getLifetime();
