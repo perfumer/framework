@@ -218,7 +218,8 @@ class Authentication
 
                 $update_session = true;
             } else {
-                $_user = $session->get('_user');
+                $auth_data = $session->get('_auth', []);
+                $_user = isset($auth_data['_user']) ? $auth_data['_user'] : [];
 
                 if (!isset($_user['data']) || !isset($_user['data']['id'])) {
                     // This is anonymous user, but has some data in session
@@ -229,14 +230,16 @@ class Authentication
                     return;
                 } else {
                     if ($this->options['application']) {
-                        $_application = $session->get('_application');
+                        $_application = isset($auth_data['_application']) ? $auth_data['_application'] : [];
 
                         if (!isset($_application['data']) || !isset($_application['data']['id'])) {
                             throw new AuthException(self::STATUS_NO_APPLICATION);
                         }
                     }
 
-                    if(time() - $session->get('_updated_at') >= $this->options['update_gap']) {
+                    $_updated_at = isset($auth_data['_updated_at']) ? $auth_data['_updated_at'] : 0;
+
+                    if(time() - $_updated_at >= $this->options['update_gap']) {
                         $user = $this->retrieveUser($_user['data']['id']);
 
                         if (!$user) {
@@ -393,15 +396,18 @@ class Authentication
             $_user['role_ids'] = $this->user->getRoleIds();
         }
 
-        $this->session->set('_user', $_user)->set('_updated_at', time());
+        $_auth = [
+            '_user' => $_user,
+            '_updated_at' => time()
+        ];
 
         if ($this->options['application']) {
-            $_application = [
+            $_auth['_application'] = [
                 'data' => $this->application->toArray(TableMap::TYPE_FIELDNAME)
             ];
-
-            $this->session->set('_application', $_application);
         }
+
+        $this->session->set('_auth', $_auth);
     }
 
     /**
