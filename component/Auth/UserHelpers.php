@@ -45,14 +45,17 @@ trait UserHelpers
 
     public function isGranted($permissions)
     {
-        if (!$this->isLogged())
+        if (!$this->isLogged()) {
             return false;
+        }
 
-        if ($this->isAdmin())
+        if ($this->isAdmin()) {
             return true;
+        }
 
-        if (!is_array($permissions))
+        if (!is_array($permissions)) {
             $permissions = [$permissions];
+        }
 
         return (bool) array_intersect($this->permissions, $permissions);
     }
@@ -61,22 +64,22 @@ trait UserHelpers
     {
         $roles = $this->getRoles();
 
-        foreach ($roles as $role)
-        {
-            $permission = $role->getPermission();
-            $permission = explode('.', $permission);
+        foreach ($roles as $role) {
+            if ($permission = $role->getPermission()) {
+                $permission = explode('.', $permission);
 
-            for ($i = 1; $i <= count($permission); $i++)
-            {
-                $sub_permission = array_slice($permission, 0, $i);
-                $sub_permission = implode('.', $sub_permission);
+                for ($i = 1; $i <= count($permission); $i++) {
+                    $sub_permission = array_slice($permission, 0, $i);
+                    $sub_permission = implode('.', $sub_permission);
 
-                if (!in_array($sub_permission, $this->permissions))
-                    $this->permissions[] = $sub_permission;
+                    if (!in_array($sub_permission, $this->permissions)) {
+                        $this->permissions[] = $sub_permission;
+                    }
+                }
             }
         }
 
-        $this->role_ids = $roles->getPrimaryKeys();
+        $this->role_ids = $roles->getPrimaryKeys(false);
     }
 
     public function getRoleIds()
