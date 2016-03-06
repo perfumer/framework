@@ -134,17 +134,6 @@ return [
         ]]
     ],
 
-    'framework.view' => [
-        'class' => 'Perfumer\\Framework\\View\\TemplateView',
-        'arguments' => ['#twig', '#framework.view.template_provider']
-    ],
-
-    'framework.view.template_provider' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Framework\\View\\TemplateProvider\\TwigFilesystemProvider',
-        'arguments' => ['#twig.filesystem_loader', __DIR__ . '/../../view', 'framework']
-    ],
-
     'view.serialize' => [
         'class' => 'Perfumer\\Framework\\View\\SerializeView',
         'arguments' => ['json']
