@@ -143,5 +143,10 @@ return [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\View\\TemplateProvider\\TwigFilesystemProvider',
         'arguments' => ['#twig.filesystem_loader', __DIR__ . '/../../view', 'framework']
-    ]
+    ],
+
+    'view.serialize' => [
+        'class' => 'Perfumer\\Framework\\View\\SerializeView',
+        'arguments' => ['json']
+    ],
 ];

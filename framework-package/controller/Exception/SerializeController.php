@@ -3,6 +3,7 @@
 namespace Perfumer\FrameworkPackage\Controller\Exception;
 
 use Perfumer\Framework\Controller\SerializeController as BaseController;
+use Perfumer\Framework\View\SerializeView;
 
 class SerializeController extends BaseController
 {
@@ -52,5 +53,17 @@ class SerializeController extends BaseController
             $this->getExternalResponse()->setStatusCode(403);
 
         $this->setErrorMessage('You do not have enough rights to access this page.');
+    }
+
+    /**
+     * @return SerializeView
+     */
+    protected function getView()
+    {
+        if ($this->_view === null) {
+            $this->_view = $this->s('view.serialize');
+        }
+
+        return $this->_view;
     }
 }
