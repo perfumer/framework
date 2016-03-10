@@ -53,14 +53,31 @@ class Proxy
     protected $deferred = [];
 
     /**
+     * @var array
+     */
+    protected $options = [];
+
+    /**
+     * @var bool
+     */
+    protected $is_deferred_stage = false;
+
+    /**
      * Proxy constructor.
      * @param Container $container
+     * @param array $options
      */
-    public function __construct(Container $container)
+    public function __construct(Container $container, array $options = [])
     {
         $this->container = $container;
         $this->bundler = $container->get('bundler');
         $this->bundle_resolver = $container->get('bundle_resolver');
+
+        $default_options = [
+            'defer_as_execute' => false
+        ];
+
+        $this->options = array_merge($default_options, $options);
     }
 
     /**
@@ -109,6 +126,8 @@ class Proxy
 
         $this->external_router->sendResponse($response);
 
+        $this->is_deferred_stage = true;
+
         foreach ($this->deferred as $job) {
             $this->execute($job[0], $job[1], $job[2], $job[3]);
         }
@@ -133,10 +152,15 @@ class Proxy
      * @param string $resource
      * @param string $action
      * @param array $args
+     * @throws ProxyException
      * @throws ForwardException
      */
     public function forward($bundle, $resource, $action, array $args = [])
     {
+        if ($this->is_deferred_stage) {
+            throw new ProxyException('"Forward" method is not allowed in deferred stage of runtime.');
+        }
+
         $this->current_initial = null;
 
         $this->next = $this->initializeRequest($bundle, $resource, $action, $args);
@@ -149,13 +173,14 @@ class Proxy
      * @param string $resource
      * @param string $action
      * @param array $args
-     * @return $this
      */
     public function defer($bundle, $resource, $action, array $args = [])
     {
-        $this->deferred[] = [$bundle, $resource, $action, $args];
-
-        return $this;
+        if ($this->is_deferred_stage || $this->options['defer_as_execute'] === true) {
+            $this->execute($bundle, $resource, $action, $args);
+        } else {
+            $this->deferred[] = [$bundle, $resource, $action, $args];
+        }
     }
 
     /**
