@@ -74,7 +74,7 @@ class Proxy
         $this->bundle_resolver = $container->get('bundle_resolver');
 
         $default_options = [
-            'defer_as_execute' => false
+            'debug' => false
         ];
 
         $this->options = array_merge($default_options, $options);
@@ -124,12 +124,14 @@ class Proxy
 
         $response = $this->start();
 
-        $this->external_router->sendResponse($response);
+        if ($this->options['debug'] === true) {
+            $this->runDeferred();
 
-        $this->is_deferred_stage = true;
+            $this->external_router->sendResponse($response);
+        } else {
+            $this->external_router->sendResponse($response);
 
-        foreach ($this->deferred as $job) {
-            $this->execute($job[0], $job[1], $job[2], $job[3]);
+            $this->runDeferred();
         }
     }
 
@@ -176,7 +178,7 @@ class Proxy
      */
     public function defer($bundle, $resource, $action, array $args = [])
     {
-        if ($this->is_deferred_stage || $this->options['defer_as_execute'] === true) {
+        if ($this->is_deferred_stage) {
             $this->execute($bundle, $resource, $action, $args);
         } else {
             $this->deferred[] = [$bundle, $resource, $action, $args];
@@ -275,5 +277,14 @@ class Proxy
         }
 
         return $response;
+    }
+
+    protected function runDeferred()
+    {
+        $this->is_deferred_stage = true;
+
+        foreach ($this->deferred as $job) {
+            $this->execute($job[0], $job[1], $job[2], $job[3]);
+        }
     }
 }
