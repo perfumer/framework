@@ -20,8 +20,8 @@
         "psr-4": {
             "Perfumer\\Component\\": "component/",
             "Perfumer\\Framework\\": "framework/",
-            "Perfumer\\FrameworkPackage\\Controller\\": "framework-package/controller/",
-            "Perfumer\\FrameworkPackage\\Manifest\\": "framework-package/manifest/",
+            "Perfumer\\Package\\Controller\\": "package/controller/",
+            "Perfumer\\Package\\Manifest\\": "package/manifest/",
             "Perfumer\\Helper\\": "helper/"
         }
     },

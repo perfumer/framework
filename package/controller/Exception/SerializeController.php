@@ -1,10 +1,11 @@
 <?php
 
-namespace Perfumer\FrameworkPackage\Controller\Exception;
+namespace Perfumer\Package\Controller\Exception;
 
-use Perfumer\Framework\Controller\AbstractController;
+use Perfumer\Framework\Controller\SerializeController as BaseController;
+use Perfumer\Framework\View\SerializeView;
 
-class PlainController extends AbstractController
+class SerializeController extends BaseController
 {
     public function pageNotFound()
     {
@@ -12,7 +13,7 @@ class PlainController extends AbstractController
             $this->getExternalResponse()->setStatusCode(404);
         }
 
-        $this->getResponse()->setContent('Page not found');
+        $this->setErrorMessage('Page not found.');
     }
 
     public function controllerNotFound()
@@ -21,7 +22,7 @@ class PlainController extends AbstractController
             $this->getExternalResponse()->setStatusCode(404);
         }
 
-        $this->getResponse()->setContent('Controller not found');
+        $this->setErrorMessage('Controller not found.');
     }
 
     public function actionNotFound()
@@ -30,7 +31,7 @@ class PlainController extends AbstractController
             $this->getExternalResponse()->setStatusCode(404);
         }
 
-        $this->getResponse()->setContent('Action not found');
+        $this->setErrorMessage('Action not found.');
     }
 
     public function isLogged()
@@ -39,7 +40,7 @@ class PlainController extends AbstractController
             $this->getExternalResponse()->setStatusCode(403);
         }
 
-        $this->getResponse()->setContent('Access to this page is permitted to logged in users only.');
+        $this->setErrorMessage('Access to this page is permitted to logged in users only.');
     }
 
     public function isAdmin()
@@ -48,7 +49,7 @@ class PlainController extends AbstractController
             $this->getExternalResponse()->setStatusCode(403);
         }
 
-        $this->getResponse()->setContent('Access to this page is permitted to administrators only.');
+        $this->setErrorMessage('Access to this page is permitted to administrators only.');
     }
 
     public function isGranted()
@@ -57,14 +58,18 @@ class PlainController extends AbstractController
             $this->getExternalResponse()->setStatusCode(403);
         }
 
-        $this->getResponse()->setContent('You do not have enough rights to access this page.');
+        $this->setErrorMessage('You do not have enough rights to access this page.');
     }
 
-    protected function pageNotFoundException()
+    /**
+     * @return SerializeView
+     */
+    protected function getView()
     {
-    }
+        if ($this->_view === null) {
+            $this->_view = $this->s('view.serialize');
+        }
 
-    protected function actionNotFoundException()
-    {
+        return $this->_view;
     }
 }

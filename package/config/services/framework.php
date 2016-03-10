@@ -129,7 +129,7 @@ return [
     'framework.request' => [
         'class' => 'Perfumer\\Framework\\Proxy\\Request',
         'arguments' => ['$0', '$1', '$2', '$3', [
-            'prefix' => 'Perfumer\\FrameworkPackage\\Controller',
+            'prefix' => 'Perfumer\\Package\\Controller',
             'suffix' => 'Controller'
         ]]
     ],

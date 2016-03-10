@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\FrameworkPackage\Manifest;
+namespace Perfumer\Package\Manifest;
 
 use Perfumer\Framework\Bundle\AbstractManifest;
 
-class FrameworkBundleManifest extends AbstractManifest
+class FrameworkManifest extends AbstractManifest
 {
     public function getName()
     {
