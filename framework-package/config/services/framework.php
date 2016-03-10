@@ -8,14 +8,14 @@ return [
     ],
 
     // Requesting
-    'bundle.http_router' => [
+    'bundle.http_resolver' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\BundleRouter\\HttpRouter'
+        'class' => 'Perfumer\\Framework\\Bundle\\Resolver\\HttpResolver'
     ],
 
-    'bundle.console_router' => [
+    'bundle.console_resolver' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\BundleRouter\\ConsoleRouter'
+        'class' => 'Perfumer\\Framework\\Bundle\\Resolver\\ConsoleResolver'
     ],
 
     'proxy' => [
