@@ -63,14 +63,6 @@ abstract class AbstractController implements ControllerInterface
     {
         $current = $this->getCurrent();
 
-        if ($current->isMain() && !in_array($current->getAction(), $this->getAllowedMethods())) {
-            $this->actionNotFoundException();
-        }
-
-        if (!method_exists($this, $current->getAction())) {
-            $this->actionNotFoundException();
-        }
-
         $this->before();
 
         $action = $current->getAction();
@@ -94,18 +86,9 @@ abstract class AbstractController implements ControllerInterface
     {
     }
 
-    abstract protected function pageNotFoundException();
-
-    abstract protected function actionNotFoundException();
-
-    /**
-     * @return array
-     *
-     * Array of actions available for main request
-     */
-    protected function getAllowedMethods()
+    protected function pageNotFoundException()
     {
-        return ['get', 'post', 'head', 'options', 'action'];
+        $this->getProxy()->pageNotFoundException();
     }
 
     /**

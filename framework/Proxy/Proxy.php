@@ -204,6 +204,13 @@ class Proxy
         }
     }
 
+    public function pageNotFoundException()
+    {
+        $controller_not_found = $this->external_router->getNotFoundAttributes();
+
+        $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
+    }
+
     /**
      * @return Response
      */
@@ -251,6 +258,14 @@ class Proxy
             $request->setInitial($this->current_initial);
         }
 
+        if ($request->isMain() && !in_array($request->getAction(), $this->external_router->getAllowedActions())) {
+            $this->pageNotFoundException();
+        }
+
+        if (!$request->isMain() && in_array($request->getAction(), $this->external_router->getAllowedActions())) {
+            throw new ProxyException('Action "' . $request->getAction() . '" is reserved by router for external requests, so can not be used for internal requests.');
+        }
+
         $controller_class = $request->getController();
 
         if ($this->container->has($controller_class)) {
@@ -260,12 +275,17 @@ class Proxy
                 $reflection_class = new \ReflectionClass($request->getController());
 
                 $controller = $reflection_class->newInstance($this->container, $request, $reflection_class);
+
+                if (!method_exists($controller, $request->getAction())) {
+                    if ($request->isMain()) {
+                        $this->pageNotFoundException();
+                    } else {
+                        throw new ProxyException('Action "' . $request->getAction() . '" not found in controller "' . $controller_class . '".');
+                    }
+                }
             } catch (\ReflectionException $e) {
-                $controller_not_found = $this->external_router->getControllerNotFound();
-
-                $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
+                $this->pageNotFoundException();
             }
-
         }
 
         /** @var ControllerInterface $controller */
