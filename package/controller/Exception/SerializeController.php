@@ -25,15 +25,6 @@ class SerializeController extends BaseController
         $this->setErrorMessage('Controller not found.');
     }
 
-    public function actionNotFound()
-    {
-        if ($this->getExternalRouter()->isHttp()) {
-            $this->getExternalResponse()->setStatusCode(404);
-        }
-
-        $this->setErrorMessage('Action not found.');
-    }
-
     public function isLogged()
     {
         if ($this->getExternalRouter()->isHttp()) {

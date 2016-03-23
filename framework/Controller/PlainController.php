@@ -8,9 +8,4 @@ class PlainController extends AbstractController
     {
         $this->getProxy()->forward('framework', 'exception/plain', 'pageNotFound');
     }
-
-    protected function actionNotFoundException()
-    {
-        $this->getProxy()->forward('framework', 'exception/plain', 'actionNotFound');
-    }
 }
