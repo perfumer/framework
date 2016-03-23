@@ -33,17 +33,40 @@ class HttpRouter implements RouterInterface
             'default_url' => 'home',
             'prefixes' => [],
             'prefix_options' => [],
-            'controller_not_found' => ['framework', 'exception/template', 'controllerNotFound']
+            'allowed_actions' => ['get', 'post', 'head', 'options'],
+            'not_found_attributes' => ['framework', 'exception/template', 'controllerNotFound']
         ];
 
         $this->options = array_merge($default_options, $options);
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return 'http_router';
     }
 
+    /**
+     * @return array
+     */
+    public function getAllowedActions()
+    {
+        return $this->options['allowed_actions'];
+    }
+
+    /**
+     * @return array
+     */
+    public function getNotFoundAttributes()
+    {
+        return $this->options['not_found_attributes'];
+    }
+
+    /**
+     * @return bool
+     */
     public function isHttp()
     {
         return true;
@@ -151,11 +174,6 @@ class HttpRouter implements RouterInterface
         }
 
         return [$url, $action, []];
-    }
-
-    public function getControllerNotFound()
-    {
-        return $this->options['controller_not_found'];
     }
 
     public function getExternalResponse()

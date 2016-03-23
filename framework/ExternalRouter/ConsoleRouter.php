@@ -34,7 +34,8 @@ class ConsoleRouter implements RouterInterface
     public function __construct($settings = [])
     {
         $default_settings = [
-            'controller_not_found' => ['framework', 'exception/template', 'controllerNotFound']
+            'allowed_actions' => ['action'],
+            'not_found_attributes' => ['framework', 'exception/template', 'controllerNotFound']
         ];
 
         $this->settings = array_merge($default_settings, $settings);
@@ -46,6 +47,22 @@ class ConsoleRouter implements RouterInterface
     public function getName()
     {
         return 'console_router';
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllowedActions()
+    {
+        return $this->options['allowed_actions'];
+    }
+
+    /**
+     * @return array
+     */
+    public function getNotFoundAttributes()
+    {
+        return $this->options['not_found_attributes'];
     }
 
     /**
