@@ -56,11 +56,11 @@ class Bundler
             $this->manifests[$manifest->getName()] = $manifest;
 
             foreach ($manifest->getServices() as $file) {
-                $this->container->registerServiceMap($file);
+                $this->container->addServicesFromFile($file);
             }
 
             foreach ($manifest->getStorages() as $storage) {
-                $this->container->registerStorage($storage, $this->container->get($storage));
+                $this->container->addStorage($storage, $this->container->get($storage));
             }
 
             $file_storage = $this->container->getFileStorage();

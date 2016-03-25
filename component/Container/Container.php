@@ -15,13 +15,13 @@ class Container implements ContainerInterface
      * @var array
      * Service definitions array
      */
-    protected $service_map = [];
+    protected $services = [];
 
     /**
      * @var array
      * Shared service objects
      */
-    protected $services = [];
+    protected $shared = [];
 
     /**
      * @var array
@@ -40,8 +40,8 @@ class Container implements ContainerInterface
      */
     public function __construct()
     {
-        $this->storages['default'] = new DefaultStorage();
-        $this->storages['file'] = new FileStorage();
+        $this->addStorage('default', new DefaultStorage());
+        $this->addStorage('file', new FileStorage());
     }
 
     /**
@@ -58,15 +58,15 @@ class Container implements ContainerInterface
     public function get($name, array $parameters = [])
     {
         // Shared services are preserved through whole request
-        if (isset($this->services[$name])) {
-            return $this->services[$name];
+        if (isset($this->shared[$name])) {
+            return $this->shared[$name];
         }
 
         if (!$this->has($name)) {
             throw new ContainerException('No definition found for service "' . $name . '".');
         }
 
-        $definition = $this->service_map[$name];
+        $definition = $this->services[$name];
 
         // Alias is a link to another definition
         if (isset($definition['alias'])) {
@@ -110,7 +110,7 @@ class Container implements ContainerInterface
 
         // Preserve shared service
         if (isset($definition['shared']) && $definition['shared'] === true) {
-            $this->services[$name] = $service_class;
+            $this->shared[$name] = $service_class;
         }
 
         return $service_class;
@@ -122,7 +122,7 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        return isset($this->service_map[$id]);
+        return isset($this->services[$id]);
     }
 
     /**
@@ -142,19 +142,31 @@ class Container implements ContainerInterface
     }
 
     /**
-     * registerServiceMap
+     * addServices
+     * Register files containing service definitions.
+     *
+     * @param array $services
+     * @return $this
+     */
+    public function addServices($services)
+    {
+        $this->services = array_merge($this->services, $services);
+
+        return $this;
+    }
+
+    /**
+     * addServicesFromFile
      * Register files containing service definitions.
      *
      * @param string $file
      * @return $this
      */
-    public function registerServiceMap($file)
+    public function addServicesFromFile($file)
     {
-        $service_map = require $file;
+        $services = require $file;
 
-        $this->service_map = array_merge($this->service_map, $service_map);
-
-        return $this;
+        return $this->addServices($services);
     }
 
     /**
@@ -162,22 +174,22 @@ class Container implements ContainerInterface
      * @param $service
      * @return $this
      */
-    public function registerService($name, $service)
+    public function registerSharedService($name, $service)
     {
-        $this->services[$name] = $service;
+        $this->shared[$name] = $service;
 
         return $this;
     }
 
     /**
-     * registerStorage
+     * addStorage
      * Register storage services.
      *
      * @param $name
      * @param StorageInterface $storage
      * @return $this
      */
-    public function registerStorage($name, StorageInterface $storage)
+    public function addStorage($name, StorageInterface $storage)
     {
         $this->storages[$name] = $storage;
 
@@ -188,7 +200,7 @@ class Container implements ContainerInterface
      * @param $name
      * @return $this
      */
-    public function unregisterStorage($name)
+    public function deleteStorage($name)
     {
         unset($this->storages[$name]);
 
