@@ -13,22 +13,6 @@ abstract class AbstractManifest
     /**
      * @return array
      */
-    public function getServices()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
-    public function getServiceFiles()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
     public function getStorages()
     {
         return [];
@@ -37,7 +21,31 @@ abstract class AbstractManifest
     /**
      * @return array
      */
-    public function getParameterFiles()
+    public function getDefinitions()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefinitionFiles()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getParams()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getParamFiles()
     {
         return [];
     }

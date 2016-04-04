@@ -3,6 +3,7 @@
 namespace Perfumer\Framework\Bundle;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Component\Container\Storage\ArrayStorage;
 use Perfumer\Framework\Bundle\Exception\BundleException;
 
 class Bundler
@@ -55,22 +56,23 @@ class Bundler
 
             $this->manifests[$manifest->getName()] = $manifest;
 
-            foreach ($manifest->getServices() as $services) {
-                $this->container->addServices($services);
+            foreach ($manifest->getDefinitions() as $services) {
+                $this->container->addDefinitions($services);
             }
 
-            foreach ($manifest->getServiceFiles() as $file) {
-                $this->container->addServicesFromFile($file);
+            foreach ($manifest->getDefinitionFiles() as $file) {
+                $this->container->addDefinitionsFromFile($file);
             }
 
             foreach ($manifest->getStorages() as $storage) {
-                $this->container->addStorage($storage, $this->container->get($storage));
+                $this->container->registerStorage($storage, $this->container->get($storage));
             }
 
-            $file_storage = $this->container->getFileStorage();
+            /** @var ArrayStorage $file_storage */
+            $file_storage = $this->container->getStorage('array');
 
-            foreach ($manifest->getParameterFiles() as $file) {
-                $file_storage->registerFile($file);
+            foreach ($manifest->getParamFiles() as $file) {
+                $file_storage->addParamsFromFile($file);
             }
 
             foreach ($manifest->getControllerOverrides() as $key => $value) {

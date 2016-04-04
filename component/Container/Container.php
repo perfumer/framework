@@ -4,44 +4,37 @@ namespace Perfumer\Component\Container;
 
 use Interop\Container\ContainerInterface;
 use Perfumer\Component\Container\Exception\ContainerException;
-use Perfumer\Component\Container\Storage\DefaultStorage;
-use Perfumer\Component\Container\Storage\FileStorage;
-use Perfumer\Component\Container\Storage\StorageInterface;
-use Perfumer\Helper\Arr;
+use Perfumer\Component\Container\Storage\ArrayStorage;
+use Perfumer\Component\Container\Storage\AbstractStorage;
 
 class Container implements ContainerInterface
 {
     /**
      * @var array
-     * Service definitions array
      */
-    protected $services = [];
+    protected $definitions = [];
 
     /**
      * @var array
-     * Shared service objects
      */
     protected $shared = [];
 
     /**
      * @var array
-     * Storage services
      */
     protected $storages = [];
 
     /**
-     * @var array
-     * Parameters array, divided to groups
+     * @var string
      */
-    protected $params = [];
+    protected $default_storage;
 
     /**
      * Container constructor.
      */
     public function __construct()
     {
-        $this->addStorage('default', new DefaultStorage());
-        $this->addStorage('file', new FileStorage());
+        $this->registerStorage('array', new ArrayStorage(), true);
     }
 
     /**
@@ -66,7 +59,7 @@ class Container implements ContainerInterface
             throw new ContainerException('No definition found for service "' . $name . '".');
         }
 
-        $definition = $this->services[$name];
+        $definition = $this->definitions[$name];
 
         // Alias is a link to another definition
         if (isset($definition['alias'])) {
@@ -122,95 +115,113 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        return isset($this->services[$id]);
+        return isset($this->definitions[$id]);
     }
 
     /**
-     * @return DefaultStorage
+     * @param string $name
+     * @param AbstractStorage $storage
+     * @param boolean $default
+     * @return $this
+     */
+    public function registerStorage($name, AbstractStorage $storage, $default = false)
+    {
+        $this->storages[$name] = $storage;
+
+        if ($default) {
+            $this->default_storage = $name;
+        }
+    }
+
+    /**
+     * @param string $name
+     * @throws ContainerException
+     */
+    public function unregisterStorage($name)
+    {
+        if (!isset($this->storages[$name])) {
+            throw new ContainerException('Storage "' . $name . '" is not registered.');
+        }
+
+        unset($this->storages[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return AbstractStorage
+     * @throws ContainerException
+     */
+    public function getStorage($name)
+    {
+        if (!isset($this->storages[$name])) {
+            throw new ContainerException('Storage "' . $name . '" is not registered.');
+        }
+
+        return $this->storages[$name];
+    }
+
+    /**
+     * @param string $name
+     * @return boolean
+     */
+    public function hasStorage($name)
+    {
+        return isset($this->storages[$name]);
+    }
+
+    /**
+     * @return string
      */
     public function getDefaultStorage()
     {
-        return $this->storages['default'];
+        return $this->default_storage;
     }
 
     /**
-     * @return FileStorage
+     * @param string $name
+     * @throws ContainerException
      */
-    public function getFileStorage()
+    public function setDefaultStorage($name)
     {
-        return $this->storages['file'];
+        if (!isset($this->storages[$name])) {
+            throw new ContainerException('Storage "' . $name . '" is not registered.');
+        }
+
+        $this->default_storage = $name;
     }
 
     /**
-     * addServices
-     * Register files containing service definitions.
-     *
-     * @param array $services
+     * @param array $definitions
      * @return $this
      */
-    public function addServices($services)
+    public function addDefinitions($definitions)
     {
-        $this->services = array_merge($this->services, $services);
+        $this->definitions = array_merge($this->definitions, $definitions);
 
         return $this;
     }
 
     /**
-     * addServicesFromFile
-     * Register files containing service definitions.
-     *
      * @param string $file
      * @return $this
      */
-    public function addServicesFromFile($file)
+    public function addDefinitionsFromFile($file)
     {
-        $services = require $file;
+        $definitions = require $file;
 
-        return $this->addServices($services);
+        return $this->addDefinitions($definitions);
     }
 
     /**
-     * @param $name
-     * @param $service
-     * @return $this
+     * @param string $name
+     * @param mixed $service
      */
     public function registerSharedService($name, $service)
     {
         $this->shared[$name] = $service;
-
-        return $this;
     }
 
     /**
-     * addStorage
-     * Register storage services.
-     *
-     * @param $name
-     * @param StorageInterface $storage
-     * @return $this
-     */
-    public function addStorage($name, StorageInterface $storage)
-    {
-        $this->storages[$name] = $storage;
-
-        return $this;
-    }
-
-    /**
-     * @param $name
-     * @return $this
-     */
-    public function deleteStorage($name)
-    {
-        unset($this->storages[$name]);
-
-        return $this;
-    }
-
-    /**
-     * resolveArrayOfArguments
-     * Getting array of values which replaced placeholders in the array of arguments in the service definition.
-     *
      * @param array $array
      * @param array $parameters
      * @return array
@@ -248,30 +259,6 @@ class Container implements ContainerInterface
     }
 
     /**
-     * getParamGroup
-     * Get array with whole group of parameters.
-     *
-     * @param string $group
-     * @return array
-     * @access public
-     */
-    public function getParamGroup($group)
-    {
-        if (!isset($this->params[$group])) {
-            $this->loadGroup($group);
-        }
-
-        if (!isset($this->params[$group])) {
-            $this->params[$group] = [];
-        }
-
-        return $this->params[$group];
-    }
-
-    /**
-     * getParam
-     * Get parameter by key string
-     *
      * @param string $key
      * @param mixed $default
      * @return mixed
@@ -279,128 +266,12 @@ class Container implements ContainerInterface
      */
     public function getParam($key, $default = null)
     {
-        list($group, $name) = $this->extractParamKey($key);
+        list($storage, $group, $name) = $this->extractParamKey($key);
 
-        if (!isset($this->params[$group])) {
-            $this->loadGroup($group);
-        }
-
-        if (!isset($this->params[$group])) {
-            $this->params[$group] = [];
-        }
-
-        return isset($this->params[$group][$name]) ? $this->params[$group][$name] : $default;
+        return $this->getStorage($storage)->getParam($group, $name, $default);
     }
 
     /**
-     * loadGroup
-     * Load group of parameters from storage to Container
-     *
-     * @param string $group
-     * @return void
-     * @access protected
-     */
-    protected function loadGroup($group)
-    {
-        foreach ($this->storages as $storage) {
-            $param_group = $storage->getParamGroup($group);
-
-            if ($param_group) {
-                $this->params[$group] = $param_group;
-                return;
-            }
-        }
-    }
-
-    /**
-     * setParamGroup
-     * Save a bunch of parameters.
-     *
-     * @param string $group
-     * @param array $values
-     * @param string $storage - to which storage save the group
-     * @return boolean
-     * @access public
-     */
-    public function setParamGroup($group, array $values, $storage = 'default')
-    {
-        $saved = $this->storages[$storage]->setParamGroup($group, $values);
-
-        if ($saved && isset($this->params[$group])) {
-            $this->params[$group] = $values;
-        }
-
-        return $saved;
-    }
-
-    /**
-     * @param $group
-     * @param array $values
-     * @param string $storage
-     * @return mixed
-     */
-    public function addParamGroup($group, array $values, $storage = 'default')
-    {
-        $saved = $this->storages[$storage]->addParamGroup($group, $values);
-
-        if ($saved && isset($this->params[$group])) {
-            $this->params[$group] = array_merge($this->params[$group], $values);
-        }
-
-        return $saved;
-    }
-
-    /**
-     * @param $group
-     * @param array $keys
-     * @param string $storage
-     * @return mixed
-     */
-    public function deleteParamGroup($group, array $keys = [], $storage = 'default')
-    {
-        $deleted = $this->storages[$storage]->deleteParamGroup($group, $keys);
-
-        if ($deleted && isset($this->params[$group])) {
-            if ($keys) {
-                $this->params[$group] = Arr::deleteKeys($this->params[$group], $keys);
-            } else {
-                unset($this->params[$group]);
-            }
-        }
-
-        return $deleted;
-    }
-
-    /**
-     * setParam
-     * Save one parameter
-     *
-     * @param string $key
-     * @param mixed $value
-     * @param string $storage - to which storage save the parameter
-     * @return boolean
-     * @access public
-     */
-    public function setParam($key, $value, $storage = 'default')
-    {
-        list($group, $name) = $this->extractParamKey($key);
-
-        $saved = $this->storages[$storage]->setParam($group, $name, $value);
-
-        if ($saved && isset($this->params[$group])) {
-            $this->params[$group][$name] = $value;
-        }
-
-        return $saved;
-    }
-
-    /**
-     * extractParamKey
-     * Divide string containing name of the group and parameter to two parts.
-     *
-     * @example extractParamKey('db/name') -> ['db', 'name']
-     * @example extractParamKey('db/') -> ['db', '']
-     * @example extractParamKey('name') -> exception
      * @param string $key
      * @return array
      * @access protected
@@ -408,14 +279,18 @@ class Container implements ContainerInterface
      */
     protected function extractParamKey($key)
     {
-        $parts = explode('/', $key, 2);
+        $parts = explode('/', (string) $key, 3);
 
         if (!$parts[0]) {
-            throw new ContainerException('Parameter group can not be empty.');
+            throw new ContainerException('Parameter group in "' . $key . '" can not be empty.');
         }
 
-        if ($parts[1] === null) {
-            throw new ContainerException('Parameter name can not be null.');
+        if (!isset($parts[1]) || !$parts[1] || (isset($parts[2]) && !$parts[2])) {
+            throw new ContainerException('Parameter name in "' . $key . '" can not be empty.');
+        }
+
+        if (count($parts) == 2) {
+            array_unshift($parts, $this->default_storage);
         }
 
         return $parts;
