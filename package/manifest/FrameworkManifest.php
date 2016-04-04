@@ -16,7 +16,7 @@ class FrameworkManifest extends AbstractManifest
         return 'Perfumer framework bundle manifest';
     }
 
-    public function getServices()
+    public function getDefinitionFiles()
     {
         return [
             __DIR__ . '/../config/services/framework.php',
