@@ -23,6 +23,13 @@ class FrameworkManifest extends AbstractManifest
         ];
     }
 
+    public function getParamFiles()
+    {
+        return [
+            __DIR__ . '/../config/params/framework.php',
+        ];
+    }
+
     public function getAliases()
     {
         return [

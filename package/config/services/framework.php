@@ -138,4 +138,32 @@ return [
         'class' => 'Perfumer\\Framework\\View\\SerializeView',
         'arguments' => ['json']
     ],
+
+    // Propel ORM
+    'propel.service_container' => [
+        'shared' => true,
+        'class' => 'Propel\\Runtime\\Propel',
+        'static' => 'getServiceContainer',
+        'after' => function(\Perfumer\Component\Container\Container $container, $service_container) {
+            $project = $container->getParam('propel/project');
+            $database = $container->getParam('propel/database');
+            $connection_manager = $container->get('propel.connection_manager');
+            $service_container->setAdapterClass($project, $database);
+            $service_container->setConnectionManager($project, $connection_manager);
+        }
+    ],
+
+    'propel.connection_manager' => [
+        'class' => 'Propel\\Runtime\\Connection\\ConnectionManagerSingle',
+        'after' => function(\Perfumer\Component\Container\Container $container, \Propel\Runtime\Connection\ConnectionManagerSingle $connection_manager) {
+            $connection_manager->setConfiguration([
+                'dsn' => $container->getParam('propel/dsn'),
+                'user' => $container->getParam('propel/db_user'),
+                'password' => $container->getParam('propel/db_password'),
+                'settings' => [
+                    'charset' => 'utf8',
+                ]
+            ]);
+        }
+    ],
 ];
