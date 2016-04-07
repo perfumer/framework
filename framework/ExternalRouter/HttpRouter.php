@@ -2,6 +2,7 @@
 
 namespace Perfumer\Framework\ExternalRouter;
 
+use Perfumer\Framework\Bundle\Resolver\HttpResolver;
 use Perfumer\Helper\Arr;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Response;
@@ -9,6 +10,11 @@ use Symfony\Component\HttpFoundation\Response as ExternalResponse;
 
 class HttpRouter implements RouterInterface
 {
+    /**
+     * @var HttpResolver
+     */
+    protected $bundle_resolver;
+
     /**
      * @var ExternalResponse
      */
@@ -24,8 +30,10 @@ class HttpRouter implements RouterInterface
     protected $http_query = [];
     protected $http_args = [];
 
-    public function __construct($options = [])
+    public function __construct(HttpResolver $bundle_resolver, $options = [])
     {
+        $this->bundle_resolver = $bundle_resolver;
+
         $default_options = [
             'auto_null' => true,
             'auto_trim' => true,
@@ -178,8 +186,9 @@ class HttpRouter implements RouterInterface
 
     public function getExternalResponse()
     {
-        if ($this->response === null)
+        if ($this->response === null) {
             $this->response = new ExternalResponse();
+        }
 
         return $this->response;
     }
@@ -193,37 +202,38 @@ class HttpRouter implements RouterInterface
     {
         $generated_url = trim($url, '/');
 
-        if ($generated_url)
+        if ($generated_url) {
             $generated_url = '/' . $generated_url;
+        }
 
-        if ($this->options['prefixes'])
-        {
-            if ($prefixes)
-            {
+        if ($this->options['prefixes']) {
+            if ($prefixes) {
                 $prefixes = Arr::fetch($prefixes, $this->options['prefixes']);
                 $prefixes = array_merge($this->getPrefix(), $prefixes);
-            }
-            else
-            {
+            } else {
                 $prefixes = $this->getPrefix();
             }
 
             $generated_url = '/' . implode('/', $prefixes) . $generated_url;
         }
 
-        if ($id)
+        if ($id) {
             $generated_url .= is_array($id) ? '-' . implode('/', $id) : '-' . $id;
-
-        if ($query)
-        {
-            $query_string = http_build_query($query, '', '&');
-
-            if ($query_string)
-                $generated_url .= '?' . $query_string;
         }
 
-        if (!$generated_url)
+        if ($query) {
+            $query_string = http_build_query($query, '', '&');
+
+            if ($query_string) {
+                $generated_url .= '?' . $query_string;
+            }
+        }
+
+        $generated_url = $this->bundle_resolver->getPrefix() . $generated_url;
+
+        if (!$generated_url) {
             $generated_url = '/';
+        }
 
         return $generated_url;
     }
@@ -235,16 +245,18 @@ class HttpRouter implements RouterInterface
 
     public function getPrefix($name = null, $default = null)
     {
-        if ($name === null)
+        if ($name === null) {
             return $this->http_prefixes;
+        }
 
         return isset($this->http_prefixes[$name]) ? $this->http_prefixes[$name] : $default;
     }
 
     public function setPrefix($name, $value)
     {
-        if (!in_array($name, $this->options['prefixes']))
+        if (!in_array($name, $this->options['prefixes'])) {
             throw new ProxyException('Prefix "' . $name . '" is not registered in configuration');
+        }
 
         $this->http_prefixes[$name] = $value;
 
