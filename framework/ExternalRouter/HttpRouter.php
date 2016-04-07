@@ -27,6 +27,7 @@ class HttpRouter implements RouterInterface
     protected $http_prefixes = [];
     protected $http_id;
     protected $http_id_array;
+    protected $http_fields = [];
     protected $http_query = [];
     protected $http_args = [];
 
@@ -80,54 +81,48 @@ class HttpRouter implements RouterInterface
         return true;
     }
 
+    /**
+     * @return array
+     */
     public function dispatch()
     {
         $action = strtolower($_SERVER['REQUEST_METHOD']);
 
-        if ($prefixes = $this->options['prefixes'])
-        {
+        if ($prefixes = $this->options['prefixes']) {
             $this->http_prefixes = array_fill_keys($prefixes, null);
 
             $prefix_options = $this->options['prefix_options'];
 
-            if (is_array($prefix_options))
-            {
-                foreach ($prefixes as $prefix)
-                {
-                    if (isset($prefix_options[$prefix]['default_value']))
+            if (is_array($prefix_options)) {
+                foreach ($prefixes as $prefix) {
+                    if (isset($prefix_options[$prefix]['default_value'])) {
                         $this->http_prefixes[$prefix] = $prefix_options[$prefix]['default_value'];
+                    }
                 }
             }
         }
 
-        if ($_SERVER['PATH_INFO'] == '/')
-        {
+        if ($_SERVER['PATH_INFO'] == '/') {
             $url = $this->options['default_url'];
-        }
-        else
-        {
+        } else {
             $url = trim($_SERVER['PATH_INFO'], '/');
             $hyphen_pos = strpos($url, '-');
 
-            if ($hyphen_pos !== false)
-            {
+            if ($hyphen_pos !== false) {
                 $this->http_id = substr($url, $hyphen_pos + 1);
                 $url = substr($url, 0, $hyphen_pos);
             }
 
-            if ($prefixes = $this->options['prefixes'])
-            {
+            if ($prefixes = $this->options['prefixes']) {
                 $url = explode('/', $url);
 
                 $prefix_options = $this->options['prefix_options'];
 
-                while ($prefixes && $url)
-                {
+                while ($prefixes && $url) {
                     $one_prefix = array_shift($prefixes);
                     $one_url = $url[0];
 
-                    if ($this->validateUrlPartForPrefix($one_prefix, $one_url, $prefix_options))
-                    {
+                    if ($this->validateUrlPartForPrefix($one_prefix, $one_url, $prefix_options)) {
                         $this->http_prefixes[$one_prefix] = $one_url;
 
                         array_shift($url);
@@ -143,10 +138,8 @@ class HttpRouter implements RouterInterface
         $data_type = $this->options['data_type'];
 
         // Get query parameters and args depending from type of data in the http request body
-        if ($data_type == 'query_string')
-        {
-            switch ($action)
-            {
+        if ($data_type == 'query_string') {
+            switch ($action) {
                 case 'get':
                     $this->http_query = $_GET;
                     break;
@@ -159,31 +152,33 @@ class HttpRouter implements RouterInterface
                     parse_str($this->getInput(), $this->http_args);
                     break;
             }
-        }
-        else if ($data_type == 'json')
-        {
+        } else if ($data_type == 'json') {
             $this->http_query = $_GET;
             $this->http_args = $this->getInput() ? json_decode($this->getInput(), true) : [];
 
-            if (!is_array($this->http_args))
+            if (!is_array($this->http_args)) {
                 $this->http_args = [];
+            }
         }
 
         // Trim all args if auto_trim setting enabled
-        if ($this->options['auto_trim'])
-        {
+        if ($this->options['auto_trim']) {
             $this->http_args = Arr::trim($this->http_args);
         }
 
         // Convert empty strings to null values if auto_null setting enabled
-        if ($this->options['auto_null'])
-        {
+        if ($this->options['auto_null']) {
             $this->http_args = Arr::convertValues($this->http_args, '', null);
         }
+
+        $this->http_fields = array_merge($this->http_query, $this->http_args);
 
         return [$url, $action, []];
     }
 
+    /**
+     * @return ExternalResponse
+     */
     public function getExternalResponse()
     {
         if ($this->response === null) {
@@ -193,11 +188,21 @@ class HttpRouter implements RouterInterface
         return $this->response;
     }
 
+    /**
+     * @param Response $response
+     */
     public function sendResponse(Response $response)
     {
         $this->getExternalResponse()->setContent($response->getContent())->send();
     }
 
+    /**
+     * @param string $url
+     * @param mixed $id
+     * @param array $query
+     * @param array $prefixes
+     * @return string
+     */
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])
     {
         $generated_url = trim($url, '/');
@@ -238,11 +243,19 @@ class HttpRouter implements RouterInterface
         return $generated_url;
     }
 
+    /**
+     * @return string
+     */
     public function getInput()
     {
         return $this->input;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
     public function getPrefix($name = null, $default = null)
     {
         if ($name === null) {
@@ -252,6 +265,12 @@ class HttpRouter implements RouterInterface
         return isset($this->http_prefixes[$name]) ? $this->http_prefixes[$name] : $default;
     }
 
+    /**
+     * @param string $name
+     * @param string $value
+     * @return $this
+     * @throws ProxyException
+     */
     public function setPrefix($name, $value)
     {
         if (!in_array($name, $this->options['prefixes'])) {
@@ -263,27 +282,36 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param int|null $index
+     * @return mixed
+     */
     public function getId($index = null)
     {
-        if ($index === null)
+        if ($index === null) {
             return $this->http_id;
+        }
 
-        if ($this->http_id_array === null)
+        if ($this->http_id_array === null) {
             $this->http_id_array = explode('/', $this->http_id);
+        }
 
         return isset($this->http_id_array[$index]) ? $this->http_id_array[$index] : null;
     }
 
+    /**
+     * @param mixed $id
+     * @param int|null $index
+     * @return $this
+     */
     public function setId($id, $index = null)
     {
-        if ($index === null)
-        {
+        if ($index === null) {
             $this->http_id = $id;
-        }
-        else
-        {
-            if ($this->http_id_array === null)
+        } else {
+            if ($this->http_id_array === null) {
                 $this->http_id_array = explode('/', $this->http_id);
+            }
 
             $this->http_id_array[$index] = $id;
         }
@@ -291,19 +319,69 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param string|array|null $keys
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getFields($keys = null, $default = null)
+    {
+        if ($keys === null) {
+            return $this->http_fields;
+        } elseif (is_array($keys)) {
+            return Arr::fetch($this->http_fields, $keys, true, $default);
+        } else {
+            return isset($this->http_fields[$keys]) ? $this->http_fields[$keys] : $default;
+        }
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     */
+    public function setField($key, $value)
+    {
+        $this->http_fields[$key] = $value;
+    }
+
+    /**
+     * @param array $fields
+     */
+    public function setFields(array $fields)
+    {
+        $this->http_fields = array_merge($this->http_fields, $fields);
+    }
+
+    /**
+     * @param null $name
+     * @param null $default
+     * @return array|null
+     * @deprecated
+     */
     public function getArg($name = null, $default = null)
     {
-        if ($name === null)
+        if ($name === null) {
             return $this->http_args;
+        }
 
         return isset($this->http_args[$name]) ? $this->http_args[$name] : $default;
     }
 
+    /**
+     * @return bool
+     * @deprecated
+     */
     public function hasArgs()
     {
         return count($this->http_args) > 0;
     }
 
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     * @deprecated
+     */
     public function setArg($name, $value)
     {
         $this->http_args[$name] = $value;
@@ -311,6 +389,11 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param $array
+     * @return $this
+     * @deprecated
+     */
     public function setArgsArray($array)
     {
         $this->http_args = $array;
@@ -318,6 +401,11 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param $array
+     * @return $this
+     * @deprecated
+     */
     public function addArgsArray($array)
     {
         $this->http_args = array_merge($this->http_args, $array);
@@ -325,6 +413,11 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param array $keys
+     * @return $this
+     * @deprecated
+     */
     public function deleteArgs(array $keys = [])
     {
         if ($keys)
@@ -343,6 +436,12 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param null $name
+     * @param null $default
+     * @return array|null
+     * @deprecated
+     */
     public function getQuery($name = null, $default = null)
     {
         if ($name === null)
@@ -351,11 +450,21 @@ class HttpRouter implements RouterInterface
         return isset($this->http_query[$name]) ? $this->http_query[$name] : $default;
     }
 
+    /**
+     * @return bool
+     * @deprecated
+     */
     public function hasQuery()
     {
         return count($this->http_query) > 0;
     }
 
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     * @deprecated
+     */
     public function setQuery($name, $value)
     {
         $this->http_query[$name] = $value;
@@ -363,6 +472,11 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param $array
+     * @return $this
+     * @deprecated
+     */
     public function setQueryArray($array)
     {
         $this->http_query = $array;
@@ -370,6 +484,11 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param $array
+     * @return $this
+     * @deprecated
+     */
     public function addQueryArray($array)
     {
         $this->http_query = array_merge($this->http_query, $array);
@@ -377,6 +496,11 @@ class HttpRouter implements RouterInterface
         return $this;
     }
 
+    /**
+     * @param array $keys
+     * @return $this
+     * @deprecated
+     */
     public function deleteQuery(array $keys = [])
     {
         if ($keys)

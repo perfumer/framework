@@ -28,11 +28,24 @@ trait HttpRouterControllerHelpers
     }
 
     /**
+     * Shortcut for HttpRouter getFields() method
+     *
+     * @param string|array|null $keys
+     * @param mixed $default
+     * @return mixed
+     */
+    protected function f($keys = null, $default = null)
+    {
+        return $this->getExternalRouter()->getFields($keys, $default);
+    }
+
+    /**
      * Shortcut for HttpRouter getQuery() method
      *
      * @param $name
      * @param $default
      * @return mixed
+     * @deprecated
      */
     protected function q($name = null, $default = null)
     {
@@ -45,6 +58,7 @@ trait HttpRouterControllerHelpers
      * @param $name
      * @param $default
      * @return mixed
+     * @deprecated
      */
     protected function a($name = null, $default = null)
     {
