@@ -10,7 +10,7 @@ trait DeleteTransfer
     {
         $this->deletePermission();
 
-        if ($this->getProxy()->getExternalRouter()->getArg('id') === null)
+        if ($this->getProxy()->getRouter()->getArg('id') === null)
             $this->setErrorMessageAndExit($this->t('_crud.object_not_found'));
 
         $model = $this->getModel();

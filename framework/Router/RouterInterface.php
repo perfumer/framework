@@ -1,12 +1,16 @@
 <?php
 
-namespace Perfumer\Framework\ExternalRouter;
+namespace Perfumer\Framework\Router;
 
 use Perfumer\Framework\Proxy\Response;
 
 interface RouterInterface
 {
     public function getName();
+
+    public function getAllowedActions();
+
+    public function getNotFoundAttributes();
 
     public function isHttp();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Framework\ExternalRouter;
+namespace Perfumer\Framework\Router;
 
 use Perfumer\Framework\Bundle\Resolver\HttpResolver;
 use Perfumer\Helper\Arr;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Framework\ExternalRouter;
+namespace Perfumer\Framework\Router;
 
 use Perfumer\Framework\Proxy\Response;
 use Symfony\Component\Console\Output\ConsoleOutput as ExternalResponse;

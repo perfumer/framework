@@ -31,16 +31,16 @@ class ConsoleRouterExtension extends \Twig_Extension
 
     public function option($name, $alias = null, $default = null)
     {
-        return $this->getExternalRouter()->getOption($name, $alias, $default);
+        return $this->getRouter()->getOption($name, $alias, $default);
     }
 
     public function argument($index, $default = null)
     {
-        return $this->getExternalRouter()->getArgument($index, $default);
+        return $this->getRouter()->getArgument($index, $default);
     }
 
-    private function getExternalRouter()
+    private function getRouter()
     {
-        return $this->container->get('proxy')->getExternalRouter();
+        return $this->container->get('proxy')->getRouter();
     }
 }

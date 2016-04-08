@@ -6,7 +6,7 @@ use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Controller\ControllerInterface;
 use Perfumer\Framework\Bundle\Bundler;
 use Perfumer\Framework\Bundle\Resolver\ResolverInterface as BundleResolver;
-use Perfumer\Framework\ExternalRouter\RouterInterface as ExternalRouter;
+use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
 
@@ -28,9 +28,9 @@ class Proxy
     protected $bundle_resolver;
 
     /**
-     * @var ExternalRouter
+     * @var Router
      */
-    protected $external_router;
+    protected $router;
 
     /**
      * @var Request
@@ -89,11 +89,11 @@ class Proxy
     }
 
     /**
-     * @return ExternalRouter
+     * @return Router
      */
-    public function getExternalRouter()
+    public function getRouter()
     {
-        return $this->external_router;
+        return $this->router;
     }
 
     /**
@@ -116,9 +116,9 @@ class Proxy
     {
         $bundle = $this->bundle_resolver->dispatch();
 
-        $this->external_router = $this->bundler->getService($bundle, 'external_router');
+        $this->router = $this->bundler->getService($bundle, 'router');
 
-        list($resource, $action, $args) = $this->external_router->dispatch();
+        list($resource, $action, $args) = $this->router->dispatch();
 
         $this->next = $this->initializeRequest($bundle, $resource, $action, $args);
 
@@ -127,9 +127,9 @@ class Proxy
         if ($this->options['debug'] === true) {
             $this->runDeferred();
 
-            $this->external_router->sendResponse($response);
+            $this->router->sendResponse($response);
         } else {
-            $this->external_router->sendResponse($response);
+            $this->router->sendResponse($response);
 
             $this->runDeferred();
         }
@@ -206,7 +206,7 @@ class Proxy
 
     public function pageNotFoundException()
     {
-        $controller_not_found = $this->external_router->getNotFoundAttributes();
+        $controller_not_found = $this->router->getNotFoundAttributes();
 
         $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
     }
@@ -258,11 +258,11 @@ class Proxy
             $request->setInitial($this->current_initial);
         }
 
-        if ($request->isMain() && !in_array($request->getAction(), $this->external_router->getAllowedActions())) {
+        if ($request->isMain() && !in_array($request->getAction(), $this->router->getAllowedActions())) {
             $this->pageNotFoundException();
         }
 
-        if (!$request->isMain() && in_array($request->getAction(), $this->external_router->getAllowedActions())) {
+        if (!$request->isMain() && in_array($request->getAction(), $this->router->getAllowedActions())) {
             throw new ProxyException('Action "' . $request->getAction() . '" is reserved by router for external requests, so can not be used for internal requests.');
         }
 

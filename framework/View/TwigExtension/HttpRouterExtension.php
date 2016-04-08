@@ -34,31 +34,31 @@ class HttpRouterExtension extends \Twig_Extension
 
     public function url($url, $id = null, $query = [], $prefixes = [])
     {
-        return $this->getExternalRouter()->generateUrl($url, $id, $query, $prefixes);
+        return $this->getRouter()->generateUrl($url, $id, $query, $prefixes);
     }
 
     public function prefix($name = null)
     {
-        return $this->getExternalRouter()->getPrefix($name);
+        return $this->getRouter()->getPrefix($name);
     }
 
     public function id($index = null)
     {
-        return $this->getExternalRouter()->getId($index);
+        return $this->getRouter()->getId($index);
     }
 
     public function query($name = null)
     {
-        return $this->getExternalRouter()->getQuery($name);
+        return $this->getRouter()->getQuery($name);
     }
 
     public function arg($name = null)
     {
-        return $this->getExternalRouter()->getArg($name);
+        return $this->getRouter()->getArg($name);
     }
 
-    private function getExternalRouter()
+    private function getRouter()
     {
-        return $this->container->get('proxy')->getExternalRouter();
+        return $this->container->get('proxy')->getRouter();
     }
 }

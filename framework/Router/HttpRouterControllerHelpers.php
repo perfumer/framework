@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Framework\ExternalRouter;
+namespace Perfumer\Framework\Router;
 
 trait HttpRouterControllerHelpers
 {
@@ -13,7 +13,7 @@ trait HttpRouterControllerHelpers
      */
     protected function p($name = null, $default = null)
     {
-        return $this->getExternalRouter()->getPrefix($name, $default);
+        return $this->getRouter()->getPrefix($name, $default);
     }
 
     /**
@@ -24,7 +24,7 @@ trait HttpRouterControllerHelpers
      */
     protected function i($index = null)
     {
-        return $this->getExternalRouter()->getId($index);
+        return $this->getRouter()->getId($index);
     }
 
     /**
@@ -36,7 +36,7 @@ trait HttpRouterControllerHelpers
      */
     protected function f($keys = null, $default = null)
     {
-        return $this->getExternalRouter()->getFields($keys, $default);
+        return $this->getRouter()->getFields($keys, $default);
     }
 
     /**
@@ -49,7 +49,7 @@ trait HttpRouterControllerHelpers
      */
     protected function q($name = null, $default = null)
     {
-        return $this->getExternalRouter()->getQuery($name, $default);
+        return $this->getRouter()->getQuery($name, $default);
     }
 
     /**
@@ -62,7 +62,7 @@ trait HttpRouterControllerHelpers
      */
     protected function a($name = null, $default = null)
     {
-        return $this->getExternalRouter()->getArg($name, $default);
+        return $this->getRouter()->getArg($name, $default);
     }
 
     /**
@@ -76,6 +76,6 @@ trait HttpRouterControllerHelpers
      */
     public function generateUrl($url, $id = null, $query = [], $prefixes = [])
     {
-        return $this->getExternalRouter()->generateUrl($url, $id, $query, $prefixes);
+        return $this->getRouter()->generateUrl($url, $id, $query, $prefixes);
     }
 }
