@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Framework\Router;
+namespace Perfumer\Framework\Router\Http;
 
 use Perfumer\Framework\Bundle\Resolver\HttpResolver;
 use Perfumer\Helper\Arr;
@@ -8,7 +8,7 @@ use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Response;
 use Symfony\Component\HttpFoundation\Response as ExternalResponse;
 
-class HttpRouter implements RouterInterface
+class DefaultRouter implements RouterInterface
 {
     /**
      * @var HttpResolver
@@ -54,7 +54,7 @@ class HttpRouter implements RouterInterface
      */
     public function getName()
     {
-        return 'http_router';
+        return 'default_http_router';
     }
 
     /**

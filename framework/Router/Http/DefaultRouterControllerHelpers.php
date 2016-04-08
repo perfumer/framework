@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Framework\Router;
+namespace Perfumer\Framework\Router\Http;
 
-trait HttpRouterControllerHelpers
+trait DefaultRouterControllerHelpers
 {
     /**
      * Shortcut for HttpRouter getPrefix() method
