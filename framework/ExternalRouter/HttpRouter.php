@@ -106,13 +106,8 @@ class HttpRouter implements RouterInterface
             $url = $this->options['default_url'];
         } else {
             $url = trim($_SERVER['PATH_INFO'], '/');
-            $hyphen_pos = strpos($url, '-');
 
-            if ($hyphen_pos !== false) {
-                $this->http_id = substr($url, $hyphen_pos + 1);
-                $url = substr($url, 0, $hyphen_pos);
-            }
-
+            // Try to define prefixes
             if ($prefixes = $this->options['prefixes']) {
                 $url = explode('/', $url);
 
@@ -130,6 +125,25 @@ class HttpRouter implements RouterInterface
                 }
 
                 $url = count($url) > 0 ? implode('/', $url) : $this->options['default_url'];
+            }
+
+            // Try to define id
+            if ($url) {
+                if ((int) $url > 0) {
+                    $this->http_id = $url;
+                } else {
+                    preg_match('/\/[0-9]+/', $url, $matches, PREG_OFFSET_CAPTURE);
+
+                    if (isset($matches[0])) {
+                        $slash_position = $matches[0][1];
+
+                        $this->http_id = substr($url, $slash_position + 1);
+
+                        if ($slash_position > 0) {
+                            $url = substr($url, 0, $slash_position);
+                        }
+                    }
+                }
             }
         }
 

@@ -137,9 +137,10 @@ class Request
      */
     public function getController()
     {
-        $path = explode('/', $this->resource);
+        $path = str_replace('-', '', ucwords($this->resource, '-_/'));
+        $path = str_replace('/', '\\', $path);
 
-        return $this->options['prefix'] . '\\' . implode('\\', array_map('ucfirst', $path)) . $this->options['suffix'];
+        return $this->options['prefix'] . '\\' . $path . $this->options['suffix'];
     }
 
     /**
