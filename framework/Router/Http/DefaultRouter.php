@@ -3,6 +3,7 @@
 namespace Perfumer\Framework\Router\Http;
 
 use Perfumer\Framework\Bundle\Resolver\HttpResolver;
+use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Response;
