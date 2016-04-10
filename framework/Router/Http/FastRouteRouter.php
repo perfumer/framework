@@ -48,14 +48,6 @@ class FastRouteRouter implements RouterInterface
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'fast_route_http_router';
-    }
-
-    /**
      * @return array
      */
     public function getAllowedActions()

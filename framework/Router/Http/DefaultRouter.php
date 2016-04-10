@@ -51,14 +51,6 @@ class DefaultRouter implements RouterInterface
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'default_http_router';
-    }
-
-    /**
      * @return array
      */
     public function getAllowedActions()

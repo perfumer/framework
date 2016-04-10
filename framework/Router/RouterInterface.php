@@ -6,8 +6,6 @@ use Perfumer\Framework\Proxy\Response;
 
 interface RouterInterface
 {
-    public function getName();
-
     public function getAllowedActions();
 
     public function getNotFoundAttributes();

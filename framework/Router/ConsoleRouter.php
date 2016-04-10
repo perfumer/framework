@@ -42,14 +42,6 @@ class ConsoleRouter implements RouterInterface
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'console_router';
-    }
-
-    /**
      * @return array
      */
     public function getAllowedActions()
