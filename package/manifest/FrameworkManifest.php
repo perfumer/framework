@@ -33,9 +33,7 @@ class FrameworkManifest extends AbstractManifest
     public function getAliases()
     {
         return [
-            'request' => 'framework.request',
-            'view' => 'framework.view',
-            'template_provider' => 'framework.view.template_provider'
+            'request' => 'framework.request'
         ];
     }
 }

@@ -125,15 +125,6 @@ return [
         'arguments' => ['#translator']
     ],
 
-    // Framework bundle default routers
-    'framework.request' => [
-        'class' => 'Perfumer\\Framework\\Proxy\\Request',
-        'arguments' => ['$0', '$1', '$2', '$3', [
-            'prefix' => 'Perfumer\\Package\\Controller',
-            'suffix' => 'Controller'
-        ]]
-    ],
-
     'view.serialize' => [
         'class' => 'Perfumer\\Framework\\View\\SerializeView',
         'arguments' => ['json']
