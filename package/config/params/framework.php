@@ -6,6 +6,11 @@ return [
         'database' => 'mysql',
         'dsn' => 'mysql:host=localhost;dbname=example',
         'db_user' => 'user',
-        'db_password' => 'password'
+        'db_password' => 'password',
+        'platform' => 'pgsql',
+        'config_dir' => '',
+        'schema_dir' => '',
+        'model_dir' => '',
+        'migration_dir' => '',
     ]
 ];
