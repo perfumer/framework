@@ -1,76 +1,27 @@
 <?php
 
 return [
-    // Storage engines
-    'storage.database' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Component\\Container\\Storage\\DatabaseStorage'
-    ],
-
-    // Requesting
-    'bundle.http_resolver' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Framework\\Bundle\\Resolver\\HttpResolver'
-    ],
-
     'bundle.console_resolver' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Bundle\\Resolver\\ConsoleResolver'
     ],
 
-    'proxy' => [
+    'bundle.http_resolver' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\Proxy\\Proxy',
-        'arguments' => ['container']
+        'class' => 'Perfumer\\Framework\\Bundle\\Resolver\\HttpResolver'
     ],
 
-    'profiler' => [
+    'cache.ephemeral' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\Proxy\\Profiler'
+        'class' => 'Stash\\Pool',
+        'arguments' => ['#cache.ephemeral_driver']
     ],
 
-    // Twig
-    'twig' => [
+    'cache.ephemeral_driver' => [
         'shared' => true,
-        'class' => 'Twig_Environment',
-        'arguments' => ['#twig.filesystem_loader', [
-            'cache' => __DIR__ . '/../../tmp/twig/'
-        ]]
+        'class' => 'Stash\\Driver\\Ephemeral'
     ],
 
-    'twig.filesystem_loader' => [
-        'shared' => true,
-        'class' => 'Twig_Loader_Filesystem'
-    ],
-
-    'twig.framework_extension' => [
-        'class' => 'Perfumer\\Framework\\View\\TwigExtension\\FrameworkExtension',
-        'arguments' => ['container']
-    ],
-
-    'twig.http_router_extension' => [
-        'class' => 'Perfumer\\Framework\\View\\TwigExtension\\HttpRouterExtension',
-        'arguments' => ['container']
-    ],
-
-    'twig.console_router_extension' => [
-        'class' => 'Perfumer\\Framework\\View\\TwigExtension\\ConsoleRouterExtension',
-        'arguments' => ['container']
-    ],
-
-    // Session
-    'session' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Component\\Session\\Pool',
-        'arguments' => ['#cache.memcache']
-    ],
-
-    'cookie' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Component\\Session\\Cookie'
-    ],
-
-    // Cache
     'cache.file' => [
         'shared' => true,
         'class' => 'Stash\\Pool',
@@ -99,49 +50,14 @@ return [
         }
     ],
 
-    'cache.ephemeral' => [
+    'cookie' => [
         'shared' => true,
-        'class' => 'Stash\\Pool',
-        'arguments' => ['#cache.ephemeral_driver']
+        'class' => 'Perfumer\\Component\\Session\\Cookie'
     ],
 
-    'cache.ephemeral_driver' => [
+    'profiler' => [
         'shared' => true,
-        'class' => 'Stash\\Driver\\Ephemeral'
-    ],
-
-    // Translator
-    'translator' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Component\\Translator\\Core',
-        'arguments' => ['#cache', [
-            'locale' => 'ru'
-        ]]
-    ],
-
-    // Validation
-    'validation' => [
-        'class' => 'Perfumer\\Component\\Validation\\Core',
-        'arguments' => ['#translator']
-    ],
-
-    'view.serialize' => [
-        'class' => 'Perfumer\\Framework\\View\\SerializeView',
-        'arguments' => ['json']
-    ],
-
-    // Propel ORM
-    'propel.service_container' => [
-        'shared' => true,
-        'class' => 'Propel\\Runtime\\Propel',
-        'static' => 'getServiceContainer',
-        'after' => function(\Perfumer\Component\Container\Container $container, $service_container) {
-            $project = $container->getParam('propel/project');
-            $database = $container->getParam('propel/database');
-            $connection_manager = $container->get('propel.connection_manager');
-            $service_container->setAdapterClass($project, $database);
-            $service_container->setConnectionManager($project, $connection_manager);
-        }
+        'class' => 'Perfumer\\Framework\\Proxy\\Profiler'
     ],
 
     'propel.connection_manager' => [
@@ -156,5 +72,81 @@ return [
                 ]
             ]);
         }
+    ],
+
+    'propel.service_container' => [
+        'shared' => true,
+        'class' => 'Propel\\Runtime\\Propel',
+        'static' => 'getServiceContainer',
+        'after' => function(\Perfumer\Component\Container\Container $container, $service_container) {
+            $project = $container->getParam('propel/project');
+            $database = $container->getParam('propel/database');
+            $connection_manager = $container->get('propel.connection_manager');
+            $service_container->setAdapterClass($project, $database);
+            $service_container->setConnectionManager($project, $connection_manager);
+        }
+    ],
+
+    'proxy' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Proxy\\Proxy',
+        'arguments' => ['container']
+    ],
+
+    'session' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Component\\Session\\Pool',
+        'arguments' => ['#cache.memcache']
+    ],
+
+    'storage.database' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Component\\Container\\Storage\\DatabaseStorage'
+    ],
+
+    'translator' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Component\\Translator\\Core',
+        'arguments' => ['#cache', [
+            'locale' => 'ru'
+        ]]
+    ],
+
+    'twig' => [
+        'shared' => true,
+        'class' => 'Twig_Environment',
+        'arguments' => ['#twig.filesystem_loader', [
+            'cache' => __DIR__ . '/../../tmp/twig/'
+        ]]
+    ],
+
+    'twig.filesystem_loader' => [
+        'shared' => true,
+        'class' => 'Twig_Loader_Filesystem'
+    ],
+
+    'twig.console_router_extension' => [
+        'class' => 'Perfumer\\Framework\\View\\TwigExtension\\ConsoleRouterExtension',
+        'arguments' => ['container']
+    ],
+
+    'twig.http_router_extension' => [
+        'class' => 'Perfumer\\Framework\\View\\TwigExtension\\HttpRouterExtension',
+        'arguments' => ['container']
+    ],
+
+    'twig.framework_extension' => [
+        'class' => 'Perfumer\\Framework\\View\\TwigExtension\\FrameworkExtension',
+        'arguments' => ['container']
+    ],
+
+    'validation' => [
+        'class' => 'Perfumer\\Component\\Validation\\Core',
+        'arguments' => ['#translator']
+    ],
+
+    'view.serialize' => [
+        'class' => 'Perfumer\\Framework\\View\\SerializeView',
+        'arguments' => ['json']
     ],
 ];
