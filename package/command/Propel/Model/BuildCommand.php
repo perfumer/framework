@@ -6,7 +6,7 @@ use Perfumer\Framework\Controller\PlainController;
 
 class BuildCommand extends PlainController
 {
-    public function action ()
+    public function action()
     {
         $platform = $this->getContainer()->getParam('propel/platform');
         $config_dir = $this->getContainer()->getParam('propel/config_dir');
