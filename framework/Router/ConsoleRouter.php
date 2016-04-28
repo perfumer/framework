@@ -35,7 +35,7 @@ class ConsoleRouter implements RouterInterface
     {
         $default_settings = [
             'allowed_actions' => ['action'],
-            'not_found_attributes' => ['framework', 'exception/plain', 'controllerNotFound']
+            'not_found_attributes' => ['framework/http', 'exception/plain', 'controllerNotFound']
         ];
 
         $this->settings = array_merge($default_settings, $settings);
@@ -46,7 +46,7 @@ class ConsoleRouter implements RouterInterface
      */
     public function getAllowedActions()
     {
-        return $this->options['allowed_actions'];
+        return $this->settings['allowed_actions'];
     }
 
     /**
@@ -54,7 +54,7 @@ class ConsoleRouter implements RouterInterface
      */
     public function getNotFoundAttributes()
     {
-        return $this->options['not_found_attributes'];
+        return $this->settings['not_found_attributes'];
     }
 
     /**
@@ -77,27 +77,15 @@ class ConsoleRouter implements RouterInterface
 
         $args = \CommandLine::parseArgs($argv);
 
-        foreach ($args as $key => $value)
-        {
-            if (is_string($key))
-            {
+        foreach ($args as $key => $value) {
+            if (is_string($key)) {
                 $this->options[$key] = $value;
-            }
-            else
-            {
+            } else {
                 $this->arguments[$key] = $value;
             }
         }
 
         return [$resource, 'action', []];
-    }
-
-    /**
-     * @return array
-     */
-    public function getControllerNotFound()
-    {
-        return $this->settings['controller_not_found'];
     }
 
     /**

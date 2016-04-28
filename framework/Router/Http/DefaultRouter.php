@@ -44,7 +44,7 @@ class DefaultRouter implements RouterInterface
             'prefixes' => [],
             'prefix_options' => [],
             'allowed_actions' => ['get', 'post', 'head', 'options'],
-            'not_found_attributes' => ['framework', 'exception/template', 'controllerNotFound']
+            'not_found_attributes' => ['framework/http', 'exception/template', 'controllerNotFound']
         ];
 
         $this->options = array_merge($default_options, $options);
@@ -230,7 +230,7 @@ class DefaultRouter implements RouterInterface
         }
 
         if ($id) {
-            $generated_url .= is_array($id) ? '-' . implode('/', $id) : '-' . $id;
+            $generated_url .= is_array($id) ? '/' . implode('/', $id) : '/' . $id;
         }
 
         if ($query) {
