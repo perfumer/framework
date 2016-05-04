@@ -29,11 +29,6 @@ class SerializeController extends AbstractController
         parent::after();
     }
 
-    protected function pageNotFoundException()
-    {
-        $this->getProxy()->forward('framework', 'exception/serialize', 'pageNotFound');
-    }
-
     /**
      * @return SerializeView
      */

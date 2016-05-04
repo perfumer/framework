@@ -41,11 +41,6 @@ class TemplateController extends AbstractController
         parent::after();
     }
 
-    protected function pageNotFoundException()
-    {
-        $this->getProxy()->forward('framework', 'exception/template', 'pageNotFound');
-    }
-
     /**
      * @return TemplateView
      */

@@ -50,12 +50,4 @@ class PlainController extends AbstractController
 
         $this->getResponse()->setContent('You do not have enough rights to access this page.');
     }
-
-    protected function pageNotFoundException()
-    {
-    }
-
-    protected function actionNotFoundException()
-    {
-    }
 }
