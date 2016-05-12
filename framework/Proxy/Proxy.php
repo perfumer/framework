@@ -284,7 +284,11 @@ class Proxy
                     }
                 }
             } catch (\ReflectionException $e) {
-                $this->pageNotFoundException();
+                if ($request->isMain()) {
+                    $this->pageNotFoundException();
+                } else {
+                    throw new ProxyException('Controller "' . $controller_class . '" not found.');
+                }
             }
         }
 
