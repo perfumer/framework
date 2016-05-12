@@ -171,11 +171,13 @@ class DefaultRouter implements RouterInterface
         // Trim all args if auto_trim setting enabled
         if ($this->options['auto_trim']) {
             $this->http_args = Arr::trim($this->http_args);
+            $this->http_query = Arr::trim($this->http_query);
         }
 
         // Convert empty strings to null values if auto_null setting enabled
         if ($this->options['auto_null']) {
             $this->http_args = Arr::convertValues($this->http_args, '', null);
+            $this->http_query = Arr::convertValues($this->http_query, '', null);
         }
 
         $this->http_fields = array_merge($this->http_query, $this->http_args);
