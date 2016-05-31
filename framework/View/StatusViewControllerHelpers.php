@@ -6,126 +6,193 @@ use Perfumer\Framework\Controller\Exception\ExitActionException;
 
 trait StatusViewControllerHelpers
 {
+    /**
+     * @return bool
+     */
     protected function getStatus()
     {
-        return $this->getView()->getVar('status');
+        return $this->getView()->getStatus();
     }
 
+    /**
+     * @param bool $status
+     */
     protected function setStatus($status)
     {
-        $this->getView()->addVar('status', (bool) $status);
+        $this->getView()->setStatus($status);
     }
 
+    /**
+     * @param bool $status
+     * @throws ExitActionException
+     */
     protected function setStatusAndExit($status)
     {
-        $this->setStatus($status);
+        $this->getView()->setStatus($status);
 
         throw new ExitActionException();
     }
 
+    /**
+     * @return string
+     */
     protected function getMessage()
     {
-        return $this->getView()->getVar('message');
+        return $this->getView()->getMessage();
     }
 
+    /**
+     * @param string $message
+     */
     protected function setErrorMessage($message)
     {
-        $this->getView()->addVars([
-            'status' => false,
-            'message' => $message
-        ]);
+        $this->getView()->setErrorMessage($message);
     }
 
+    /**
+     * @param string $message
+     * @throws ExitActionException
+     */
     protected function setErrorMessageAndExit($message)
     {
-        $this->setErrorMessage($message);
+        $this->getView()->setErrorMessage($message);
 
         throw new ExitActionException;
     }
 
+    /**
+     * @param string $message
+     */
     protected function setSuccessMessage($message)
     {
-        $this->getView()->addVars([
-            'status' => true,
-            'message' => $message
-        ]);
+        $this->getView()->setSuccessMessage($message);
     }
 
+    /**
+     * @param string $message
+     * @throws ExitActionException
+     */
     protected function setSuccessMessageAndExit($message)
     {
-        $this->setSuccessMessage($message);
+        $this->getView()->setSuccessMessage($message);
 
         throw new ExitActionException;
     }
 
+    /**
+     * @return bool
+     */
     protected function hasMessage()
     {
-        return $this->getView()->hasVar('message');
+        return $this->getView()->hasMessage();
     }
 
-    protected function getError($key)
-    {
-        return $this->getView()->getVar($key, 'errors');
-    }
-
-    protected function addError($key, $value)
-    {
-        $this->getView()->addVar('status', false)->addVar($key, $value, 'errors');
-    }
-
-    protected function addErrorAndExit($key, $value)
-    {
-        $this->addError($key, $value);
-
-        throw new ExitActionException;
-    }
-
-    protected function hasError($key)
-    {
-        return $this->getView()->hasVar($key, 'errors');
-    }
-
+    /**
+     * @return array
+     */
     protected function getErrors()
     {
-        return $this->getView()->getVars('errors');
+        return $this->getView()->getErrors();
     }
 
+    /**
+     * @param string $key
+     * @return mixed
+     */
+    protected function getError($key)
+    {
+        return $this->getView()->getError($key);
+    }
+
+    /**
+     * @param array $errors
+     */
     protected function addErrors($errors)
     {
-        $this->getView()->addVar('status', false)->addVars($errors, 'errors');
+        $this->getView()->addErrors($errors);
     }
 
+    /**
+     * @param array $errors
+     * @throws ExitActionException
+     */
     protected function addErrorsAndExit($errors)
     {
-        $this->addErrors($errors);
+        $this->getView()->addErrors($errors);
 
         throw new ExitActionException;
     }
 
+    /**
+     * @param string $key
+     * @param mixed $value
+     */
+    protected function addError($key, $value)
+    {
+        $this->getView()->addError($key, $value);
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @throws ExitActionException
+     */
+    protected function addErrorAndExit($key, $value)
+    {
+        $this->getView()->addError($key, $value);
+
+        throw new ExitActionException;
+    }
+
+    /**
+     * @return bool
+     */
     protected function hasErrors()
     {
-        return $this->getView()->hasVars('errors');
+        return $this->getView()->hasErrors();
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
+    protected function hasError($key)
+    {
+        return $this->getView()->hasError($key);
+    }
+
+    /**
+     * @return mixed
+     */
     protected function getContent()
     {
-        return $this->getView()->getVar('content');
+        return $this->getView()->getContent();
     }
 
+    /**
+     * @param mixed $content
+     */
     protected function setContent($content)
     {
-        $this->getView()->addVar('content', $content);
+        $this->getView()->setContent($content);
     }
 
+    /**
+     * @param mixed $content
+     * @throws ExitActionException
+     */
     protected function setContentAndExit($content)
     {
-        $this->setContent($content);
+        $this->getView()->setContent($content);
 
         throw new ExitActionException();
     }
 
+    /**
+     * @return bool mixed
+     */
     protected function hasContent()
     {
-        return $this->getView()->hasVar('content');
+        return $this->getView()->hasContent();
     }
 }
