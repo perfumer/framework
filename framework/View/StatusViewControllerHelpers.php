@@ -1,42 +1,11 @@
 <?php
 
-namespace Perfumer\Framework\Controller;
+namespace Perfumer\Framework\Router\Http;
 
 use Perfumer\Framework\Controller\Exception\ExitActionException;
-use Perfumer\Framework\View\SerializeView;
 
-class SerializeController extends AbstractController
+trait StatusViewControllerHelpers
 {
-    protected function before()
-    {
-        parent::before();
-
-        $this->getView()->addVars([
-            'status' => true,
-            'message' => '',
-            'content' => null
-        ]);
-
-        $this->getView()->addGroup('errors');
-    }
-
-    protected function after()
-    {
-        $content = $this->getView()->render();
-
-        $this->getResponse()->setContent($content);
-
-        parent::after();
-    }
-
-    /**
-     * @return SerializeView
-     */
-    protected function getView()
-    {
-        return parent::getView();
-    }
-
     protected function getStatus()
     {
         return $this->getView()->getVar('status');

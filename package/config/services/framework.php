@@ -149,4 +149,9 @@ return [
         'class' => 'Perfumer\\Framework\\View\\SerializeView',
         'arguments' => ['json']
     ],
+
+    'view.status' => [
+        'class' => 'Perfumer\\Framework\\View\\StatusView',
+        'arguments' => ['json']
+    ],
 ];

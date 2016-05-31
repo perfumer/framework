@@ -4,10 +4,8 @@ namespace Perfumer\Framework\Controller;
 
 use Perfumer\Framework\View\TemplateView;
 
-class TemplateController extends AbstractController
+class TemplateController extends ViewController
 {
-    protected $_rendering = true;
-
     protected function before()
     {
         parent::before();
@@ -32,10 +30,6 @@ class TemplateController extends AbstractController
             if (!$view->getTemplate()) {
                 $view->setTemplate($current->getResource() . '/' . $current->getAction());
             }
-
-            $content = $view->render();
-
-            $this->getResponse()->setContent($content);
         }
 
         parent::after();
@@ -47,15 +41,5 @@ class TemplateController extends AbstractController
     protected function getView()
     {
         return parent::getView();
-    }
-
-    protected function getRendering()
-    {
-        return $this->_rendering;
-    }
-
-    protected function setRendering($rendering)
-    {
-        $this->_rendering = $rendering;
     }
 }
