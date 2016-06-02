@@ -51,6 +51,11 @@ abstract class AbstractController implements ControllerInterface
     protected $_view;
 
     /**
+     * @var mixed
+     */
+    protected $_auth;
+
+    /**
      * AbstractController constructor.
      * @param Container $container
      * @param Request $request
@@ -224,6 +229,28 @@ abstract class AbstractController implements ControllerInterface
         }
 
         return $this->_view;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getAuth()
+    {
+        if ($this->_auth === null) {
+            $auth_service_name = $this->_bundler->getServiceName($this->getCurrent()->getBundle(), 'auth');
+
+            $this->_auth = $this->getContainer()->get($auth_service_name);
+        }
+
+        return $this->_auth;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getUser()
+    {
+        return $this->getAuth()->getUser();
     }
 
     /**
