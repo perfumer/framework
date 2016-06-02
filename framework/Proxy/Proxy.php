@@ -116,7 +116,9 @@ class Proxy
     {
         $bundle = $this->bundle_resolver->dispatch();
 
-        $this->router = $this->bundler->getService($bundle, 'router');
+        $router_service_name = $this->bundler->getServiceName($bundle, 'router');
+
+        $this->router = $this->container->get($router_service_name);
 
         list($resource, $action, $args) = $this->router->dispatch();
 
@@ -236,7 +238,9 @@ class Proxy
     {
         list($bundle, $resource, $action) = $this->bundler->overrideController($bundle, $resource, $action);
 
-        return $this->bundler->getService($bundle, 'request', [$bundle, $resource, $action, $args]);
+        $request_service_name = $this->bundler->getServiceName($bundle, 'request');
+
+        return $this->container->get($request_service_name, [$bundle, $resource, $action, $args]);
     }
 
     /**

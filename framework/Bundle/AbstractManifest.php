@@ -91,18 +91,18 @@ abstract class AbstractManifest
     }
 
     /**
-     * @param string $name
+     * @param string $alias
      * @return string
      * @throws BundleException
      */
-    public function getAliasedService($name)
+    public function getServiceName($alias)
     {
         $aliases = $this->getAliases();
 
-        if (!isset($aliases[$name])) {
-            throw new BundleException('Service alias "' . $name . '" not found in manifest "' . $this->getName() . '"');
+        if (!isset($aliases[$alias])) {
+            throw new BundleException('Service alias "' . $alias . '" not found in manifest "' . $this->getName() . '"');
         }
 
-        return $aliases[$name];
+        return $aliases[$alias];
     }
 }

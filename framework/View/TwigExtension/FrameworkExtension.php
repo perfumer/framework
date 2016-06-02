@@ -64,7 +64,9 @@ class FrameworkExtension extends \Twig_Extension
 
         list($bundle, $template) = $bundler->overrideTemplate($bundle, $template);
 
-        $template = $bundler->getService($bundle, 'template_provider')->handle($template);
+        $template_provider_service_name = $bundler->getServiceName($bundle, 'template_provider');
+
+        $template = $this->container->get($template_provider_service_name)->handle($template);
 
         return $template;
     }

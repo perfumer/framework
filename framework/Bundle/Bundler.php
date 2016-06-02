@@ -117,11 +117,10 @@ class Bundler
     /**
      * @param string $bundle
      * @param string $alias
-     * @param array $parameters
      * @return mixed
      * @throws Exception\BundleException
      */
-    public function getService($bundle, $alias, $parameters = [])
+    public function getServiceName($bundle, $alias)
     {
         if (!isset($this->manifests[$bundle])) {
             throw new BundleException('Bundle "' . $bundle . '" is not found.');
@@ -131,9 +130,7 @@ class Bundler
 
         $manifest = $this->manifests[$bundle];
 
-        $service_name = $manifest->getAliasedService($alias);
-
-        return $this->container->get($service_name, $parameters);
+        return $manifest->getServiceName($alias);
     }
 
     /**
