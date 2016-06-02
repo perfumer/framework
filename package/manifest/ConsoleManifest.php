@@ -20,4 +20,11 @@ class ConsoleManifest extends FrameworkManifest
             __DIR__ . '/../config/services/console.php'
         ]);
     }
+
+    public function getAliases()
+    {
+        return array_merge(parent::getAliases(), [
+            'router' => 'framework.router'
+        ]);
+    }
 }
