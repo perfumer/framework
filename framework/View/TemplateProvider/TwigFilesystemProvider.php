@@ -34,7 +34,7 @@ class TwigFilesystemProvider implements ProviderInterface
      * @param string $template
      * @return string
      */
-    public function handle($template)
+    public function dispatch($template)
     {
         return '@' . $this->namespace . '/' . $template . '.twig';
     }

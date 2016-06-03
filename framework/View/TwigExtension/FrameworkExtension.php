@@ -66,7 +66,7 @@ class FrameworkExtension extends \Twig_Extension
 
         $template_provider_service_name = $bundler->getServiceName($bundle, 'template_provider');
 
-        $template = $this->container->get($template_provider_service_name)->handle($template);
+        $template = $this->container->get($template_provider_service_name)->dispatch($template);
 
         return $template;
     }

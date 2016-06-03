@@ -47,7 +47,7 @@ class TemplateView extends AbstractView
         $template = $template ?: $this->template;
         $vars = $vars ? array_merge($this->vars, $vars) : $this->vars;
 
-        $template = $this->template_provider->handle($template);
+        $template = $this->template_provider->dispatch($template);
 
         return $this->templating->render($template, $vars);
     }
