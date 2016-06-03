@@ -7,8 +7,8 @@ return [
 
     'propel' => [
         'project' => 'example',
-        'database' => 'mysql',
-        'dsn' => 'mysql:host=localhost;dbname=example',
+        'database' => 'pgsql',
+        'dsn' => 'pgsql:host=localhost;dbname=example',
         'db_user' => 'user',
         'db_password' => 'password',
         'platform' => 'pgsql',

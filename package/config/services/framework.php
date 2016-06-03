@@ -34,7 +34,7 @@ return [
         'shared' => true,
         'class' => 'Stash\\Driver\\FileSystem',
         'after' => function(\Perfumer\Component\Container\Container $container, \Stash\Driver\FileSystem $driver) {
-            $driver->setOptions(['path' => __DIR__ . '/../../tmp/cache/']);
+            $driver->setOptions(['path' => __DIR__ . '/../../../tmp/cache/']);
         }
     ],
 
@@ -66,7 +66,7 @@ return [
     'logger.file_handler' => [
         'shared' => true,
         'class' => 'Monolog\\Handler\\RotatingFileHandler',
-        'arguments' => [__DIR__ . '/../../tmp/logs/example.log', 10, \Monolog\Logger::WARNING]
+        'arguments' => [__DIR__ . '/../../../tmp/logs/example.log', 10, \Monolog\Logger::WARNING]
     ],
 
     'profiler' => [
@@ -132,7 +132,7 @@ return [
         'shared' => true,
         'class' => 'Twig_Environment',
         'arguments' => ['#twig.filesystem_loader', [
-            'cache' => __DIR__ . '/../../tmp/twig/'
+            'cache' => __DIR__ . '/../../../tmp/twig/'
         ]]
     ],
 
