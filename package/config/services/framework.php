@@ -55,6 +55,18 @@ return [
         'class' => 'Perfumer\\Component\\Session\\Cookie'
     ],
 
+    'logger' => [
+        'shared' => true,
+        'class' => 'Monolog\\Logger',
+        'arguments' => ['Logger', ['#logger.file_handler']]
+    ],
+
+    'logger.file_handler' => [
+        'shared' => true,
+        'class' => 'Monolog\\Handler\\RotatingFileHandler',
+        'arguments' => [__DIR__ . '/../../tmp/logs/example.log', 10, \Monolog\Logger::WARNING]
+    ],
+
     'profiler' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Proxy\\Profiler'
