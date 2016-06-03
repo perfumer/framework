@@ -12,5 +12,9 @@ return [
         'schema_dir' => '',
         'model_dir' => '',
         'migration_dir' => '',
+    ],
+
+    'proxy' => [
+        'debug' => false
     ]
 ];

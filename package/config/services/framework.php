@@ -102,7 +102,9 @@ return [
     'proxy' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Proxy\\Proxy',
-        'arguments' => ['container']
+        'arguments' => ['container', [
+            'debug' => '@proxy/debug'
+        ]]
     ],
 
     'session' => [
