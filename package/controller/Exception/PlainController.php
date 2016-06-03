@@ -15,15 +15,6 @@ class PlainController extends AbstractController
         $this->getResponse()->setContent('Page not found');
     }
 
-    public function controllerNotFound()
-    {
-        if ($this->getRouter()->isHttp()) {
-            $this->getExternalResponse()->setStatusCode(404);
-        }
-
-        $this->getResponse()->setContent('Controller not found');
-    }
-
     public function isLogged()
     {
         if ($this->getRouter()->isHttp()) {

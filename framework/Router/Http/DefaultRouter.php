@@ -44,7 +44,7 @@ class DefaultRouter implements RouterInterface
             'prefixes' => [],
             'prefix_options' => [],
             'allowed_actions' => ['get', 'post', 'head', 'options'],
-            'not_found_attributes' => ['framework/http', 'exception/template', 'controllerNotFound']
+            'not_found_attributes' => ['framework/http', 'exception/plain', 'pageNotFound']
         ];
 
         $this->options = array_merge($default_options, $options);

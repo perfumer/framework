@@ -2,11 +2,14 @@
 
 namespace Perfumer\Package\Controller\Exception;
 
-use Perfumer\Framework\Controller\SerializeController as BaseController;
-use Perfumer\Framework\View\SerializeView;
+use Perfumer\Framework\Controller\ViewController;
+use Perfumer\Framework\Router\Http\StatusViewControllerHelpers;
+use Perfumer\Framework\View\StatusView;
 
-class SerializeController extends BaseController
+class StatusController extends ViewController
 {
+    use StatusViewControllerHelpers;
+
     public function pageNotFound()
     {
         if ($this->getRouter()->isHttp()) {
@@ -14,15 +17,6 @@ class SerializeController extends BaseController
         }
 
         $this->setErrorMessage('Page not found.');
-    }
-
-    public function controllerNotFound()
-    {
-        if ($this->getRouter()->isHttp()) {
-            $this->getExternalResponse()->setStatusCode(404);
-        }
-
-        $this->setErrorMessage('Controller not found.');
     }
 
     public function isLogged()
@@ -53,12 +47,12 @@ class SerializeController extends BaseController
     }
 
     /**
-     * @return SerializeView
+     * @return StatusView
      */
     protected function getView()
     {
         if ($this->_view === null) {
-            $this->_view = $this->s('view.serialize');
+            $this->_view = $this->s('view.status');
         }
 
         return $this->_view;
