@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'bundle_resolver' => [
+        'bundles' => []
+    ],
+
     'propel' => [
         'project' => 'example',
         'database' => 'mysql',
