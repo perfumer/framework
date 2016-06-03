@@ -2,7 +2,7 @@
 
 namespace Perfumer\Framework\Router;
 
-use Perfumer\Framework\Proxy\Response;
+use Perfumer\Framework\Proxy\Response as InternalResponse;
 
 interface RouterInterface
 {
@@ -14,7 +14,7 @@ interface RouterInterface
 
     public function dispatch();
 
-    public function getExternalResponse();
+    public function getResponse();
 
-    public function sendResponse(Response $response);
+    public function sendResponse(InternalResponse $response);
 }

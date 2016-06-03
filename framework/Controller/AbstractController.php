@@ -263,7 +263,7 @@ abstract class AbstractController implements ControllerInterface
 
     protected function getExternalResponse()
     {
-        return $this->getRouter()->getExternalResponse();
+        return $this->getRouter()->getResponse();
     }
 
     /**

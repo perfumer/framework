@@ -2,13 +2,13 @@
 
 namespace Perfumer\Framework\Router;
 
-use Perfumer\Framework\Proxy\Response;
-use Symfony\Component\Console\Output\ConsoleOutput as ExternalResponse;
+use Perfumer\Framework\Proxy\Response as InternalResponse;
+use Symfony\Component\Console\Output\ConsoleOutput as Response;
 
 class ConsoleRouter implements RouterInterface
 {
     /**
-     * @var ExternalResponse
+     * @var Response
      */
     protected $response;
 
@@ -134,22 +134,22 @@ class ConsoleRouter implements RouterInterface
     }
 
     /**
-     * @return ExternalResponse
+     * @return Response
      */
-    public function getExternalResponse()
+    public function getResponse()
     {
         if ($this->response === null) {
-            $this->response = new ExternalResponse();
+            $this->response = new Response();
         }
 
         return $this->response;
     }
 
     /**
-     * @param Response $response
+     * @param InternalResponse $response
      */
-    public function sendResponse(Response $response)
+    public function sendResponse(InternalResponse $response)
     {
-        $this->getExternalResponse()->writeln($response->getContent());
+        $this->getResponse()->writeln($response->getContent());
     }
 }

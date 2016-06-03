@@ -6,8 +6,8 @@ use Perfumer\Framework\Bundle\Resolver\HttpResolver;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
-use Perfumer\Framework\Proxy\Response;
-use Symfony\Component\HttpFoundation\Response as ExternalResponse;
+use Perfumer\Framework\Proxy\Response as InternalResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DefaultRouter implements RouterInterface
 {
@@ -17,7 +17,7 @@ class DefaultRouter implements RouterInterface
     protected $bundle_resolver;
 
     /**
-     * @var ExternalResponse
+     * @var Response
      */
     protected $response;
 
@@ -186,23 +186,23 @@ class DefaultRouter implements RouterInterface
     }
 
     /**
-     * @return ExternalResponse
+     * @return Response
      */
-    public function getExternalResponse()
+    public function getResponse()
     {
         if ($this->response === null) {
-            $this->response = new ExternalResponse();
+            $this->response = new Response();
         }
 
         return $this->response;
     }
 
     /**
-     * @param Response $response
+     * @param InternalResponse $response
      */
-    public function sendResponse(Response $response)
+    public function sendResponse(InternalResponse $response)
     {
-        $this->getExternalResponse()->setContent($response->getContent())->send();
+        $this->getResponse()->setContent($response->getContent())->send();
     }
 
     /**

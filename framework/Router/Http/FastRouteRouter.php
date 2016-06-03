@@ -5,8 +5,8 @@ namespace Perfumer\Framework\Router\Http;
 use Perfumer\Framework\Bundle\Resolver\HttpResolver;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
-use Perfumer\Framework\Proxy\Response;
-use Symfony\Component\HttpFoundation\Response as ExternalResponse;
+use Perfumer\Framework\Proxy\Response as InternalResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class FastRouteRouter implements RouterInterface
 {
@@ -21,7 +21,7 @@ class FastRouteRouter implements RouterInterface
     protected $bundle_resolver;
 
     /**
-     * @var ExternalResponse
+     * @var Response
      */
     protected $response;
 
@@ -127,23 +127,23 @@ class FastRouteRouter implements RouterInterface
     }
 
     /**
-     * @return ExternalResponse
+     * @return Response
      */
-    public function getExternalResponse()
+    public function getResponse()
     {
         if ($this->response === null) {
-            $this->response = new ExternalResponse();
+            $this->response = new Response();
         }
 
         return $this->response;
     }
 
     /**
-     * @param Response $response
+     * @param InternalResponse $response
      */
-    public function sendResponse(Response $response)
+    public function sendResponse(InternalResponse $response)
     {
-        $this->getExternalResponse()->setContent($response->getContent())->send();
+        $this->getResponse()->setContent($response->getContent())->send();
     }
 
     /**
