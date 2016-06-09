@@ -122,10 +122,11 @@ return [
 
     'translator' => [
         'shared' => true,
-        'class' => 'Perfumer\\Component\\Translator\\Core',
-        'arguments' => ['#cache', [
-            'locale' => 'ru'
-        ]]
+        'class' => 'Symfony\\Component\\Translation\\Translator',
+        'arguments' => ['en_US'],
+        'after' => function (\Perfumer\Component\Container\Container $container, \Symfony\Component\Translation\Translator $translator) {
+            $translator->addLoader('file', new \Symfony\Component\Translation\Loader\PhpFileLoader());
+        }
     ],
 
     'twig' => [
@@ -156,9 +157,12 @@ return [
         'arguments' => ['container']
     ],
 
-    'validation' => [
-        'class' => 'Perfumer\\Component\\Validation\\Core',
-        'arguments' => ['#translator']
+    'validator' => [
+        'init' => function (\Perfumer\Component\Container\Container $container) {
+            return \Symfony\Component\Validator\Validation::createValidatorBuilder()
+                ->setTranslator($container->get('translator'))
+                ->getValidator();
+        }
     ],
 
     'view.serialize' => [

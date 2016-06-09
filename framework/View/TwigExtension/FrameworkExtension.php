@@ -78,6 +78,6 @@ class FrameworkExtension extends \Twig_Extension
 
     public function t($key, $placeholders = [])
     {
-        return $this->container->get('translator')->translate($key, $placeholders);
+        return $this->container->get('translator')->trans($key, $placeholders);
     }
 }

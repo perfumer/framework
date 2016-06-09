@@ -156,7 +156,7 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
-     * Shortcut for Translator translate() method
+     * Shortcut for Translator trans() method
      *
      * @param $key
      * @param $placeholders
@@ -164,7 +164,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function t($key, $placeholders = [])
     {
-        return $this->getContainer()->get('translator')->translate($key, $placeholders);
+        return $this->getContainer()->get('translator')->trans($key, $placeholders);
     }
 
     /**
