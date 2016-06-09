@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Framework\Router\Http;
+namespace Perfumer\Framework\View;
 
 use Perfumer\Framework\Controller\Exception\ExitActionException;
 
