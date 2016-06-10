@@ -3,7 +3,7 @@
 namespace Perfumer\Package\Controller\Exception;
 
 use Perfumer\Framework\Controller\ViewController;
-use Perfumer\Framework\Router\Http\StatusViewControllerHelpers;
+use Perfumer\Framework\View\StatusViewControllerHelpers;
 use Perfumer\Framework\View\StatusView;
 
 class StatusController extends ViewController
