@@ -25,16 +25,11 @@ class Container implements ContainerInterface
     protected $storages = [];
 
     /**
-     * @var string
-     */
-    protected $default_storage;
-
-    /**
      * Container constructor.
      */
     public function __construct()
     {
-        $this->registerStorage('array', new ArrayStorage(), true);
+        $this->registerStorage('array', new ArrayStorage());
     }
 
     /**
@@ -121,16 +116,11 @@ class Container implements ContainerInterface
     /**
      * @param string $name
      * @param AbstractStorage $storage
-     * @param boolean $default
      * @return $this
      */
-    public function registerStorage($name, AbstractStorage $storage, $default = false)
+    public function registerStorage($name, AbstractStorage $storage)
     {
         $this->storages[$name] = $storage;
-
-        if ($default) {
-            $this->default_storage = $name;
-        }
     }
 
     /**
@@ -167,27 +157,6 @@ class Container implements ContainerInterface
     public function hasStorage($name)
     {
         return isset($this->storages[$name]);
-    }
-
-    /**
-     * @return string
-     */
-    public function getDefaultStorage()
-    {
-        return $this->default_storage;
-    }
-
-    /**
-     * @param string $name
-     * @throws ContainerException
-     */
-    public function setDefaultStorage($name)
-    {
-        if (!isset($this->storages[$name])) {
-            throw new ContainerException('Storage "' . $name . '" is not registered.');
-        }
-
-        $this->default_storage = $name;
     }
 
     /**
@@ -290,7 +259,7 @@ class Container implements ContainerInterface
         }
 
         if (count($parts) == 2) {
-            array_unshift($parts, $this->default_storage);
+            array_unshift($parts, 'array');
         }
 
         return $parts;
