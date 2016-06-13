@@ -7,6 +7,7 @@ use Perfumer\Component\Container\Exception\BundleException;
 use Perfumer\Component\Container\Exception\ContainerException;
 use Perfumer\Component\Container\Storage\ArrayStorage;
 use Perfumer\Component\Container\Storage\AbstractStorage;
+use Perfumer\Helper\Arr;
 
 class Container implements ContainerInterface
 {
@@ -178,9 +179,7 @@ class Container implements ContainerInterface
             /** @var AbstractConfigurator $service */
             $service = $this->get($configurator);
 
-            $resources = isset($this->resources[$key]) ? $this->resources[$key] : [];
-
-            $service->configure($resources);
+            $service->configure(Arr::fetch($this->resources, $service->getResourceKeys()));
         }
     }
 
