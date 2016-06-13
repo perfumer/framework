@@ -13,6 +13,12 @@ return [
         'arguments' => ['@bundle_resolver/bundles']
     ],
 
+    'bundle_configurator.proxy' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Proxy\\ProxyBundleConfigurator',
+        'arguments' => ['#proxy']
+    ],
+
     'cache.ephemeral' => [
         'shared' => true,
         'class' => 'Stash\\Pool',

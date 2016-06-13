@@ -3,7 +3,6 @@
 namespace Perfumer\Framework\Controller;
 
 use Perfumer\Component\Container\Container;
-use Perfumer\Framework\Bundle\Bundler;
 use Perfumer\Framework\Controller\Exception\ExitActionException;
 use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Event;
@@ -19,11 +18,6 @@ abstract class AbstractController implements ControllerInterface
      * @var Container
      */
     protected $_container;
-
-    /**
-     * @var Bundler
-     */
-    protected $_bundler;
 
     /**
      * @var Proxy
@@ -64,7 +58,6 @@ abstract class AbstractController implements ControllerInterface
     public function __construct(Container $container, Request $request, \ReflectionClass $reflection_class)
     {
         $this->_container = $container;
-        $this->_bundler = $container->get('bundler');
         $this->_proxy = $container->get('proxy');
         $this->_current = $request;
         $this->_response = new Response();
@@ -223,7 +216,7 @@ abstract class AbstractController implements ControllerInterface
     protected function getView()
     {
         if ($this->_view === null) {
-            $view_service_name = $this->_bundler->getServiceName($this->getCurrent()->getBundle(), 'view');
+            $view_service_name = $this->_container->resolveBundleAlias($this->getCurrent()->getBundle(), 'view');
 
             $this->_view = $this->getContainer()->get($view_service_name);
         }
@@ -237,7 +230,7 @@ abstract class AbstractController implements ControllerInterface
     protected function getAuth()
     {
         if ($this->_auth === null) {
-            $auth_service_name = $this->_bundler->getServiceName($this->getCurrent()->getBundle(), 'auth');
+            $auth_service_name = $this->_container->resolveBundleAlias($this->getCurrent()->getBundle(), 'auth');
 
             $this->_auth = $this->getContainer()->get($auth_service_name);
         }

@@ -3,6 +3,7 @@
 namespace Perfumer\Framework\View\TwigExtension;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Framework\Proxy\Proxy;
 
 class FrameworkExtension extends \Twig_Extension
 {
@@ -60,11 +61,12 @@ class FrameworkExtension extends \Twig_Extension
 
     public function tpl($bundle, $template)
     {
-        $bundler = $this->container->get('bundler');
+        /** @var Proxy $proxy */
+        $proxy = $this->container->get('proxy');
 
-        list($bundle, $template) = $bundler->overrideTemplate($bundle, $template);
+        list($bundle, $template) = $proxy->overrideTemplate($bundle, $template);
 
-        $template_provider_service_name = $bundler->getServiceName($bundle, 'template_provider');
+        $template_provider_service_name = $this->container->resolveBundleAlias($bundle, 'template_provider');
 
         $template = $this->container->get($template_provider_service_name)->dispatch($template);
 

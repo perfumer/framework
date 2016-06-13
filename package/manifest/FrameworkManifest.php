@@ -2,7 +2,7 @@
 
 namespace Perfumer\Package\Manifest;
 
-use Perfumer\Framework\Bundle\AbstractManifest;
+use Perfumer\Component\Container\AbstractManifest;
 
 class FrameworkManifest extends AbstractManifest
 {
@@ -50,5 +50,13 @@ class FrameworkManifest extends AbstractManifest
         return [
             'request' => 'framework.request'
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getConfigurators()
+    {
+        return ['bundle_configurator.proxy'];
     }
 }
