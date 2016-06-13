@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Framework\Bundle\Resolver;
+namespace Perfumer\Framework\BundleResolver;
 
 interface ResolverInterface
 {

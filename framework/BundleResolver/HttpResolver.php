@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Framework\Bundle\Resolver;
+namespace Perfumer\Framework\BundleResolver;
 
-use Perfumer\Framework\Bundle\Exception\BundleException;
+use Perfumer\Component\Container\Exception\BundleException;
 
 class HttpResolver implements ResolverInterface
 {

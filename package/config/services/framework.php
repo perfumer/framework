@@ -3,13 +3,13 @@
 return [
     'bundle.console_resolver' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\Bundle\\Resolver\\ConsoleResolver',
+        'class' => 'Perfumer\\Framework\\BundleResolver\\ConsoleResolver',
         'arguments' => ['@bundle_resolver/bundles']
     ],
 
     'bundle.http_resolver' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\Bundle\\Resolver\\HttpResolver',
+        'class' => 'Perfumer\\Framework\\BundleResolver\\HttpResolver',
         'arguments' => ['@bundle_resolver/bundles']
     ],
 
