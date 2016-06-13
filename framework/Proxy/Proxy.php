@@ -4,7 +4,7 @@ namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Controller\ControllerInterface;
-use Perfumer\Framework\Bundle\Resolver\ResolverInterface as BundleResolver;
+use Perfumer\Framework\BundleResolver\ResolverInterface as BundleResolver;
 use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
