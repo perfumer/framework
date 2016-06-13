@@ -57,6 +57,6 @@ class FrameworkManifest extends AbstractManifest
      */
     public function getConfigurators()
     {
-        return ['bundle_configurator.proxy'];
+        return ['configurator.proxy'];
     }
 }

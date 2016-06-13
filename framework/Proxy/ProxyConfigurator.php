@@ -4,7 +4,7 @@ namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\AbstractConfigurator;
 
-class ProxyBundleConfigurator extends AbstractConfigurator
+class ProxyConfigurator extends AbstractConfigurator
 {
     /**
      * @var Proxy
