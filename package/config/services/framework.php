@@ -54,8 +54,14 @@ return [
 
     'configurator.proxy' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\Proxy\\ProxyConfigurator',
+        'class' => 'Perfumer\\Framework\\Configurator\\ProxyConfigurator',
         'arguments' => ['#proxy']
+    ],
+
+    'configurator.translator' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Configurator\\SymfonyTranslatorConfigurator',
+        'arguments' => ['#translator']
     ],
 
     'cookie' => [

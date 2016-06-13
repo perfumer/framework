@@ -1,8 +1,9 @@
 <?php
 
-namespace Perfumer\Framework\Proxy;
+namespace Perfumer\Framework\Configurator;
 
 use Perfumer\Component\Container\AbstractConfigurator;
+use Perfumer\Framework\Proxy\Proxy;
 
 class ProxyConfigurator extends AbstractConfigurator
 {
