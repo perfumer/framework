@@ -3,6 +3,7 @@
 namespace Perfumer\Component\Container;
 
 use Interop\Container\ContainerInterface;
+use Perfumer\Component\Container\Exception\BundleException;
 use Perfumer\Component\Container\Exception\ContainerException;
 use Perfumer\Component\Container\Storage\ArrayStorage;
 use Perfumer\Component\Container\Storage\AbstractStorage;
@@ -12,7 +13,22 @@ class Container implements ContainerInterface
     /**
      * @var array
      */
+    protected $configurators = [];
+
+    /**
+     * @var array
+     */
     protected $definitions = [];
+
+    /**
+     * @var array
+     */
+    protected $manifests = [];
+
+    /**
+     * @var array
+     */
+    protected $resources = [];
 
     /**
      * @var array
@@ -114,9 +130,63 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param array $manifests
+     */
+    public function registerBundles(array $manifests)
+    {
+        foreach ($manifests as $manifest) {
+            /** @var AbstractManifest $manifest */
+
+            $this->manifests[$manifest->getName()] = $manifest;
+
+            foreach ($manifest->getDefinitions() as $definitions) {
+                $this->addDefinitions($definitions);
+            }
+
+            foreach ($manifest->getDefinitionFiles() as $file) {
+                $this->addDefinitionsFromFile($file);
+            }
+
+            /** @var ArrayStorage $array_storage */
+            $array_storage = $this->getStorage('array');
+
+            foreach ($manifest->getParams() as $params) {
+                $array_storage->addParams($params);
+            }
+
+            foreach ($manifest->getParamFiles() as $file) {
+                $array_storage->addParamsFromFile($file);
+            }
+
+            foreach ($manifest->getStorages() as $storage) {
+                $this->registerStorage($storage, $this->get($storage));
+            }
+
+            $this->configurators = array_merge($this->configurators, $manifest->getConfigurators());
+
+            foreach ($manifest->getResources() as $key => $resource) {
+                if (isset($this->resources[$key])) {
+                    $this->resources[$key] = array_merge($this->resources[$key], $resource);
+                } else {
+                    $this->resources[$key] = $resource;
+                }
+            }
+        }
+
+        // Execute configurators
+        foreach ($this->configurators as $key => $configurator) {
+            /** @var AbstractConfigurator $service */
+            $service = $this->get($configurator);
+
+            $resources = isset($this->resources[$key]) ? $this->resources[$key] : [];
+
+            $service->configure($resources);
+        }
+    }
+
+    /**
      * @param string $name
      * @param AbstractStorage $storage
-     * @return $this
      */
     public function registerStorage($name, AbstractStorage $storage)
     {
@@ -238,6 +308,24 @@ class Container implements ContainerInterface
         list($storage, $group, $name) = $this->extractParamKey($key);
 
         return $this->getStorage($storage)->getParam($group, $name, $default);
+    }
+
+    /**
+     * @param string $bundle
+     * @param string $alias
+     * @return string
+     * @throws BundleException
+     */
+    public function resolveBundleAlias($bundle, $alias)
+    {
+        if (!isset($this->manifests[$bundle])) {
+            throw new BundleException('Bundle "' . $bundle . '" is not registered.');
+        }
+
+        /** @var AbstractManifest $manifest */
+        $manifest = $this->manifests[$bundle];
+
+        return $manifest->resolveAlias($alias);
     }
 
     /**
