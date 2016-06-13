@@ -20,5 +20,9 @@ return [
 
     'proxy' => [
         'debug' => false
+    ],
+
+    'translator' => [
+        'locale' => 'ru_RU'
     ]
 ];

@@ -135,7 +135,7 @@ return [
     'translator' => [
         'shared' => true,
         'class' => 'Symfony\\Component\\Translation\\Translator',
-        'arguments' => ['en_US'],
+        'arguments' => ['@translator/locale'],
         'after' => function (\Perfumer\Component\Container\Container $container, \Symfony\Component\Translation\Translator $translator) {
             $translator->addLoader('file', new \Symfony\Component\Translation\Loader\PhpFileLoader());
         }
