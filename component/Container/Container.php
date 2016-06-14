@@ -179,7 +179,7 @@ class Container implements ContainerInterface
             /** @var AbstractConfigurator $service */
             $service = $this->get($configurator);
 
-            $service->configure(Arr::fetch($this->resources, $service->getResourceKeys()));
+            $service->configure(Arr::fetch($this->resources, $service->getResourceKeys(), true, []));
         }
     }
 
@@ -337,7 +337,7 @@ class Container implements ContainerInterface
      */
     public function listConfigurators()
     {
-        $list = array_keys($this->configurators);
+        $list = $this->configurators;
 
         sort($list);
 
