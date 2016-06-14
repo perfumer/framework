@@ -288,30 +288,6 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @return array
-     */
-    public function listManifests()
-    {
-        return array_keys($this->manifests);
-    }
-
-    /**
-     * @return array
-     */
-    public function listStorages()
-    {
-        return array_keys($this->storages);
-    }
-
-    /**
-     * @return array
-     */
-    public function listConfigurators()
-    {
-        return $this->configurators;
-    }
-
-    /**
      * @param string $bundle
      * @param string $alias
      * @return string
@@ -327,6 +303,69 @@ class Container implements ContainerInterface
         $manifest = $this->manifests[$bundle];
 
         return $manifest->resolveAlias($alias);
+    }
+
+    /**
+     * @param bool $preserve_order
+     * @return array
+     */
+    public function listManifests($preserve_order = true)
+    {
+        $list = array_keys($this->manifests);
+
+        if (!$preserve_order) {
+            sort($list);
+        }
+
+        return $list;
+    }
+
+    /**
+     * @return array
+     */
+    public function listStorages()
+    {
+        $list = array_keys($this->storages);
+
+        sort($list);
+
+        return $list;
+    }
+
+    /**
+     * @return array
+     */
+    public function listConfigurators()
+    {
+        $list = array_keys($this->configurators);
+
+        sort($list);
+
+        return $list;
+    }
+
+    /**
+     * @return array
+     */
+    public function listSharedServices()
+    {
+        $list = array_keys($this->shared);
+
+        sort($list);
+
+        return $list;
+    }
+
+    /**
+     * @return array
+     */
+    public function listDefinitions()
+    {
+        $list = array_keys($this->definitions);
+
+        sort($list);
+
+        return $list;
     }
 
     /**
