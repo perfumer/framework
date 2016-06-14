@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Package\Manifest;
+namespace Perfumer\Package\Bundle;
 
-class HttpManifest extends FrameworkManifest
+class HttpBundle extends FrameworkBundle
 {
     /**
      * @return string
@@ -17,7 +17,7 @@ class HttpManifest extends FrameworkManifest
      */
     public function getDescription()
     {
-        return 'Perfumer framework bundle http manifest';
+        return 'Perfumer Framework http bundle';
     }
 
     /**

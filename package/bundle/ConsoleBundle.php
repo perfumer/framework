@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Package\Manifest;
+namespace Perfumer\Package\Bundle;
 
-class ConsoleManifest extends FrameworkManifest
+class ConsoleBundle extends FrameworkBundle
 {
     /**
      * @return string
@@ -17,7 +17,7 @@ class ConsoleManifest extends FrameworkManifest
      */
     public function getDescription()
     {
-        return 'Perfumer framework bundle console manifest';
+        return 'Perfumer Framework console bundle';
     }
 
     /**

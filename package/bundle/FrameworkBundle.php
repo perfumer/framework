@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Package\Manifest;
+namespace Perfumer\Package\Bundle;
 
-use Perfumer\Component\Container\AbstractManifest;
+use Perfumer\Component\Container\AbstractBundle;
 
-class FrameworkManifest extends AbstractManifest
+abstract class FrameworkBundle extends AbstractBundle
 {
     /**
      * @return string
@@ -19,7 +19,7 @@ class FrameworkManifest extends AbstractManifest
      */
     public function getDescription()
     {
-        return 'Perfumer framework bundle manifest';
+        return 'Perfumer Framework base bundle';
     }
 
     /**

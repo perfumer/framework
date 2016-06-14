@@ -4,7 +4,7 @@ namespace Perfumer\Component\Container;
 
 use Perfumer\Component\Container\Exception\BundleException;
 
-abstract class AbstractManifest
+abstract class AbstractBundle
 {
     abstract public function getName();
 
@@ -84,7 +84,7 @@ abstract class AbstractManifest
         $aliases = $this->getAliases();
 
         if (!isset($aliases[$alias])) {
-            throw new BundleException('Service alias "' . $alias . '" not found in manifest "' . $this->getName() . '"');
+            throw new BundleException('Service alias "' . $alias . '" is not found for the bundle "' . $this->getName() . '"');
         }
 
         return $aliases[$alias];

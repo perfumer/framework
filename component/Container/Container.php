@@ -24,7 +24,7 @@ class Container implements ContainerInterface
     /**
      * @var array
      */
-    protected $manifests = [];
+    protected $bundles = [];
 
     /**
      * @var array
@@ -131,41 +131,41 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param array $manifests
+     * @param array $bundles
      */
-    public function registerBundles(array $manifests)
+    public function registerBundles(array $bundles)
     {
-        foreach ($manifests as $manifest) {
-            /** @var AbstractManifest $manifest */
+        foreach ($bundles as $bundle) {
+            /** @var AbstractBundle $bundle */
 
-            $this->manifests[$manifest->getName()] = $manifest;
+            $this->bundles[$bundle->getName()] = $bundle;
 
-            foreach ($manifest->getDefinitions() as $definitions) {
+            foreach ($bundle->getDefinitions() as $definitions) {
                 $this->addDefinitions($definitions);
             }
 
-            foreach ($manifest->getDefinitionFiles() as $file) {
+            foreach ($bundle->getDefinitionFiles() as $file) {
                 $this->addDefinitionsFromFile($file);
             }
 
             /** @var ArrayStorage $array_storage */
             $array_storage = $this->getStorage('array');
 
-            foreach ($manifest->getParams() as $params) {
+            foreach ($bundle->getParams() as $params) {
                 $array_storage->addParams($params);
             }
 
-            foreach ($manifest->getParamFiles() as $file) {
+            foreach ($bundle->getParamFiles() as $file) {
                 $array_storage->addParamsFromFile($file);
             }
 
-            foreach ($manifest->getStorages() as $storage) {
+            foreach ($bundle->getStorages() as $storage) {
                 $this->registerStorage($storage, $this->get($storage));
             }
 
-            $this->configurators = array_merge($this->configurators, $manifest->getConfigurators());
+            $this->configurators = array_merge($this->configurators, $bundle->getConfigurators());
 
-            foreach ($manifest->getResources() as $key => $resource) {
+            foreach ($bundle->getResources() as $key => $resource) {
                 if (isset($this->resources[$key])) {
                     $this->resources[$key] = array_merge($this->resources[$key], $resource);
                 } else {
@@ -288,30 +288,30 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param string $bundle
+     * @param string $name
      * @param string $alias
      * @return string
      * @throws BundleException
      */
-    public function resolveBundleAlias($bundle, $alias)
+    public function resolveBundleAlias($name, $alias)
     {
-        if (!isset($this->manifests[$bundle])) {
-            throw new BundleException('Bundle "' . $bundle . '" is not registered.');
+        if (!isset($this->bundles[$name])) {
+            throw new BundleException('Bundle "' . $name . '" is not registered.');
         }
 
-        /** @var AbstractManifest $manifest */
-        $manifest = $this->manifests[$bundle];
+        /** @var AbstractBundle $bundle */
+        $bundle = $this->bundles[$name];
 
-        return $manifest->resolveAlias($alias);
+        return $bundle->resolveAlias($alias);
     }
 
     /**
      * @param bool $preserve_order
      * @return array
      */
-    public function listManifests($preserve_order = true)
+    public function listBundles($preserve_order = true)
     {
-        $list = array_keys($this->manifests);
+        $list = array_keys($this->bundles);
 
         if (!$preserve_order) {
             sort($list);
