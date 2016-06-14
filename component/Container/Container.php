@@ -260,6 +260,76 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     * @access public
+     */
+    public function getParam($key, $default = null)
+    {
+        list($storage, $group, $name) = $this->extractParamKey($key);
+
+        return $this->getStorage($storage)->getParam($group, $name, $default);
+    }
+
+    /**
+     * @param string|array|null $keys
+     * @return array
+     */
+    public function getResources($keys = null)
+    {
+        if ($keys === null) {
+            return $this->resources;
+        } elseif (is_array($keys)) {
+            return Arr::fetch($this->resources, $keys, true, []);
+        } else {
+            return isset($this->resources[$keys]) ? $this->resources[$keys] : [];
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function listManifests()
+    {
+        return array_keys($this->manifests);
+    }
+
+    /**
+     * @return array
+     */
+    public function listStorages()
+    {
+        return array_keys($this->storages);
+    }
+
+    /**
+     * @return array
+     */
+    public function listConfigurators()
+    {
+        return $this->configurators;
+    }
+
+    /**
+     * @param string $bundle
+     * @param string $alias
+     * @return string
+     * @throws BundleException
+     */
+    public function resolveBundleAlias($bundle, $alias)
+    {
+        if (!isset($this->manifests[$bundle])) {
+            throw new BundleException('Bundle "' . $bundle . '" is not registered.');
+        }
+
+        /** @var AbstractManifest $manifest */
+        $manifest = $this->manifests[$bundle];
+
+        return $manifest->resolveAlias($alias);
+    }
+
+    /**
      * @param array $array
      * @param array $parameters
      * @return array
@@ -294,37 +364,6 @@ class Container implements ContainerInterface
         }
 
         return $arguments;
-    }
-
-    /**
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
-     * @access public
-     */
-    public function getParam($key, $default = null)
-    {
-        list($storage, $group, $name) = $this->extractParamKey($key);
-
-        return $this->getStorage($storage)->getParam($group, $name, $default);
-    }
-
-    /**
-     * @param string $bundle
-     * @param string $alias
-     * @return string
-     * @throws BundleException
-     */
-    public function resolveBundleAlias($bundle, $alias)
-    {
-        if (!isset($this->manifests[$bundle])) {
-            throw new BundleException('Bundle "' . $bundle . '" is not registered.');
-        }
-
-        /** @var AbstractManifest $manifest */
-        $manifest = $this->manifests[$bundle];
-
-        return $manifest->resolveAlias($alias);
     }
 
     /**
