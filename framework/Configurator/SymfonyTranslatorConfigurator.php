@@ -35,7 +35,9 @@ class SymfonyTranslatorConfigurator extends AbstractConfigurator
     {
         if (isset($resources['translator'])) {
             foreach ($resources['translator'] as $resource) {
-                $this->translator->addResource('file', $resource[0], $resource[1]);
+                $domain = isset($resource[2]) ? $resource[2] : null;
+
+                $this->translator->addResource('file', $resource[0], $resource[1], $domain);
             }
         }
     }
