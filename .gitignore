@@ -1,0 +1,5 @@
+.idea
+nbproject
+tmp/cache/*
+tmp/logs/*
+tmp/twig/*
