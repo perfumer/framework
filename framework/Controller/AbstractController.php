@@ -145,19 +145,21 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function s($name, array $parameters = [])
     {
-        return $this->getContainer()->get($name, $parameters);
+        return $this->_container->get($name, $parameters);
     }
 
     /**
      * Shortcut for Translator trans() method
      *
-     * @param $key
-     * @param $placeholders
+     * @param string $key
+     * @param array $parameters
+     * @param string $domain
+     * @param string $locale
      * @return string
      */
-    protected function t($key, $placeholders = [])
+    protected function t($key, array $parameters = [], $domain = null, $locale = null)
     {
-        return $this->getContainer()->get('translator')->trans($key, $placeholders);
+        return $this->_container->get('translator')->trans($key, $parameters, $domain, $locale);
     }
 
     /**
@@ -218,7 +220,7 @@ abstract class AbstractController implements ControllerInterface
         if ($this->_view === null) {
             $view_service_name = $this->_container->resolveBundleAlias($this->getCurrent()->getBundle(), 'view');
 
-            $this->_view = $this->getContainer()->get($view_service_name);
+            $this->_view = $this->_container->get($view_service_name);
         }
 
         return $this->_view;
@@ -232,7 +234,7 @@ abstract class AbstractController implements ControllerInterface
         if ($this->_auth === null) {
             $auth_service_name = $this->_container->resolveBundleAlias($this->getCurrent()->getBundle(), 'auth');
 
-            $this->_auth = $this->getContainer()->get($auth_service_name);
+            $this->_auth = $this->_container->get($auth_service_name);
         }
 
         return $this->_auth;
