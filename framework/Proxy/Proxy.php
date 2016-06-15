@@ -279,9 +279,9 @@ class Proxy
             $this->pageNotFoundException();
         }
 
-//        if (!$request->isMain() && in_array($request->getAction(), $this->router->getAllowedActions())) {
-//            throw new ProxyException('Action "' . $request->getAction() . '" is reserved by router for external requests, so can not be used for internal requests.');
-//        }
+        if (!$request->isMain() && in_array($request->getAction(), $this->router->getAllowedActions())) {
+            throw new ProxyException('Action "' . $request->getAction() . '" is reserved by router for external requests, so can not be used for internal requests.');
+        }
 
         $controller_class = $request->getController();
 

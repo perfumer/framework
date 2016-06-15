@@ -21,17 +21,40 @@ class DefaultRouter implements RouterInterface
      */
     protected $response;
 
+    /**
+     * @var string
+     */
     protected $input;
 
+    /**
+     * @var array
+     */
     protected $options = [];
 
+    /**
+     * @var array
+     */
     protected $http_prefixes = [];
-    protected $http_id;
-    protected $http_id_array;
-    protected $http_fields = [];
-    protected $http_query = [];
-    protected $http_args = [];
 
+    /**
+     * @var mixed
+     */
+    protected $http_id;
+
+    /**
+     * @var array
+     */
+    protected $http_id_array;
+
+    /**
+     * @var array
+     */
+    protected $http_fields = [];
+
+    /**
+     * @param HttpResolver $bundle_resolver
+     * @param array $options
+     */
     public function __construct(HttpResolver $bundle_resolver, $options = [])
     {
         $this->bundle_resolver = $bundle_resolver;
@@ -142,45 +165,32 @@ class DefaultRouter implements RouterInterface
 
         $this->input = file_get_contents("php://input");
 
+        $args = [];
+
         $data_type = $this->options['data_type'];
 
         // Get query parameters and args depending from type of data in the http request body
         if ($data_type == 'query_string') {
-            switch ($action) {
-                case 'get':
-                    $this->http_query = $_GET;
-                    break;
-                case 'post':
-                    $this->http_query = $_GET;
-                    $this->http_args = $_POST;
-                    break;
-                default:
-                    $this->http_query = $_GET;
-                    parse_str($this->getInput(), $this->http_args);
-                    break;
-            }
-        } else if ($data_type == 'json') {
-            $this->http_query = $_GET;
-            $this->http_args = $this->getInput() ? json_decode($this->getInput(), true) : [];
+            parse_str($this->input, $args);
+        } elseif ($data_type == 'json') {
+            $args = $this->input ? json_decode($this->input, true) : [];
 
-            if (!is_array($this->http_args)) {
-                $this->http_args = [];
+            if (!is_array($args)) {
+                $args = [];
             }
         }
 
+        $this->http_fields = array_merge($_GET, $args);
+
         // Trim all args if auto_trim setting enabled
         if ($this->options['auto_trim']) {
-            $this->http_args = Arr::trim($this->http_args);
-            $this->http_query = Arr::trim($this->http_query);
+            $this->http_fields = Arr::trim($this->http_fields);
         }
 
         // Convert empty strings to null values if auto_null setting enabled
         if ($this->options['auto_null']) {
-            $this->http_args = Arr::convertValues($this->http_args, '', null);
-            $this->http_query = Arr::convertValues($this->http_query, '', null);
+            $this->http_fields = Arr::convertValues($this->http_fields, '', null);
         }
-
-        $this->http_fields = array_merge($this->http_query, $this->http_args);
 
         return [$url, $action, []];
     }
@@ -362,187 +372,30 @@ class DefaultRouter implements RouterInterface
     }
 
     /**
-     * @param null $name
-     * @param null $default
-     * @return array|null
-     * @deprecated
-     */
-    public function getArg($name = null, $default = null)
-    {
-        if ($name === null) {
-            return $this->http_args;
-        }
-
-        return isset($this->http_args[$name]) ? $this->http_args[$name] : $default;
-    }
-
-    /**
+     * @param string $prefix
+     * @param string $part
+     * @param array $options
      * @return bool
-     * @deprecated
      */
-    public function hasArgs()
+    protected function validateUrlPartForPrefix($prefix, $part, array $options)
     {
-        return count($this->http_args) > 0;
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     * @return $this
-     * @deprecated
-     */
-    public function setArg($name, $value)
-    {
-        $this->http_args[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param $array
-     * @return $this
-     * @deprecated
-     */
-    public function setArgsArray($array)
-    {
-        $this->http_args = $array;
-
-        return $this;
-    }
-
-    /**
-     * @param $array
-     * @return $this
-     * @deprecated
-     */
-    public function addArgsArray($array)
-    {
-        $this->http_args = array_merge($this->http_args, $array);
-
-        return $this;
-    }
-
-    /**
-     * @param array $keys
-     * @return $this
-     * @deprecated
-     */
-    public function deleteArgs(array $keys = [])
-    {
-        if ($keys)
-        {
-            foreach ($keys as $key)
-            {
-                if (isset($this->http_args[$key]))
-                    unset($this->http_args[$key]);
-            }
-        }
-        else
-        {
-            $this->http_args = [];
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param null $name
-     * @param null $default
-     * @return array|null
-     * @deprecated
-     */
-    public function getQuery($name = null, $default = null)
-    {
-        if ($name === null)
-            return $this->http_query;
-
-        return isset($this->http_query[$name]) ? $this->http_query[$name] : $default;
-    }
-
-    /**
-     * @return bool
-     * @deprecated
-     */
-    public function hasQuery()
-    {
-        return count($this->http_query) > 0;
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     * @return $this
-     * @deprecated
-     */
-    public function setQuery($name, $value)
-    {
-        $this->http_query[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param $array
-     * @return $this
-     * @deprecated
-     */
-    public function setQueryArray($array)
-    {
-        $this->http_query = $array;
-
-        return $this;
-    }
-
-    /**
-     * @param $array
-     * @return $this
-     * @deprecated
-     */
-    public function addQueryArray($array)
-    {
-        $this->http_query = array_merge($this->http_query, $array);
-
-        return $this;
-    }
-
-    /**
-     * @param array $keys
-     * @return $this
-     * @deprecated
-     */
-    public function deleteQuery(array $keys = [])
-    {
-        if ($keys)
-        {
-            foreach ($keys as $key)
-            {
-                if (isset($this->http_query[$key]))
-                    unset($this->http_query[$key]);
-            }
-        }
-        else
-        {
-            $this->http_query = [];
-        }
-
-        return $this;
-    }
-
-    protected function validateUrlPartForPrefix($prefix, $part, $options)
-    {
-        if ($options === null || !isset($options[$prefix]))
+        if ($options === null || !isset($options[$prefix])) {
             return true;
+        }
 
         $options = $options[$prefix];
 
-        if (isset($options['white_list']))
+        if (isset($options['white_list'])) {
             return in_array($part, $options['white_list']);
+        }
 
-        if (isset($options['black_list']))
+        if (isset($options['black_list'])) {
             return !in_array($part, $options['black_list']);
+        }
 
-        if (isset($options['regex']))
+        if (isset($options['regex'])) {
             return preg_match($options['regex'], $part);
+        }
 
         return true;
     }

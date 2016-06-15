@@ -102,7 +102,7 @@ class FastRouteRouter implements RouterInterface
         $args = [];
 
         if ($data_type == 'query_string') {
-            parse_str($this->getInput(), $args);;
+            parse_str($this->input, $args);
         } else if ($data_type == 'json') {
             $args = $this->input ? json_decode($this->input, true) : [];
 
