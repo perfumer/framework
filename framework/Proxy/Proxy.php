@@ -196,7 +196,7 @@ class Proxy
         if ($this->is_deferred_stage) {
             $this->execute($bundle, $resource, $action, $args);
         } else {
-            $this->deferred[] = [$bundle, $resource, $action, $args];
+            $this->deferred[] = new Deferred($bundle, $resource, $action, $args);
         }
     }
 
@@ -206,15 +206,25 @@ class Proxy
      */
     public function trigger($event_name, Event $event)
     {
-        if ($subscribers = $this->getAsyncSubscribers($event_name)) {
+        if ($subscribers = $this->getSyncSubscribers($event_name)) {
             foreach ($subscribers as $subscriber) {
-                $this->defer($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
+                if (!$event->isCancelled()) {
+                    $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
+                }
             }
         }
 
-        if ($subscribers = $this->getSyncSubscribers($event_name)) {
+        if ($event->isCancelled()) {
+            return;
+        }
+
+        if ($subscribers = $this->getAsyncSubscribers($event_name)) {
             foreach ($subscribers as $subscriber) {
-                $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
+                if ($this->is_deferred_stage && !$event->isCancelled()) {
+                    $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
+                } else {
+                    $this->deferred[] = new Deferred($subscriber[0], $subscriber[1], $subscriber[2], [], $event);
+                }
             }
         }
     }
@@ -324,8 +334,15 @@ class Proxy
     {
         $this->is_deferred_stage = true;
 
-        foreach ($this->deferred as $job) {
-            $this->execute($job[0], $job[1], $job[2], $job[3]);
+        foreach ($this->deferred as $deferred) {
+            /** @var Deferred $deferred */
+            $event = $deferred->getEvent();
+
+            if ($event instanceof Event && $event->isCancelled()) {
+                continue;
+            }
+
+            $this->execute($deferred->getBundle(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
         }
     }
 

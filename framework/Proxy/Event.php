@@ -10,6 +10,11 @@ class Event
     protected $vars;
 
     /**
+     * @var bool
+     */
+    protected $is_cancelled = false;
+
+    /**
      * Event constructor.
      * @param array $vars
      */
@@ -34,5 +39,18 @@ class Event
     public function getVar($name, $default = null)
     {
         return isset($this->vars[$name]) ? $this->vars[$name] : $default;
+    }
+
+    public function cancel()
+    {
+        $this->is_cancelled = true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCancelled()
+    {
+        return $this->is_cancelled;
     }
 }
