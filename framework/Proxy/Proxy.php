@@ -206,7 +206,7 @@ class Proxy
         if ($this->is_deferred_stage) {
             $this->execute($bundle, $resource, $action, $args);
         } else {
-            $this->deferred[] = new Deferred($bundle, $resource, $action, $args);
+            $this->deferred[] = new Attributes($bundle, $resource, $action, $args);
         }
     }
 
@@ -218,23 +218,13 @@ class Proxy
     {
         if ($subscribers = $this->getSyncSubscribers($event_name)) {
             foreach ($subscribers as $subscriber) {
-                if (!$event->isCancelled()) {
-                    $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
-                }
+                $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
             }
-        }
-
-        if ($event->isCancelled()) {
-            return;
         }
 
         if ($subscribers = $this->getAsyncSubscribers($event_name)) {
             foreach ($subscribers as $subscriber) {
-                if ($this->is_deferred_stage && !$event->isCancelled()) {
-                    $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
-                } else {
-                    $this->deferred[] = new Deferred($subscriber[0], $subscriber[1], $subscriber[2], [], $event);
-                }
+                $this->defer($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
             }
         }
     }
@@ -335,12 +325,7 @@ class Proxy
         $this->is_deferred_stage = true;
 
         foreach ($this->deferred as $deferred) {
-            /** @var Deferred $deferred */
-            $event = $deferred->getEvent();
-
-            if ($event instanceof Event && $event->isCancelled()) {
-                continue;
-            }
+            /** @var Attributes $deferred */
 
             $this->execute($deferred->getBundle(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
         }
@@ -348,18 +333,18 @@ class Proxy
 
     /**
      * @param string $bundle
-     * @param string $url
+     * @param string $resource
      * @param string $action
      * @return array
      */
-    public function overrideController($bundle, $url, $action)
+    public function overrideController($bundle, $resource, $action)
     {
-        $key = $bundle . '#' . $url . '#' . $action;
+        $key = $bundle . '.' . $resource . '.' . $action;
 
         if (isset($this->controller_overrides[$key])) {
             $result = $this->controller_overrides[$key];
         } else {
-            $result = [$bundle, $url, $action];
+            $result = [$bundle, $resource, $action];
         }
 
         return $result;
@@ -367,17 +352,17 @@ class Proxy
 
     /**
      * @param string $bundle
-     * @param string $url
+     * @param string $template
      * @return array
      */
-    public function overrideTemplate($bundle, $url)
+    public function overrideTemplate($bundle, $template)
     {
-        $key = $bundle . '#' . $url;
+        $key = $bundle . '.' . $template;
 
         if (isset($this->template_overrides[$key])) {
             $result = $this->template_overrides[$key];
         } else {
-            $result = [$bundle, $url];
+            $result = [$bundle, $template];
         }
 
         return $result;
