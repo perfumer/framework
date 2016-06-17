@@ -5,16 +5,6 @@ namespace Perfumer\Framework\Proxy;
 class Request
 {
     /**
-     * @var Request
-     */
-    protected $main;
-
-    /**
-     * @var Request
-     */
-    protected $initial;
-
-    /**
      * @var string
      */
     protected $bundle;
@@ -53,61 +43,6 @@ class Request
 
         $this->options = array_merge($default_options, (array) $options);
     }
-
-    /**
-     * @param Request $request
-     * @return $this
-     */
-    public function setMain(Request $request)
-    {
-        $this->main = $request;
-
-        return $this;
-    }
-
-    /**
-     * @return Request
-     */
-    public function getMain()
-    {
-        return $this->main;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isMain()
-    {
-        return $this->main === null;
-    }
-
-    /**
-     * @param Request $request
-     * @return $this
-     */
-    public function setInitial(Request $request)
-    {
-        $this->initial = $request;
-
-        return $this;
-    }
-
-    /**
-     * @return Request
-     */
-    public function getInitial()
-    {
-        return $this->initial;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isInitial()
-    {
-        return $this->initial === null;
-    }
-
     /**
      * @return string
      */

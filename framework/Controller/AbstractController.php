@@ -145,7 +145,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function s($name, array $parameters = [])
     {
-        return $this->_container->get($name, $parameters);
+        return $this->getContainer()->get($name, $parameters);
     }
 
     /**
@@ -159,7 +159,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function t($key, array $parameters = [], $domain = null, $locale = null)
     {
-        return $this->_container->get('translator')->trans($key, $parameters, $domain, $locale);
+        return $this->getContainer()->get('translator')->trans($key, $parameters, $domain, $locale);
     }
 
     /**
@@ -191,9 +191,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function getInitial()
     {
-        $current = $this->getCurrent();
-
-        return $current->isInitial() ? $current : $current->getInitial();
+        return $this->getProxy()->getInitial();
     }
 
     /**
@@ -218,9 +216,9 @@ abstract class AbstractController implements ControllerInterface
     protected function getView()
     {
         if ($this->_view === null) {
-            $view_service_name = $this->_container->resolveBundleAlias($this->getCurrent()->getBundle(), 'view');
+            $view_service_name = $this->getContainer()->resolveBundleAlias($this->getCurrent()->getBundle(), 'view');
 
-            $this->_view = $this->_container->get($view_service_name);
+            $this->_view = $this->getContainer()->get($view_service_name);
         }
 
         return $this->_view;
@@ -232,9 +230,9 @@ abstract class AbstractController implements ControllerInterface
     protected function getAuth()
     {
         if ($this->_auth === null) {
-            $auth_service_name = $this->_container->resolveBundleAlias($this->getCurrent()->getBundle(), 'auth');
+            $auth_service_name = $this->getContainer()->resolveBundleAlias($this->getCurrent()->getBundle(), 'auth');
 
-            $this->_auth = $this->_container->get($auth_service_name);
+            $this->_auth = $this->getContainer()->get($auth_service_name);
         }
 
         return $this->_auth;

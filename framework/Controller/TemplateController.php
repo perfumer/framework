@@ -20,8 +20,8 @@ class TemplateController extends ViewController
 
             $this->getView()->addVars([
                 'bundle' => $current->getBundle(),
-                'main' => $this->getMain(),
                 'initial' => $this->getInitial(),
+                'main' => $this->getMain(),
                 'current' => $current
             ], 'app');
 

@@ -27,14 +27,18 @@ class Proxy
     protected $router;
 
     /**
+     * The very first request
+     *
      * @var Request
      */
-    protected $current_initial;
+    protected $initial;
 
     /**
+     * The request which response will be returned to router
+     *
      * @var Request
      */
-    protected $next;
+    protected $main;
 
     /**
      * @var array
@@ -120,9 +124,17 @@ class Proxy
     /**
      * @return Request
      */
+    public function getInitial()
+    {
+        return $this->initial;
+    }
+
+    /**
+     * @return Request
+     */
     public function getMain()
     {
-        return $this->request_pool[0];
+        return $this->main;
     }
 
     public function run()
@@ -135,7 +147,7 @@ class Proxy
 
         list($resource, $action, $args) = $this->router->dispatch();
 
-        $this->next = $this->initializeRequest($bundle, $resource, $action, $args);
+        $this->initial = $this->main = $this->initializeRequest($bundle, $resource, $action, $args);
 
         $response = $this->start();
 
@@ -178,9 +190,7 @@ class Proxy
             throw new ProxyException('"Forward" method is not allowed in deferred stage of runtime.');
         }
 
-        $this->current_initial = null;
-
-        $this->next = $this->initializeRequest($bundle, $resource, $action, $args);
+        $this->main = $this->initializeRequest($bundle, $resource, $action, $args);
 
         throw new ForwardException();
     }
@@ -242,7 +252,7 @@ class Proxy
     protected function start()
     {
         try {
-            $response = $this->executeRequest($this->next);
+            $response = $this->executeRequest($this->main);
         } catch (ForwardException $e) {
             return $this->start();
         }
@@ -273,30 +283,20 @@ class Proxy
      */
     protected function executeRequest(Request $request)
     {
-        if (count($this->request_pool) != 0) {
-            $request->setMain($this->getMain());
-        }
-
         $this->request_pool[] = $request;
 
-        if ($this->current_initial === null) {
-            $this->current_initial = $request;
-        } else {
-            $request->setInitial($this->current_initial);
-        }
-
-        if ($request->isMain() && !in_array($request->getAction(), $this->router->getAllowedActions())) {
+        if ($request === $this->initial && !in_array($request->getAction(), $this->router->getAllowedActions())) {
             $this->pageNotFoundException();
         }
 
-        if (!$request->isMain() && in_array($request->getAction(), $this->router->getAllowedActions())) {
-            throw new ProxyException('Action "' . $request->getAction() . '" is reserved by router for external requests, so can not be used for internal requests.');
+        if ($request !== $this->main && in_array($request->getAction(), $this->router->getAllowedActions())) {
+            throw new ProxyException('Action "' . $request->getAction() . '" is reserved by router for main requests, so can not be used for other requests.');
         }
 
-        $controller_class = $request->getController();
+        $request_identity = $request->getIdentity();
 
-        if ($this->container->has($controller_class)) {
-            $controller = $this->container->get($controller_class);
+        if ($this->container->has($request_identity)) {
+            $controller = $this->container->get($request_identity);
         } else {
             try {
                 $reflection_class = new \ReflectionClass($request->getController());
@@ -304,17 +304,17 @@ class Proxy
                 $controller = $reflection_class->newInstance($this->container, $request, $reflection_class);
 
                 if (!method_exists($controller, $request->getAction())) {
-                    if ($request->isMain()) {
+                    if ($request === $this->initial) {
                         $this->pageNotFoundException();
                     } else {
-                        throw new ProxyException('Action "' . $request->getAction() . '" not found in controller "' . $controller_class . '".');
+                        throw new ProxyException('Action "' . $request->getAction() . '" not found in controller "' . $request->getController() . '".');
                     }
                 }
             } catch (\ReflectionException $e) {
-                if ($request->isMain()) {
+                if ($request === $this->initial) {
                     $this->pageNotFoundException();
                 } else {
-                    throw new ProxyException('Controller "' . $controller_class . '" not found.');
+                    throw new ProxyException('Controller "' . $request->getController() . '" not found.');
                 }
             }
         }
