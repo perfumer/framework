@@ -293,10 +293,10 @@ class Proxy
             throw new ProxyException('Action "' . $request->getAction() . '" is reserved by router for main requests, so can not be used for other requests.');
         }
 
-        $request_identity = $request->getIdentity();
+        $definition = $request->getBundle() . '.' . $request->getResource();
 
-        if ($this->container->has($request_identity)) {
-            $controller = $this->container->get($request_identity);
+        if ($this->container->has($definition)) {
+            $controller = $this->container->get($definition);
         } else {
             try {
                 $reflection_class = new \ReflectionClass($request->getController());
