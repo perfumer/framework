@@ -2,28 +2,8 @@
 
 namespace Perfumer\Framework\Proxy;
 
-class Deferred
+class Deferred extends Attributes
 {
-    /**
-     * @var string
-     */
-    protected $bundle;
-
-    /**
-     * @var string
-     */
-    protected $resource;
-
-    /**
-     * @var string
-     */
-    protected $action;
-
-    /**
-     * @var array
-     */
-    protected $args;
-
     /**
      * @var Event
      */
@@ -38,35 +18,9 @@ class Deferred
      */
     public function __construct($bundle, $resource, $action, $args = [], Event $event = null)
     {
-        $this->bundle = (string) $bundle;
-        $this->resource = (string) $resource;
-        $this->action = (string) $action;
-        $this->args = (array) $args;
+        parent::__construct($bundle, $resource, $action, $args);
+
         $this->event = $event;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBundle()
-    {
-        return $this->bundle;
-    }
-
-    /**
-     * @return string
-     */
-    public function getResource()
-    {
-        return $this->resource;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAction()
-    {
-        return $this->action;
     }
 
     /**

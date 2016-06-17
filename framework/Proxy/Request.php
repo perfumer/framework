@@ -2,39 +2,23 @@
 
 namespace Perfumer\Framework\Proxy;
 
-class Request
+class Request extends Attributes
 {
-    /**
-     * @var string
-     */
-    protected $bundle;
-
-    /**
-     * @var string
-     */
-    protected $resource;
-
-    /**
-     * @var string
-     */
-    protected $action;
-
-    /**
-     * @var array
-     */
-    protected $args;
-
     /**
      * @var array
      */
     protected $options = [];
 
+    /**
+     * @param string $bundle
+     * @param string $resource
+     * @param string $action
+     * @param array $args
+     * @param array $options
+     */
     public function __construct($bundle, $resource, $action, $args = [], $options = [])
     {
-        $this->bundle = (string) $bundle;
-        $this->resource = (string) $resource;
-        $this->action = (string) $action;
-        $this->args = (array) $args;
+        parent::__construct($bundle, $resource, $action, $args);
 
         $default_options = [
             'prefix' => 'App\\Controller',
@@ -42,29 +26,6 @@ class Request
         ];
 
         $this->options = array_merge($default_options, (array) $options);
-    }
-    /**
-     * @return string
-     */
-    public function getIdentity()
-    {
-        return $this->bundle . '.' . $this->resource . '.' . $this->action;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBundle()
-    {
-        return $this->bundle;
-    }
-
-    /**
-     * @return string
-     */
-    public function getResource()
-    {
-        return $this->resource;
     }
 
     /**
@@ -76,21 +37,5 @@ class Request
         $path = str_replace('/', '\\', $path);
 
         return $this->options['prefix'] . '\\' . $path . $this->options['suffix'];
-    }
-
-    /**
-     * @return string
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
-
-    /**
-     * @return array
-     */
-    public function getArgs()
-    {
-        return $this->args;
     }
 }
