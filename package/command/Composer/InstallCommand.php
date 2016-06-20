@@ -8,6 +8,11 @@ class InstallCommand extends PlainController
 {
     public function action()
     {
+        $this->doAction();
+    }
+
+    public function doAction()
+    {
         shell_exec('php composer.phar install --prefer-dist');
     }
 }

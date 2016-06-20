@@ -8,6 +8,11 @@ class BuildCommand extends PlainController
 {
     public function action()
     {
+        $this->doAction();
+    }
+
+    public function doAction()
+    {
         $platform = $this->getContainer()->getParam('propel/platform');
         $config_dir = $this->getContainer()->getParam('propel/config_dir');
         $model_dir = $this->getContainer()->getParam('propel/model_dir');

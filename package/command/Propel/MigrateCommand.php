@@ -8,6 +8,11 @@ class MigrateCommand extends PlainController
 {
     public function action()
     {
+        $this->doAction();
+    }
+
+    public function doAction()
+    {
         $platform = $this->getContainer()->getParam('propel/platform');
         $config_dir = $this->getContainer()->getParam('propel/config_dir');
         $migration_dir = $this->getContainer()->getParam('propel/migration_dir');
