@@ -37,7 +37,7 @@ class HttpRouterExtension extends \Twig_Extension
             new \Twig_SimpleFunction('url', [$this, 'url'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('prefix', [$this, 'prefix']),
             new \Twig_SimpleFunction('id', [$this, 'id']),
-            new \Twig_SimpleFunction('fields', [$this, 'query'])
+            new \Twig_SimpleFunction('fields', [$this, 'fields'])
         ];
     }
 
