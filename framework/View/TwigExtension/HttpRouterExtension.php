@@ -3,6 +3,7 @@
 namespace Perfumer\Framework\View\TwigExtension;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Framework\Router\Http\DefaultRouter;
 
 class HttpRouterExtension extends \Twig_Extension
 {
@@ -11,52 +12,79 @@ class HttpRouterExtension extends \Twig_Extension
      */
     protected $container;
 
+    /**
+     * @param Container $container
+     */
     public function __construct(Container $container)
     {
         $this->container = $container;
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return 'http_router_extension';
     }
 
+    /**
+     * @return array
+     */
     public function getFunctions()
     {
         return [
             new \Twig_SimpleFunction('url', [$this, 'url'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('prefix', [$this, 'prefix']),
             new \Twig_SimpleFunction('id', [$this, 'id']),
-            new \Twig_SimpleFunction('query', [$this, 'query']),
-            new \Twig_SimpleFunction('arg', [$this, 'arg'])
+            new \Twig_SimpleFunction('fields', [$this, 'query'])
         ];
     }
 
+    /**
+     * @param string $url
+     * @param mixed $id
+     * @param array $query
+     * @param array $prefixes
+     * @return string
+     */
     public function url($url, $id = null, $query = [], $prefixes = [])
     {
         return $this->getRouter()->generateUrl($url, $id, $query, $prefixes);
     }
 
-    public function prefix($name = null)
+    /**
+     * @param string|null $name
+     * @param mixed $default
+     * @return string
+     */
+    public function prefix($name = null, $default = null)
     {
-        return $this->getRouter()->getPrefix($name);
+        return $this->getRouter()->getPrefix($name, $default);
     }
 
+    /**
+     * @param int|null $index
+     * @return mixed
+     */
     public function id($index = null)
     {
         return $this->getRouter()->getId($index);
     }
 
-    public function query($name = null)
+    /**
+     * @param mixed $keys
+     * @param mixed $default
+     * @return mixed
+     */
+    public function fields($keys = null, $default = null)
     {
-        return $this->getRouter()->getQuery($name);
+        return $this->getRouter()->getFields($keys, $default);
     }
 
-    public function arg($name = null)
-    {
-        return $this->getRouter()->getArg($name);
-    }
-
+    /**
+     * @return DefaultRouter
+     */
     private function getRouter()
     {
         return $this->container->get('proxy')->getRouter();
