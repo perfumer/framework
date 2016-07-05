@@ -78,7 +78,7 @@ return [
     'logger.file_handler' => [
         'shared' => true,
         'class' => 'Monolog\\Handler\\RotatingFileHandler',
-        'arguments' => [__DIR__ . '/../../../tmp/logs/example.log', 10, \Monolog\Logger::WARNING]
+        'arguments' => [__DIR__ . '/../../../tmp/logs/example.log', 10]
     ],
 
     'profiler' => [
