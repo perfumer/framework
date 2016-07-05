@@ -2,6 +2,7 @@
 
 namespace Perfumer\Framework\Router\Http;
 
+use FastRoute\Dispatcher;
 use Perfumer\Framework\BundleResolver\HttpResolver;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class FastRouteRouter implements RouterInterface
 {
     /**
-     * @var FastRoute\simpleDispatcher
+     * @var Dispatcher
      */
     protected $fast_router;
 
@@ -31,7 +32,7 @@ class FastRouteRouter implements RouterInterface
 
     protected $http_fields = [];
 
-    public function __construct(HttpResolver $bundle_resolver, FastRoute\simpleDispatcher $fast_router, $options = [])
+    public function __construct(HttpResolver $bundle_resolver, Dispatcher $fast_router, $options = [])
     {
         $this->fast_router = $fast_router;
         $this->bundle_resolver = $bundle_resolver;
@@ -81,7 +82,7 @@ class FastRouteRouter implements RouterInterface
         $info = $this->fast_router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['PATH_INFO']);
 
         switch ($info[0]) {
-            case FastRoute\Dispatcher::FOUND:
+            case Dispatcher::FOUND:
                 $attributes = explode('.', $info[1]);
                 $resource = $attributes[0];
                 $action = $attributes[1];
