@@ -78,9 +78,13 @@ class Container implements ContainerInterface
             return $this->get($definition['alias']);
         }
 
-        // "Init" directive is a callable that returns instance of service
-        if (isset($definition['init']) && is_callable($definition['init'])) {
-            $service_class = $definition['init']($this, $parameters);
+        // "Init" directive is a function that returns instance of service
+        if (isset($definition['init'])) {
+            $service_class = call_user_func($definition['init'], $this, $parameters);
+
+            if ($service_class === false) {
+                throw new ContainerException('"Init" directive for service "' . $name . '" did not produced any object.');
+            }
         } else {
             $arguments = [];
 
@@ -108,9 +112,9 @@ class Container implements ContainerInterface
             }
         }
 
-        // "After" directive is a callable that is called after instantiation of service object
-        if (isset($definition['after']) && is_callable($definition['after'])) {
-            $definition['after']($this, $service_class, $parameters);
+        // "After" directive is a function that is called after instantiation of service object
+        if (isset($definition['after'])) {
+            call_user_func($definition['after'], $this, $service_class, $parameters);
         }
 
         // Preserve shared service
