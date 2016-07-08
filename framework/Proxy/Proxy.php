@@ -430,3 +430,12 @@ class Proxy
         return isset($this->async_subscribers[$event_name]) ? $this->async_subscribers[$event_name] : [];
     }
 }
+
+function proxyDefinitionAfter(Container $container, Proxy $proxy) {
+    $resources = $container->getResources(['controller_overrides', 'template_overrides', 'sync_subscribers', 'async_subscribers']);
+
+    $proxy->addControllersOverrides($resources['controller_overrides']);
+    $proxy->addTemplateOverrides($resources['template_overrides']);
+    $proxy->addSyncSubscribers($resources['sync_subscribers']);
+    $proxy->addAsyncSubscribers($resources['async_subscribers']);
+}

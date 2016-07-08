@@ -51,12 +51,4 @@ abstract class FrameworkBundle extends AbstractBundle
             'request' => 'framework.request'
         ];
     }
-
-    /**
-     * @return array
-     */
-    public function getConfigurators()
-    {
-        return ['configurator.proxy'];
-    }
 }

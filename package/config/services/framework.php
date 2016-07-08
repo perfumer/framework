@@ -52,12 +52,6 @@ return [
         }
     ],
 
-    'configurator.proxy' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Framework\\Configurator\\ProxyConfigurator',
-        'arguments' => ['#proxy']
-    ],
-
     'configurator.translator' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Configurator\\SymfonyTranslatorConfigurator',
@@ -118,7 +112,8 @@ return [
         'class' => 'Perfumer\\Framework\\Proxy\\Proxy',
         'arguments' => ['container', [
             'debug' => '@proxy/debug'
-        ]]
+        ]],
+        'after' => 'Perfumer\\Framework\\Proxy\\proxyDefinitionAfter'
     ],
 
     'session' => [
