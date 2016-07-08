@@ -1,7 +1,11 @@
 <?php
 
 return [
-    'bundle_resolver' => [
+    'bundle.http_resolver' => [
+        'bundles' => []
+    ],
+
+    'bundle.console_resolver' => [
         'bundles' => []
     ],
 

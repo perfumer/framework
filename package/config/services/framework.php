@@ -4,13 +4,13 @@ return [
     'bundle.console_resolver' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\BundleResolver\\ConsoleResolver',
-        'arguments' => ['@bundle_resolver/bundles']
+        'arguments' => ['@bundle.console_resolver/bundles']
     ],
 
     'bundle.http_resolver' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\BundleResolver\\HttpResolver',
-        'arguments' => ['@bundle_resolver/bundles']
+        'arguments' => ['@bundle.http_resolver/bundles']
     ],
 
     'cache.ephemeral' => [
