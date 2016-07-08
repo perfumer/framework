@@ -53,14 +53,6 @@ abstract class AbstractBundle
     /**
      * @return array
      */
-    public function getConfigurators()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
     public function getAliases()
     {
         return [];

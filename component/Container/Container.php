@@ -14,11 +14,6 @@ class Container implements ContainerInterface
     /**
      * @var array
      */
-    protected $configurators = [];
-
-    /**
-     * @var array
-     */
     protected $definitions = [];
 
     /**
@@ -167,8 +162,6 @@ class Container implements ContainerInterface
                 $this->registerStorage($storage, $this->get($storage));
             }
 
-            $this->configurators = array_merge($this->configurators, $bundle->getConfigurators());
-
             foreach ($bundle->getResources() as $key => $resource) {
                 if (isset($this->resources[$key])) {
                     $this->resources[$key] = array_merge($this->resources[$key], $resource);
@@ -176,14 +169,6 @@ class Container implements ContainerInterface
                     $this->resources[$key] = $resource;
                 }
             }
-        }
-
-        // Execute configurators
-        foreach ($this->configurators as $key => $configurator) {
-            /** @var AbstractConfigurator $service */
-            $service = $this->get($configurator);
-
-            $service->configure(Arr::fetch($this->resources, $service->getResourceKeys(), true, []));
         }
     }
 
@@ -330,18 +315,6 @@ class Container implements ContainerInterface
     public function listStorages()
     {
         $list = array_keys($this->storages);
-
-        sort($list);
-
-        return $list;
-    }
-
-    /**
-     * @return array
-     */
-    public function listConfigurators()
-    {
-        $list = $this->configurators;
 
         sort($list);
 
