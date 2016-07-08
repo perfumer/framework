@@ -52,12 +52,6 @@ return [
         }
     ],
 
-    'configurator.translator' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Framework\\Configurator\\SymfonyTranslatorConfigurator',
-        'arguments' => ['#translator']
-    ],
-
     'cookie' => [
         'shared' => true,
         'class' => 'Perfumer\\Component\\Session\\Cookie'
@@ -133,6 +127,14 @@ return [
         'arguments' => ['@translator/locale'],
         'after' => function (\Perfumer\Component\Container\Container $container, \Symfony\Component\Translation\Translator $translator) {
             $translator->addLoader('file', new \Symfony\Component\Translation\Loader\PhpFileLoader());
+
+            $resources = $container->getResources('translator');
+
+            foreach ($resources as $resource) {
+                $domain = isset($resource[2]) ? $resource[2] : null;
+
+                $translator->addResource('file', $resource[0], $resource[1], $domain);
+            }
         }
     ],
 
