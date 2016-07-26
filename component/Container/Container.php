@@ -370,6 +370,9 @@ class Container implements ContainerInterface
                     case '@':
                         $arguments[$key] = $this->getParam($name);
                         break;
+                    case '*':
+                        $arguments[$key] = $this->getResources($name);
+                        break;
                     case '$':
                         $arguments[$key] = (isset($parameters[$name])) ? $parameters[$name] : null;
                         break;
