@@ -279,10 +279,11 @@ class Container implements ContainerInterface
     /**
      * @param string $name
      * @param string $alias
-     * @return string
+     * @param bool $object
+     * @return mixed
      * @throws BundleException
      */
-    public function resolveBundleAlias($name, $alias)
+    public function resolveBundleAlias($name, $alias, $object = false)
     {
         if (!isset($this->bundles[$name])) {
             throw new BundleException('Bundle "' . $name . '" is not registered.');
@@ -291,7 +292,13 @@ class Container implements ContainerInterface
         /** @var AbstractBundle $bundle */
         $bundle = $this->bundles[$name];
 
-        return $bundle->resolveAlias($alias);
+        $service_name = $bundle->resolveAlias($alias);
+
+        if ($object) {
+            return $this->get($service_name);
+        }
+
+        return $service_name;
     }
 
     /**
