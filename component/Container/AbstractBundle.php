@@ -67,6 +67,14 @@ abstract class AbstractBundle
     }
 
     /**
+     * @return array
+     */
+    public function getResourceFiles()
+    {
+        return [];
+    }
+
+    /**
      * @param string $alias
      * @return string
      * @throws BundleException

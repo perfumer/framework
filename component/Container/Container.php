@@ -139,9 +139,7 @@ class Container implements ContainerInterface
 
             $this->bundles[$bundle->getName()] = $bundle;
 
-            foreach ($bundle->getDefinitions() as $definitions) {
-                $this->addDefinitions($definitions);
-            }
+            $this->addDefinitions($bundle->getDefinitions());
 
             foreach ($bundle->getDefinitionFiles() as $file) {
                 $this->addDefinitionsFromFile($file);
@@ -150,9 +148,7 @@ class Container implements ContainerInterface
             /** @var ArrayStorage $array_storage */
             $array_storage = $this->getStorage('array');
 
-            foreach ($bundle->getParams() as $params) {
-                $array_storage->addParams($params);
-            }
+            $array_storage->addParams($bundle->getParams());
 
             foreach ($bundle->getParamFiles() as $file) {
                 $array_storage->addParamsFromFile($file);
@@ -162,12 +158,10 @@ class Container implements ContainerInterface
                 $this->registerStorage($storage, $this->get($storage));
             }
 
-            foreach ($bundle->getResources() as $key => $resource) {
-                if (isset($this->resources[$key])) {
-                    $this->resources[$key] = array_merge($this->resources[$key], $resource);
-                } else {
-                    $this->resources[$key] = $resource;
-                }
+            $this->addResources($bundle->getResources());
+
+            foreach ($bundle->getResourceFiles() as $file) {
+                $this->addResourcesFromFile($file);
             }
         }
     }
@@ -224,8 +218,6 @@ class Container implements ContainerInterface
     public function addDefinitions($definitions)
     {
         $this->definitions = array_merge($this->definitions, $definitions);
-
-        return $this;
     }
 
     /**
@@ -236,7 +228,7 @@ class Container implements ContainerInterface
     {
         $definitions = require $file;
 
-        return $this->addDefinitions($definitions);
+        $this->addDefinitions($definitions);
     }
 
     /**
@@ -274,6 +266,32 @@ class Container implements ContainerInterface
         } else {
             return isset($this->resources[$keys]) ? $this->resources[$keys] : [];
         }
+    }
+
+    /**
+     * @param array $resources
+     * @return $this
+     */
+    public function addResources($resources)
+    {
+        foreach ($resources as $key => $resource) {
+            if (isset($this->resources[$key])) {
+                $this->resources[$key] = array_merge($this->resources[$key], $resource);
+            } else {
+                $this->resources[$key] = $resource;
+            }
+        }
+    }
+
+    /**
+     * @param string $file
+     * @return $this
+     */
+    public function addResourcesFromFile($file)
+    {
+        $resources = require $file;
+
+        return $this->addResources($resources);
     }
 
     /**
@@ -367,7 +385,7 @@ class Container implements ContainerInterface
                 $arguments[$key] = $this;
             } elseif (is_array($value)) {
                 $arguments[$key] = $this->resolveArrayOfArguments($value, $parameters);
-            } elseif (is_string($value) && $value && in_array($value[0], ['#', '@', '$'])) {
+            } elseif (is_string($value) && $value && in_array($value[0], ['#', '@', '*', '$'])) {
                 $name = substr($value, 1);
 
                 switch ($value[0]) {
