@@ -13,13 +13,14 @@ class BuildCommand extends PlainController
 
     public function doAction()
     {
+        $bin = $this->getContainer()->getParam('propel/bin');
         $platform = $this->getContainer()->getParam('propel/platform');
         $config_dir = $this->getContainer()->getParam('propel/config_dir');
         $model_dir = $this->getContainer()->getParam('propel/model_dir');
         $schema_dir = $this->getContainer()->getParam('propel/schema_dir');
 
         echo shell_exec(join(' ', [
-            'vendor/bin/propel model:build',
+            $bin . ' model:build',
             '--platform=' . $platform,
             '--schema-dir=' . $schema_dir,
             '--config-dir=' . $config_dir,

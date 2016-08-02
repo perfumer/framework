@@ -10,6 +10,7 @@ return [
     ],
 
     'propel' => [
+        'bin' => 'vendor/bin/propel',
         'project' => 'example',
         'database' => 'pgsql',
         'dsn' => 'pgsql:host=localhost;dbname=example',

@@ -13,12 +13,13 @@ class DownCommand extends PlainController
 
     public function doAction()
     {
+        $bin = $this->getContainer()->getParam('propel/bin');
         $platform = $this->getContainer()->getParam('propel/platform');
         $config_dir = $this->getContainer()->getParam('propel/config_dir');
         $migration_dir = $this->getContainer()->getParam('propel/migration_dir');
 
         echo shell_exec(join(' ', [
-            'vendor/bin/propel migration:down',
+            $bin . ' migration:down',
             '--platform=' . $platform,
             '--config-dir=' . $config_dir,
             '--output-dir=' . $migration_dir

@@ -13,13 +13,14 @@ class DiffCommand extends PlainController
 
     public function doAction()
     {
+        $bin = $this->getContainer()->getParam('propel/bin');
         $platform = $this->getContainer()->getParam('propel/platform');
         $config_dir = $this->getContainer()->getParam('propel/config_dir');
         $migration_dir = $this->getContainer()->getParam('propel/migration_dir');
         $schema_dir = $this->getContainer()->getParam('propel/schema_dir');
 
         echo shell_exec(join(' ', [
-            'vendor/bin/propel diff',
+            $bin . ' diff',
             '--platform=' . $platform,
             '--schema-dir=' . $schema_dir,
             '--config-dir=' . $config_dir,
