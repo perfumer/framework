@@ -22,23 +22,58 @@ class ArrayStorage extends AbstractStorage
 
     /**
      * @param array $params
-     * @return $this
+     * @access public
      */
     public function addParams($params)
     {
         $this->params = array_merge($this->params, $params);
-
-        return $this;
     }
 
     /**
      * @param string $file
-     * @return $this
+     * @access public
      */
     public function addParamsFromFile($file)
     {
         $params = require $file;
 
-        return $this->addParams($params);
+        $this->addParams($params);
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     * @access public
+     * @abstract
+     */
+    public function getResource($name)
+    {
+        return isset($this->resources[$name]) ? $this->resources[$name] : [];
+    }
+
+    /**
+     * @param array $resources
+     * @access public
+     */
+    public function addResources($resources)
+    {
+        foreach ($resources as $key => $resource) {
+            if (isset($this->resources[$key])) {
+                $this->resources[$key] = array_merge($this->resources[$key], $resource);
+            } else {
+                $this->resources[$key] = $resource;
+            }
+        }
+    }
+
+    /**
+     * @param string $file
+     * @access public
+     */
+    public function addResourcesFromFile($file)
+    {
+        $resources = require $file;
+
+        $this->addResources($resources);
     }
 }

@@ -128,7 +128,7 @@ return [
         'after' => function (\Perfumer\Component\Container\Container $container, \Symfony\Component\Translation\Translator $translator) {
             $translator->addLoader('file', new \Symfony\Component\Translation\Loader\PhpFileLoader());
 
-            $resources = $container->getResources('translator');
+            $resources = $container->getResource('translator');
 
             foreach ($resources as $resource) {
                 $domain = isset($resource[2]) ? $resource[2] : null;

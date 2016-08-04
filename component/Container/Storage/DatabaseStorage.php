@@ -3,6 +3,7 @@
 namespace Perfumer\Component\Container\Storage;
 
 use App\Model\ParameterQuery;
+use Perfumer\Component\Container\Exception\ContainerException;
 
 class DatabaseStorage extends AbstractStorage
 {
@@ -29,5 +30,16 @@ class DatabaseStorage extends AbstractStorage
         }
 
         return isset($this->params[$group][$name]) ? $this->params[$group][$name] : $default;
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     * @throws ContainerException
+     * @access public
+     */
+    public function getResource($name)
+    {
+        throw new ContainerException("Database storage does not support getResource() method for now.");
     }
 }

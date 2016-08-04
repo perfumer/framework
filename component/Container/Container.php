@@ -7,7 +7,6 @@ use Perfumer\Component\Container\Exception\BundleException;
 use Perfumer\Component\Container\Exception\ContainerException;
 use Perfumer\Component\Container\Storage\ArrayStorage;
 use Perfumer\Component\Container\Storage\AbstractStorage;
-use Perfumer\Helper\Arr;
 
 class Container implements ContainerInterface
 {
@@ -20,11 +19,6 @@ class Container implements ContainerInterface
      * @var array
      */
     protected $bundles = [];
-
-    /**
-     * @var array
-     */
-    protected $resources = [];
 
     /**
      * @var array
@@ -154,14 +148,14 @@ class Container implements ContainerInterface
                 $array_storage->addParamsFromFile($file);
             }
 
-            foreach ($bundle->getStorages() as $storage) {
-                $this->registerStorage($storage, $this->get($storage));
-            }
-
-            $this->addResources($bundle->getResources());
+            $array_storage->addResources($bundle->getResources());
 
             foreach ($bundle->getResourceFiles() as $file) {
-                $this->addResourcesFromFile($file);
+                $array_storage->addResourcesFromFile($file);
+            }
+
+            foreach ($bundle->getStorages() as $storage) {
+                $this->registerStorage($storage, $this->get($storage));
             }
         }
     }
@@ -254,44 +248,15 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param string|array|null $keys
+     * @param string $key
      * @return array
+     * @access public
      */
-    public function getResources($keys = null)
+    public function getResource($key)
     {
-        if ($keys === null) {
-            return $this->resources;
-        } elseif (is_array($keys)) {
-            return Arr::fetch($this->resources, $keys, true, []);
-        } else {
-            return isset($this->resources[$keys]) ? $this->resources[$keys] : [];
-        }
-    }
+        list($storage, $name) = $this->extractResourceKey($key);
 
-    /**
-     * @param array $resources
-     * @return $this
-     */
-    public function addResources($resources)
-    {
-        foreach ($resources as $key => $resource) {
-            if (isset($this->resources[$key])) {
-                $this->resources[$key] = array_merge($this->resources[$key], $resource);
-            } else {
-                $this->resources[$key] = $resource;
-            }
-        }
-    }
-
-    /**
-     * @param string $file
-     * @return $this
-     */
-    public function addResourcesFromFile($file)
-    {
-        $resources = require $file;
-
-        return $this->addResources($resources);
+        return $this->getStorage($storage)->getResource($name);
     }
 
     /**
@@ -396,7 +361,7 @@ class Container implements ContainerInterface
                         $arguments[$key] = $this->getParam($name);
                         break;
                     case '*':
-                        $arguments[$key] = $this->getResources($name);
+                        $arguments[$key] = $this->getResource($name);
                         break;
                     case '$':
                         $arguments[$key] = (isset($parameters[$name])) ? $parameters[$name] : null;
@@ -429,6 +394,27 @@ class Container implements ContainerInterface
         }
 
         if (count($parts) == 2) {
+            array_unshift($parts, 'array');
+        }
+
+        return $parts;
+    }
+
+    /**
+     * @param string $key
+     * @return array
+     * @access protected
+     * @throws ContainerException
+     */
+    protected function extractResourceKey($key)
+    {
+        $parts = explode('/', (string) $key, 2);
+
+        if (!$parts[0] || (isset($parts[1]) && !$parts[1])) {
+            throw new ContainerException('Resource name in "' . $key . '" can not be empty.');
+        }
+
+        if (count($parts) == 1) {
             array_unshift($parts, 'array');
         }
 
