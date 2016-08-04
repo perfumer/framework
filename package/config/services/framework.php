@@ -4,13 +4,13 @@ return [
     'bundle.console_resolver' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\BundleResolver\\ConsoleResolver',
-        'arguments' => ['@bundle.console_resolver/bundles']
+        'arguments' => ['*_domains']
     ],
 
     'bundle.http_resolver' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\BundleResolver\\HttpResolver',
-        'arguments' => ['@bundle.http_resolver/bundles']
+        'arguments' => ['*_domains']
     ],
 
     'cache.ephemeral' => [
@@ -128,7 +128,7 @@ return [
         'after' => function (\Perfumer\Component\Container\Container $container, \Symfony\Component\Translation\Translator $translator) {
             $translator->addLoader('file', new \Symfony\Component\Translation\Loader\PhpFileLoader());
 
-            $resources = $container->getResource('translator');
+            $resources = $container->getResource('_translator');
 
             foreach ($resources as $resource) {
                 $domain = isset($resource[2]) ? $resource[2] : null;

@@ -432,8 +432,8 @@ class Proxy
 }
 
 function proxyDefinitionAfter(Container $container, Proxy $proxy) {
-    $proxy->addControllersOverrides($container->getResource('controller_overrides'));
-    $proxy->addTemplateOverrides($container->getResource('template_overrides'));
-    $proxy->addSyncSubscribers($container->getResource('sync_subscribers'));
-    $proxy->addAsyncSubscribers($container->getResource('async_subscribers'));
+    $proxy->addControllersOverrides($container->getResource('_controller_overrides'));
+    $proxy->addTemplateOverrides($container->getResource('_template_overrides'));
+    $proxy->addSyncSubscribers($container->getResource('_sync_subscribers'));
+    $proxy->addAsyncSubscribers($container->getResource('_async_subscribers'));
 }

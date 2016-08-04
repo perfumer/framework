@@ -1,14 +1,6 @@
 <?php
 
 return [
-    'bundle.http_resolver' => [
-        'bundles' => []
-    ],
-
-    'bundle.console_resolver' => [
-        'bundles' => []
-    ],
-
     'propel' => [
         'bin' => 'vendor/bin/propel',
         'project' => 'example',
