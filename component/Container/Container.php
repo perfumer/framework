@@ -133,26 +133,26 @@ class Container implements ContainerInterface
 
             $this->bundles[$bundle->getName()] = $bundle;
 
-            $this->addDefinitions($bundle->getDefinitions());
-
             foreach ($bundle->getDefinitionFiles() as $file) {
                 $this->addDefinitionsFromFile($file);
             }
 
+            $this->addDefinitions($bundle->getDefinitions());
+
             /** @var ArrayStorage $array_storage */
             $array_storage = $this->getStorage('array');
-
-            $array_storage->addParams($bundle->getParams());
 
             foreach ($bundle->getParamFiles() as $file) {
                 $array_storage->addParamsFromFile($file);
             }
 
-            $array_storage->addResources($bundle->getResources());
+            $array_storage->addParams($bundle->getParams());
 
             foreach ($bundle->getResourceFiles() as $file) {
                 $array_storage->addResourcesFromFile($file);
             }
+
+            $array_storage->addResources($bundle->getResources());
 
             foreach ($bundle->getStorages() as $storage) {
                 $this->registerStorage($storage, $this->get($storage));
