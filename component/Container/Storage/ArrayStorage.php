@@ -26,7 +26,13 @@ class ArrayStorage extends AbstractStorage
      */
     public function addParams($params)
     {
-        $this->params = array_merge($this->params, $params);
+        foreach ($params as $group => $array) {
+            if (isset($this->params[$group])) {
+                $this->params[$group] = array_merge($this->params[$group], $array);
+            } else {
+                $this->params[$group] = $array;
+            }
+        }
     }
 
     /**
