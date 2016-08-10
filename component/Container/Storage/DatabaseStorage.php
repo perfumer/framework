@@ -2,34 +2,23 @@
 
 namespace Perfumer\Component\Container\Storage;
 
-use App\Model\ParameterQuery;
+use App\Model\ResourceQuery;
 use Perfumer\Component\Container\Exception\ContainerException;
 
 class DatabaseStorage extends AbstractStorage
 {
     /**
-     * @param string $group
+     * @param string $resource
      * @param string $name
      * @param mixed $default
      * @return mixed
      * @access public
      */
-    public function getParam($group, $name, $default = null)
+    public function getParam($resource, $name, $default = null)
     {
-        if (!isset($this->params[$group])) {
-            $this->params[$group] = [];
+        $this->loadResource($resource);
 
-            $parameters = ParameterQuery::create()
-                ->filterByGroup($group)
-                ->select(['name', 'value'])
-                ->find();
-
-            foreach ($parameters as $parameter) {
-                $this->params[$group][$parameter['name']] = $parameter['value'];
-            }
-        }
-
-        return isset($this->params[$group][$name]) ? $this->params[$group][$name] : $default;
+        return isset($this->resources[$resource][$name]) ? $this->resources[$resource][$name] : $default;
     }
 
     /**
@@ -40,6 +29,20 @@ class DatabaseStorage extends AbstractStorage
      */
     public function getResource($name)
     {
-        throw new ContainerException("Database storage does not support getResource() method for now.");
+        $this->loadResource($name);
+
+        return $this->resources[$name];
+    }
+
+    protected function loadResource($name)
+    {
+        if (!isset($this->resources[$name])) {
+            $value = ResourceQuery::create()
+                ->filterByName($name)
+                ->select(['value'])
+                ->findOne();
+
+            $this->resources[$name] = $value ? unserialize($value) : [];
+        }
     }
 }

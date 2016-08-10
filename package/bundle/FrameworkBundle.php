@@ -35,10 +35,10 @@ abstract class FrameworkBundle extends AbstractBundle
     /**
      * @return array
      */
-    public function getParamFiles()
+    public function getResourceFiles()
     {
         return [
-            __DIR__ . '/../config/params/framework.php',
+            __DIR__ . '/../config/resources/framework.php',
         ];
     }
 

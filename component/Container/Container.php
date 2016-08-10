@@ -143,10 +143,10 @@ class Container implements ContainerInterface
             $array_storage = $this->getStorage('array');
 
             foreach ($bundle->getParamFiles() as $file) {
-                $array_storage->addParamsFromFile($file);
+                $array_storage->addResourcesFromFile($file);
             }
 
-            $array_storage->addParams($bundle->getParams());
+            $array_storage->addResources($bundle->getParams());
 
             foreach ($bundle->getResourceFiles() as $file) {
                 $array_storage->addResourcesFromFile($file);
@@ -242,9 +242,9 @@ class Container implements ContainerInterface
      */
     public function getParam($key, $default = null)
     {
-        list($storage, $group, $name) = $this->extractParamKey($key);
+        list($storage, $resource, $name) = $this->extractParamKey($key);
 
-        return $this->getStorage($storage)->getParam($group, $name, $default);
+        return $this->getStorage($storage)->getParam($resource, $name, $default);
     }
 
     /**
@@ -386,7 +386,7 @@ class Container implements ContainerInterface
         $parts = explode('/', (string) $key, 3);
 
         if (!$parts[0]) {
-            throw new ContainerException('Parameter group in "' . $key . '" can not be empty.');
+            throw new ContainerException('Resource name in "' . $key . '" can not be empty.');
         }
 
         if (!isset($parts[1]) || !$parts[1] || (isset($parts[2]) && !$parts[2])) {

@@ -28,6 +28,7 @@ abstract class AbstractBundle
 
     /**
      * @return array
+     * @deprecated use getResources() instead
      */
     public function getParams()
     {
@@ -36,6 +37,7 @@ abstract class AbstractBundle
 
     /**
      * @return array
+     * @deprecated use getResourceFiles() instead
      */
     public function getParamFiles()
     {
