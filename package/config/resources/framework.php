@@ -21,5 +21,10 @@ return [
 
     'translator' => [
         'locale' => 'ru_RU'
+    ],
+
+    'twig' => [
+        'debug' => false,
+        'cache_dir' => __DIR__ . '/../../../tmp/twig/'
     ]
 ];

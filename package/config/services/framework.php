@@ -142,7 +142,8 @@ return [
         'shared' => true,
         'class' => 'Twig_Environment',
         'arguments' => ['#twig.filesystem_loader', [
-            'cache' => __DIR__ . '/../../../tmp/twig/'
+            'cache' => '@twig/cache_dir',
+            'debug' => '@twig/debug'
         ]]
     ],
 
