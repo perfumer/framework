@@ -125,11 +125,16 @@ class Container implements ContainerInterface
 
     /**
      * @param array $bundles
+     * @throws BundleException
      */
     public function registerBundles(array $bundles)
     {
         foreach ($bundles as $bundle) {
             /** @var AbstractBundle $bundle */
+
+            if (isset($this->bundles[$bundle->getName()])) {
+                throw new BundleException('Bundle "' . $bundle->getName() . '" is already registered.');
+            }
 
             $this->bundles[$bundle->getName()] = $bundle;
 
