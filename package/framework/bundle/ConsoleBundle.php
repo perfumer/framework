@@ -5,29 +5,15 @@ namespace Perfumer\Package\Framework\Bundle;
 class ConsoleBundle extends BaseBundle
 {
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'framework/console';
-    }
-
-    /**
-     * @return string
-     */
-    public function getDescription()
-    {
-        return 'Perfumer Framework console bundle';
-    }
-
-    /**
      * @return array
      */
-    public function getDefinitionFiles()
+    public function getResources()
     {
-        return array_merge(parent::getDefinitionFiles(), [
-            __DIR__ . '/../config/services/console.php'
-        ]);
+        return [
+            'bundle_resolver' => [
+                'alias' => 'bundle.console_resolver'
+            ],
+        ];
     }
 
     /**
@@ -35,8 +21,9 @@ class ConsoleBundle extends BaseBundle
      */
     public function getAliases()
     {
-        return array_merge(parent::getAliases(), [
-            'router' => 'framework.router'
-        ]);
+        return [
+            'router' => 'router.console',
+            'request' => 'package.framework.console_request'
+        ];
     }
 }

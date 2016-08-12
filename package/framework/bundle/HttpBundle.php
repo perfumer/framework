@@ -5,28 +5,24 @@ namespace Perfumer\Package\Framework\Bundle;
 class HttpBundle extends BaseBundle
 {
     /**
-     * @return string
+     * @return array
      */
-    public function getName()
+    public function getResources()
     {
-        return 'framework/http';
-    }
-
-    /**
-     * @return string
-     */
-    public function getDescription()
-    {
-        return 'Perfumer Framework http bundle';
+        return [
+            'bundle_resolver' => [
+                'alias' => 'bundle.http_resolver'
+            ],
+        ];
     }
 
     /**
      * @return array
      */
-    public function getDefinitionFiles()
+    public function getAliases()
     {
-        return array_merge(parent::getDefinitionFiles(), [
-            __DIR__ . '/../config/services/http.php'
-        ]);
+        return [
+            'request' => 'package.framework.http_request'
+        ];
     }
 }

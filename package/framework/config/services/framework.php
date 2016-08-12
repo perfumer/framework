@@ -34,7 +34,7 @@ return [
         'shared' => true,
         'class' => 'Stash\\Driver\\FileSystem',
         'after' => function(\Perfumer\Component\Container\Container $container, \Stash\Driver\FileSystem $driver) {
-            $driver->setOptions(['path' => __DIR__ . '/../../../../tmp/cache/']);
+            $driver->setOptions(['path' => '@dir/file_cache']);
         }
     ],
 
@@ -66,7 +66,23 @@ return [
     'logger.file_handler' => [
         'shared' => true,
         'class' => 'Monolog\\Handler\\RotatingFileHandler',
-        'arguments' => [__DIR__ . '/../../../../tmp/logs/example.log', 10]
+        'arguments' => ['@dir/log_file', 10]
+    ],
+
+    'package.framework.console_request' => [
+        'class' => 'Perfumer\\Framework\\Proxy\\Request',
+        'arguments' => ['$0', '$1', '$2', '$3', [
+            'prefix' => 'Perfumer\\Package\\Framework\\Command',
+            'suffix' => 'Command'
+        ]]
+    ],
+
+    'package.framework.http_request' => [
+        'class' => 'Perfumer\\Framework\\Proxy\\Request',
+        'arguments' => ['$0', '$1', '$2', '$3', [
+            'prefix' => 'Perfumer\\Package\\Framework\\Controller',
+            'suffix' => 'Controller'
+        ]]
     ],
 
     'profiler' => [
@@ -110,6 +126,11 @@ return [
         'after' => 'Perfumer\\Framework\\Proxy\\proxyDefinitionAfter'
     ],
 
+    'router.console' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Router\\ConsoleRouter'
+    ],
+
     'session' => [
         'shared' => true,
         'class' => 'Perfumer\\Component\\Session\\Pool',
@@ -142,7 +163,7 @@ return [
         'shared' => true,
         'class' => 'Twig_Environment',
         'arguments' => ['#twig.filesystem_loader', [
-            'cache' => '@twig/cache_dir',
+            'cache' => '@dir/twig_cache',
             'debug' => '@twig/debug'
         ]]
     ],

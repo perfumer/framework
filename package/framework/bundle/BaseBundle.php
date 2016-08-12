@@ -41,14 +41,4 @@ abstract class BaseBundle extends AbstractBundle
             __DIR__ . '/../config/resources/framework.php',
         ];
     }
-
-    /**
-     * @return array
-     */
-    public function getAliases()
-    {
-        return [
-            'request' => 'framework.request'
-        ];
-    }
 }
