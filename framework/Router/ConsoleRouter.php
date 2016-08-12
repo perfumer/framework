@@ -35,7 +35,7 @@ class ConsoleRouter implements RouterInterface
     {
         $default_settings = [
             'allowed_actions' => ['action'],
-            'not_found_attributes' => ['framework/console', 'exception', 'pageNotFound']
+            'not_found_attributes' => ['framework', 'exception', 'pageNotFound']
         ];
 
         $this->settings = array_merge($default_settings, $settings);
