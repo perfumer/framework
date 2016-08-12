@@ -25,6 +25,6 @@ return [
 
     'twig' => [
         'debug' => false,
-        'cache_dir' => __DIR__ . '/../../../tmp/twig/'
+        'cache_dir' => __DIR__ . '/../../../../tmp/twig/'
     ]
 ];

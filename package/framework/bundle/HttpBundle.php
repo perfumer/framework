@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Package\Bundle;
+namespace Perfumer\Package\Framework\Bundle;
 
-class HttpBundle extends FrameworkBundle
+class HttpBundle extends BaseBundle
 {
     /**
      * @return string

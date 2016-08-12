@@ -8,7 +8,7 @@ return [
     'framework.request' => [
         'class' => 'Perfumer\\Framework\\Proxy\\Request',
         'arguments' => ['$0', '$1', '$2', '$3', [
-            'prefix' => 'Perfumer\\Package\\Controller',
+            'prefix' => 'Perfumer\\Package\\Framework\\Controller',
             'suffix' => 'Controller'
         ]]
     ]

@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Package\Bundle;
+namespace Perfumer\Package\Framework\Bundle;
 
 use Perfumer\Component\Container\AbstractBundle;
 
-abstract class FrameworkBundle extends AbstractBundle
+abstract class BaseBundle extends AbstractBundle
 {
     /**
      * @return string

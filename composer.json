@@ -21,9 +21,12 @@
             "Perfumer\\Component\\": "component/",
             "Perfumer\\Framework\\": "framework/",
             "Perfumer\\Helper\\": "helper/",
-            "Perfumer\\Package\\Bundle\\": "package/bundle/",
-            "Perfumer\\Package\\Command\\": "package/command/",
-            "Perfumer\\Package\\Controller\\": "package/controller/"
+            "Perfumer\\Package\\Bundle\\": "package/framework/bundle/",
+            "Perfumer\\Package\\Framework\\Bundle\\": "package/framework/bundle/",
+            "Perfumer\\Package\\Command\\": "package/framework/command/",
+            "Perfumer\\Package\\Framework\\Command\\": "package/framework/command/",
+            "Perfumer\\Package\\Controller\\": "package/framework/controller/",
+            "Perfumer\\Package\\Framework\\Controller\\": "package/framework/controller/"
         }
     },
     "config": {

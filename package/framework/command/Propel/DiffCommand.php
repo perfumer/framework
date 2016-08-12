@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Package\Command\Propel;
+namespace Perfumer\Package\Framework\Command\Propel;
 
 use Perfumer\Framework\Controller\PlainController;
 

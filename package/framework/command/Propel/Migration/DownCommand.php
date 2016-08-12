@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Package\Command\Propel\Migration;
+namespace Perfumer\Package\Framework\Command\Propel\Migration;
 
 use Perfumer\Framework\Controller\PlainController;
 

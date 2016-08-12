@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Package\Controller\Exception;
+namespace Perfumer\Package\Framework\Controller\Exception;
 
 use Perfumer\Framework\Controller\AbstractController;
 

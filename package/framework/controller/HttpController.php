@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Package\Controller;
+namespace Perfumer\Package\Framework\Controller;
 
 use Perfumer\Framework\Controller\PlainController;
 
