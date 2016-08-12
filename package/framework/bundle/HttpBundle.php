@@ -7,7 +7,7 @@ class HttpBundle extends BaseBundle
     /**
      * @return array
      */
-    public function getResources()
+    public function getDefinitions()
     {
         return [
             'bundle_resolver' => [
