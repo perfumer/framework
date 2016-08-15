@@ -270,6 +270,6 @@ abstract class AbstractController implements ControllerInterface
             throw new ProxyException('Redirect is not available for non-http external routers');
         }
 
-        $this->getProxy()->forward('framework/http', 'http', 'redirect', [$url, $status_code]);
+        $this->getProxy()->forward('framework', 'http', 'redirect', [$url, $status_code]);
     }
 }
