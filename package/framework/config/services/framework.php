@@ -34,7 +34,7 @@ return [
         'shared' => true,
         'class' => 'Stash\\Driver\\FileSystem',
         'after' => function(\Perfumer\Component\Container\Container $container, \Stash\Driver\FileSystem $driver) {
-            $driver->setOptions(['path' => '@dir/file_cache']);
+            $driver->setOptions(['path' => $container->getParam('dir/file_cache')]);
         }
     ],
 
