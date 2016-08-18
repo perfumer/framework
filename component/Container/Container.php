@@ -32,10 +32,14 @@ class Container implements ContainerInterface
 
     /**
      * Container constructor.
+     *
+     * @param array $bundles
      */
-    public function __construct()
+    public function __construct(array $bundles = [])
     {
         $this->registerStorage('array', new ArrayStorage());
+
+        $this->registerBundles($bundles);
     }
 
     /**
