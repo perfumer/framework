@@ -2,8 +2,6 @@
 
 namespace Perfumer\Framework\Router;
 
-use Perfumer\Framework\Proxy\Response as InternalResponse;
-
 interface RouterInterface
 {
     /**
@@ -32,7 +30,7 @@ interface RouterInterface
     public function getResponse();
 
     /**
-     * @param InternalResponse $response
+     * @param string $content
      */
-    public function sendResponse(InternalResponse $response);
+    public function sendResponse($content);
 }

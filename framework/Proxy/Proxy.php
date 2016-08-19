@@ -154,9 +154,9 @@ class Proxy
         if ($this->options['debug'] === true) {
             $this->runDeferred();
 
-            $this->router->sendResponse($response);
+            $this->router->sendResponse($response->getContent());
         } else {
-            $this->router->sendResponse($response);
+            $this->router->sendResponse($response->getContent());
 
             $this->runDeferred();
         }

@@ -6,7 +6,6 @@ use Perfumer\Framework\BundleResolver\HttpResolver;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
-use Perfumer\Framework\Proxy\Response as InternalResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class DefaultRouter implements RouterInterface
@@ -208,11 +207,11 @@ class DefaultRouter implements RouterInterface
     }
 
     /**
-     * @param InternalResponse $response
+     * @param string $content
      */
-    public function sendResponse(InternalResponse $response)
+    public function sendResponse($content)
     {
-        $this->getResponse()->setContent($response->getContent())->send();
+        $this->getResponse()->setContent($content)->send();
     }
 
     /**
