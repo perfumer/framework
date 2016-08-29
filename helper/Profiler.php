@@ -16,7 +16,7 @@ class Profiler
 
     /**
      * @param string $key
-     * @return $this
+     * @return void
      */
     public function start($key)
     {
@@ -25,7 +25,7 @@ class Profiler
 
     /**
      * @param string $key
-     * @return $this
+     * @return void
      */
     public function finish($key)
     {
@@ -40,7 +40,7 @@ class Profiler
 
     /**
      * @param string $key
-     * @return $this
+     * @return void
      */
     public function cancel($key)
     {
