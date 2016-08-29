@@ -1,8 +1,6 @@
 <?php
 
-namespace Perfumer\Framework\Proxy;
-
-use Perfumer\Helper\Arr;
+namespace Perfumer\Helper;
 
 class Profiler
 {

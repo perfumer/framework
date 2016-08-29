@@ -87,7 +87,7 @@ return [
 
     'profiler' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\Proxy\\Profiler'
+        'class' => 'Perfumer\\Helper\\Profiler'
     ],
 
     'propel.connection_manager' => [
