@@ -21,8 +21,6 @@ class Profiler
     public function start($key)
     {
         $this->started[$key] = microtime(true);
-
-        return $this;
     }
 
     /**
@@ -38,8 +36,6 @@ class Profiler
 
             unset($this->started[$key]);
         }
-
-        return $this;
     }
 
     /**
@@ -51,8 +47,6 @@ class Profiler
         if (isset($this->started[$key])) {
             unset($this->started[$key]);
         }
-
-        return $this;
     }
 
     /**
