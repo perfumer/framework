@@ -24,10 +24,7 @@ abstract class AbstractApplication
     /**
      * @return array
      */
-    protected function getBundles()
-    {
-        return [];
-    }
+    abstract public function getBundles();
 
     /**
      * @return void
