@@ -6,12 +6,14 @@ class Event
 {
     /**
      * @var array
+     * @deprecated
      */
     protected $vars;
 
     /**
      * Event constructor.
      * @param array $vars
+     * @deprecated
      */
     public function __construct(array $vars = [])
     {
@@ -20,6 +22,7 @@ class Event
 
     /**
      * @return array
+     * @deprecated
      */
     public function getVars()
     {
@@ -30,6 +33,7 @@ class Event
      * @param string $name
      * @param mixed $default
      * @return mixed
+     * @deprecated
      */
     public function getVar($name, $default = null)
     {
