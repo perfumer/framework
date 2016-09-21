@@ -18,6 +18,10 @@ class Event
     public function __construct(array $vars = [])
     {
         $this->vars = $vars;
+
+        foreach ($vars as $property => $value) {
+            $this->$property = $value;
+        }
     }
 
     /**
@@ -37,6 +41,6 @@ class Event
      */
     public function getVar($name, $default = null)
     {
-        return isset($this->vars[$name]) ? $this->vars[$name] : $default;
+        return property_exists($this, $name) ? $this->$name : $default;
     }
 }
