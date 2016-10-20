@@ -85,11 +85,6 @@ return [
         ]]
     ],
 
-    'profiler' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Helper\\Profiler'
-    ],
-
     'propel.connection_manager' => [
         'class' => 'Propel\\Runtime\\Connection\\ConnectionManagerSingle',
         'after' => function(\Perfumer\Component\Container\Container $container, \Propel\Runtime\Connection\ConnectionManagerSingle $connection_manager) {
