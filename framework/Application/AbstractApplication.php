@@ -16,7 +16,7 @@ abstract class AbstractApplication
         $container = new Container();
         $container->registerBundles($this->getBundles());
 
-        $this->after();
+        $this->after($container);
 
         $container->get('proxy')->run();
     }
@@ -33,11 +33,11 @@ abstract class AbstractApplication
     {
     }
 
-
     /**
+     * @param Container $container
      * @return void
      */
-    protected function after()
+    protected function after(Container $container)
     {
     }
 }
