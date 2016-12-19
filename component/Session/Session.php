@@ -10,9 +10,9 @@ class Session
     protected $id;
 
     /**
-     * @var array
+     * @var mixed
      */
-    protected $data;
+    protected $shared_id;
 
     /**
      * @var Pool
@@ -22,14 +22,16 @@ class Session
     /**
      * Session constructor.
      * @param string $id
+     * @param mixed $shared_id
      * @param Pool $pool
      */
-    public function __construct($id, Pool $pool)
+    public function __construct($id, $shared_id, Pool $pool)
     {
         $this->id = $id;
+        $this->shared_id = $shared_id;
         $this->pool = $pool;
 
-        $this->refresh();
+        $this->pool->getCache()->getItem('_session/' . $this->id)->set($this->shared_id, $this->getLifetime());
     }
 
     /**
@@ -41,41 +43,50 @@ class Session
     }
 
     /**
-     * @param string $key
-     * @param mixed $default
      * @return mixed
      */
-    public function get($key, $default = null)
+    public function getSharedId()
     {
-        return isset($this->data[$key]) ? $this->data[$key] : $default;
+        return $this->shared_id;
     }
 
     /**
      * @param string $key
      * @param mixed $default
+     * @param bool $clear
      * @return mixed
      */
-    public function getOnce($key, $default = null)
+    public function get($key, $default = null, $clear = false)
     {
-        $value = $this->get($key, $default);
+        $cache = $this->getCache($key);
 
-        $this->delete($key);
+        $value = $cache->isMiss() ? $default : $cache->get();
+
+        if ($clear === true) {
+            $cache->clear();
+        }
 
         return $value;
     }
 
     /**
+     * @deprecated
+     */
+    public function getOnce($key, $default = null)
+    {
+        return $this->get($key, $default, true);
+    }
+
+    /**
      * @param string $key
      * @param mixed $value
-     * @return $this
+     * @param int $lifetime
      */
-    public function set($key, $value)
+    public function set($key, $value, $lifetime = null)
     {
-        $this->data[$key] = $value;
+        $lifetime = $lifetime ?: $this->getLifetime();
 
-        $this->persist();
-
-        return $this;
+        $this->getCache($key)->set($value, $lifetime);
     }
 
     /**
@@ -84,7 +95,7 @@ class Session
      */
     public function has($key)
     {
-        return isset($this->data[$key]);
+        return !$this->getCache($key)->isMiss();
     }
 
     /**
@@ -93,40 +104,21 @@ class Session
      */
     public function delete($key)
     {
-        if (isset($this->data[$key])) {
-            unset($this->data[$key]);
-
-            $this->persist();
-        }
-
-        return $this;
+        $this->getCache($key)->clear();
     }
 
     public function destroy()
     {
-        $this->data = [];
-
-        $this->getCache()->clear();
-    }
-
-    public function persist()
-    {
-        $this->getCache()->set($this->data, $this->getLifetime());
-    }
-
-    public function refresh()
-    {
-        $cache = $this->getCache();
-
-        $this->data = $cache->isMiss() ? [] : $cache->get();
+        $this->pool->getCache()->getItem('_session/' . $this->id)->clear();
     }
 
     /**
+     * @param string $field
      * @return \Stash\Pool
      */
-    public function getCache()
+    public function getCache($field)
     {
-        return $this->pool->getCache()->getItem('_session/' . $this->id);
+        return $this->pool->getCache()->getItem('_session_shared/' . (string) $this->shared_id . '/' . $field);
     }
 
     /**
