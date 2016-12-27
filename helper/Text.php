@@ -15,7 +15,41 @@ class Text
         $string = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $string .= $characters[rand(0, 47)];
+            $string .= $characters[rand(0, 61)];
+        }
+
+        return $string;
+    }
+
+    /**
+     * @param int $length
+     * @return string
+     */
+    public static function generateAlphabeticalString($length = 8)
+    {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        $string = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $string .= $characters[rand(0, 51)];
+        }
+
+        return $string;
+    }
+
+    /**
+     * @param int $length
+     * @return string
+     */
+    public static function generateNumericString($length = 8)
+    {
+        $characters = '0123456789';
+
+        $string = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $string .= $characters[rand(0, 9)];
         }
 
         return $string;
