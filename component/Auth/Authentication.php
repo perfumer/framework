@@ -2,14 +2,13 @@
 
 namespace Perfumer\Component\Auth;
 
-use App\Model\Application;
-use App\Model\ApplicationQuery;
 use App\Model\Session as SessionEntry;
 use App\Model\SessionQuery as SessionEntryQuery;
 use Perfumer\Component\Auth\Exception\AuthException;
 use Perfumer\Component\Session\TokenHandler\AbstractHandler as TokenHandler;
 use Perfumer\Component\Session\Pool as SessionPool;
 use Perfumer\Component\Session\Session;
+use Perfumer\Helper\Text;
 use Propel\Runtime\Map\TableMap;
 
 class Authentication
@@ -46,12 +45,15 @@ class Authentication
      */
     protected $token_handler;
 
-    protected $user;
+    /**
+     * @var bool
+     */
+    protected $is_logged = false;
 
     /**
-     * @var Application
+     * @var mixed
      */
-    protected $application;
+    protected $user;
 
     /**
      * @var SessionEntry
@@ -79,7 +81,6 @@ class Authentication
             'model' => '\\App\\Model\\User',
             'username_field' => 'username',
             'acl' => false,
-            'application' => false,
             'update_gap' => 3600
         ];
 
@@ -87,7 +88,6 @@ class Authentication
 
         $this->session_pool = $session_pool;
         $this->token_handler = $token_handler;
-        $this->user = new $this->options['model']();
         $this->token = $this->token_handler->getToken();
     }
 
@@ -98,7 +98,17 @@ class Authentication
     {
         $this->init();
 
-        return $this->user->isLogged();
+        return $this->is_logged;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAnonymous()
+    {
+        $this->init();
+
+        return $this->status === self::STATUS_ANONYMOUS;
     }
 
     /**
@@ -108,17 +118,25 @@ class Authentication
     {
         $this->init();
 
+        if ($this->user === null && $this->is_logged) {
+            $this->user = $this->retrieveUser($this->session->getSharedId());
+
+            if ($this->options['acl']) {
+                $this->user->revealRoles();
+            }
+        }
+
         return $this->user;
     }
 
     /**
-     * @return Application
+     * @deprecated
      */
     public function getApplication()
     {
         $this->init();
 
-        return $this->application;
+        return null;
     }
 
     /**
@@ -138,12 +156,6 @@ class Authentication
     {
         $this->init();
 
-        if ($this->session === null) {
-            $this->session = $this->session_pool->get();
-
-            $this->token_handler->setToken($this->session->getId());
-        }
-
         return $this->session;
     }
 
@@ -154,7 +166,7 @@ class Authentication
     {
         $this->init();
 
-        if ($this->session_entry === null && $this->isLogged()) {
+        if ($this->session_entry === null && $this->is_logged) {
             $this->session_entry = $this->retrieveSessionEntry($this->token);
         }
 
@@ -178,16 +190,10 @@ class Authentication
 
     public function authenticate()
     {
-        $update_session = false;
-
         try {
             if ($this->token === null) {
                 throw new AuthException(self::STATUS_NO_TOKEN);
             }
-
-            $user = null;
-            $application = null;
-            $session = $this->session_pool->get($this->token);
 
             if (!$this->session_pool->has($this->token)) {
                 $_session_entry = $this->retrieveSessionEntry($this->token);
@@ -206,99 +212,46 @@ class Authentication
                     throw new AuthException(self::STATUS_INVALID_USER);
                 }
 
-                if ($this->options['application']) {
-                    if ($_session_entry->getApplicationId() === null) {
-                        throw new AuthException(self::STATUS_NO_APPLICATION);
-                    } else {
-                        $application = $_session_entry->getApplication();
-                    }
+                if ($user->isDisabled()) {
+                    throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
                 }
+
+                if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 0) {
+                    throw new AuthException(self::STATUS_ACCOUNT_BANNED);
+                }
+
+                $this->user = $user;
+                $this->user->setLogged(true);
+
+                if ($this->options['acl']) {
+                    $this->user->revealRoles();
+                }
+
+                $this->is_logged = true;
 
                 $this->session_entry = $_session_entry;
 
-                $update_session = true;
+                $this->session = $this->session_pool->get($this->token);
+                $this->session->setSharedId($user->getId());
+
+                $this->updateSessionEntry();
             } else {
-                $auth_data = $session->get('_auth', []);
-                $_user = isset($auth_data['_user']) ? $auth_data['_user'] : [];
+                $this->session = $this->session_pool->get($this->token);
 
-                if (!isset($_user['data']) || !isset($_user['data']['id'])) {
-                    // This is anonymous user, but has some data in session
-                    $this->status = self::STATUS_ANONYMOUS;
+                $shared_id = $this->session->getSharedId();
 
-                    $this->token_handler->setToken($this->token);
+                if (is_int($shared_id)) {
+                    $this->is_logged = true;
 
-                    return;
+                    $this->status = self::STATUS_AUTHENTICATED;
                 } else {
-                    if ($this->options['application']) {
-                        $_application = isset($auth_data['_application']) ? $auth_data['_application'] : [];
+                    $this->session->setSharedId($shared_id);
 
-                        if (!isset($_application['data']) || !isset($_application['data']['id'])) {
-                            throw new AuthException(self::STATUS_NO_APPLICATION);
-                        }
-                    }
-
-                    $_updated_at = isset($auth_data['_updated_at']) ? $auth_data['_updated_at'] : 0;
-
-                    if(time() - $_updated_at >= $this->options['update_gap']) {
-                        $user = $this->retrieveUser($_user['data']['id']);
-
-                        if (!$user) {
-                            throw new AuthException(self::STATUS_INVALID_USER);
-                        }
-
-                        if ($this->options['application']) {
-                            $application = $this->retrieveApplication($_application['data']['id']);
-
-                            if (!$application) {
-                                throw new AuthException(self::STATUS_INVALID_APPLICATION);
-                            }
-                        }
-
-                        $update_session = true;
-                    } else {
-                        if ($_user['model'] !== $this->options['model']) {
-                            throw new AuthException(self::STATUS_INVALID_USER);
-                        }
-
-                        $user = new $this->options['model']();
-                        $user->fromArray($_user['data'], TableMap::TYPE_FIELDNAME);
-                        $user->setNew(false);
-
-                        if ($this->options['acl']) {
-                            $user->setPermissions($_user['permissions']);
-                            $user->setRoleIds($_user['role_ids']);
-                        }
-
-                        if ($this->options['application']) {
-                            $application = new Application();
-                            $application->fromArray($_application['data'], TableMap::TYPE_FIELDNAME);
-                            $application->setNew(false);
-                        }
-                    }
+                    $this->status = self::STATUS_ANONYMOUS;
                 }
             }
 
-            if ($user->isDisabled()) {
-                throw new AuthException(self::STATUS_ACCOUNT_DISABLED);
-            }
-
-            if ($user->getBannedTill() !== null && $user->getBannedTill()->diff(new \DateTime())->invert == 0) {
-                throw new AuthException(self::STATUS_ACCOUNT_BANNED);
-            }
-
-            $this->user = $user;
-            $this->user->setLogged(true);
-
-            $this->application = $application;
-            $this->session = $session;
-
-            $this->status = self::STATUS_AUTHENTICATED;
-
             $this->token_handler->setToken($this->token);
-
-            if ($update_session) {
-                $this->updateSession();
-            }
         } catch (AuthException $e) {
             $this->reset($e->getMessage());
         }
@@ -309,6 +262,20 @@ class Authentication
         $this->reset(self::STATUS_SIGNED_OUT);
     }
 
+    public function startAnonymousSession()
+    {
+        if ($this->is_logged || $this->isAnonymous()) {
+            return;
+        }
+
+        $shared_id = Text::generateAlphabeticalString(20);
+
+        $this->session = $this->session_pool->get();
+        $this->session->setSharedId($shared_id);
+
+        $this->token_handler->setToken($this->session->getId());
+    }
+
     /**
      * @param int $id
      * @return mixed
@@ -317,16 +284,7 @@ class Authentication
     {
         $query = $this->options['model'] . 'Query';
 
-        return $query::create()->findPk($id);
-    }
-
-    /**
-     * @param int $id
-     * @return Application|null
-     */
-    protected function retrieveApplication($id)
-    {
-        return ApplicationQuery::create()->findPk($id);
+        return $query::create()->findPk((int) $id);
     }
 
     /**
@@ -335,17 +293,17 @@ class Authentication
      */
     protected function retrieveSessionEntry($token)
     {
-        return SessionEntryQuery::create()->findOneByToken($token);
+        return SessionEntryQuery::create()->findOneByToken((string) $token);
     }
 
-    protected function startSession()
+    protected function startUserSession()
     {
-        if ($this->session !== null)
-            $this->session->destroy();
+        if ($this->is_logged || $this->isAnonymous()) {
+            return;
+        }
 
         $this->session = $this->session_pool->get();
-
-        $this->updateSessionData();
+        $this->session->setSharedId($this->user->getId());
 
         $this->token = $this->session->getId();
 
@@ -354,19 +312,17 @@ class Authentication
         $this->session_entry->setModelId($this->user->getId());
         $this->session_entry->setModelName(get_class($this->user));
 
-        if ($this->options['application']) {
-            $this->session_entry->setApplication($this->application);
-        }
-
         $lifetime = $this->token_handler->getTokenLifetime() + $this->options['update_gap'];
 
         $expired_at = (new \DateTime())->modify('+' . $lifetime . ' second');
 
         $this->session_entry->setExpiredAt($expired_at);
         $this->session_entry->save();
+
+        $this->token_handler->setToken($this->token);
     }
 
-    protected function updateSession()
+    protected function updateSessionEntry()
     {
         $this->session_entry = $this->getSessionEntry();
 
@@ -378,55 +334,34 @@ class Authentication
             $this->session_entry->setExpiredAt($expired_at);
             $this->session_entry->save();
         }
-
-        $this->updateSessionData();
-    }
-
-    protected function updateSessionData()
-    {
-        $_user = [
-            'model' => $this->options['model'],
-            'data' => $this->user->toArray(TableMap::TYPE_FIELDNAME)
-        ];
-
-        if ($this->options['acl']) {
-            $this->user->revealRoles();
-
-            $_user['permissions'] = $this->user->getPermissions();
-            $_user['role_ids'] = $this->user->getRoleIds();
-        }
-
-        $_auth = [
-            '_user' => $_user,
-            '_updated_at' => time()
-        ];
-
-        if ($this->options['application']) {
-            $_auth['_application'] = [
-                'data' => $this->application->toArray(TableMap::TYPE_FIELDNAME)
-            ];
-        }
-
-        $this->session->set('_auth', $_auth);
     }
 
     /**
-     * @param $user
+     * @deprecated
      */
     public function invalidateSessions($user = null)
     {
-        if ($user === null)
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function destroySessions($user = null)
+    {
+        if ($user === null) {
             $user = $this->user;
+        }
 
         $_sessions = SessionEntryQuery::create()
             ->filterByModelId($user->getId())
             ->filterByModelName(get_class($user))
-            ->filterByExpiredAt(new \DateTime(), '>=')
             ->find();
 
         foreach ($_sessions as $_session) {
             $this->session_pool->get($_session->getToken())->destroy();
         }
+
+        $_sessions->delete();
     }
 
     /**
@@ -434,8 +369,7 @@ class Authentication
      */
     protected function reset($status)
     {
-        $this->user = new $this->options['model']();
-        $this->application = null;
+        $this->user = null;
 
         $this->status = $status;
 
