@@ -50,6 +50,12 @@ class Pool
             return $this->sessions[$id];
         }
 
+        $session = $this->cache->getItem('_session/' . $id);
+
+        if (!$session->isMiss()) {
+            $shared_id = $session->get();
+        }
+
         if ($shared_id === null) {
             $shared_id = $this->generateSharedId();
         }
@@ -112,7 +118,7 @@ class Pool
     protected function generateSharedId()
     {
         do {
-            $shared_id = Text::generateString(20);
+            $shared_id = '_' . Text::generateString(20);
 
             $item = $this->cache->getItem('_session_shared/' . $shared_id);
         } while (!$item->isMiss());

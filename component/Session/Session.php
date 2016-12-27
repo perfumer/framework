@@ -15,6 +15,11 @@ class Session
     protected $shared_id;
 
     /**
+     * @var bool
+     */
+    protected $is_retrieved = false;
+
+    /**
      * @var Pool
      */
     protected $pool;
@@ -22,16 +27,23 @@ class Session
     /**
      * Session constructor.
      * @param string $id
-     * @param mixed $shared_id
      * @param Pool $pool
      */
-    public function __construct($id, $shared_id, Pool $pool)
+    public function __construct($id, Pool $pool)
     {
         $this->id = $id;
-        $this->shared_id = $shared_id;
         $this->pool = $pool;
+    }
 
-        $this->pool->getCache()->getItem('_session/' . $this->id)->set($this->shared_id, $this->getLifetime());
+    public function refresh()
+    {
+        if ($this->is_retrieved === false) {
+            $this->retrieveSharedId();
+        }
+
+        if ($this->shared_id) {
+            $this->pool->getCache()->getItem('_session/' . $this->id)->set($this->shared_id, $this->getLifetime());
+        }
     }
 
     /**
@@ -47,7 +59,21 @@ class Session
      */
     public function getSharedId()
     {
+        if ($this->is_retrieved === false) {
+            $this->retrieveSharedId();
+        }
+
         return $this->shared_id;
+    }
+
+    /**
+     * @param string $shared_id
+     */
+    public function setSharedId($shared_id)
+    {
+        $this->shared_id = $shared_id;
+
+        $this->pool->getCache()->getItem('_session/' . $this->id)->set($shared_id, $this->getLifetime());
     }
 
     /**
@@ -58,23 +84,25 @@ class Session
      */
     public function get($key, $default = null, $clear = false)
     {
-        $cache = $this->getCache($key);
+        if ($this->is_retrieved === false) {
+            $this->retrieveSharedId();
+        }
 
-        $value = $cache->isMiss() ? $default : $cache->get();
+        $value = $default;
 
-        if ($clear === true) {
-            $cache->clear();
+        if ($this->shared_id) {
+            $cache = $this->getCache($key);
+
+            if (!$cache->isMiss()) {
+                $value = $cache->get();
+            }
+
+            if ($clear === true) {
+                $cache->clear();
+            }
         }
 
         return $value;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getOnce($key, $default = null)
-    {
-        return $this->get($key, $default, true);
     }
 
     /**
@@ -84,9 +112,15 @@ class Session
      */
     public function set($key, $value, $lifetime = null)
     {
-        $lifetime = $lifetime ?: $this->getLifetime();
+        if ($this->is_retrieved === false) {
+            $this->retrieveSharedId();
+        }
 
-        $this->getCache($key)->set($value, $lifetime);
+        if ($this->shared_id) {
+            $lifetime = $lifetime ?: $this->getLifetime();
+
+            $this->getCache($key)->set($value, $lifetime);
+        }
     }
 
     /**
@@ -95,7 +129,15 @@ class Session
      */
     public function has($key)
     {
-        return !$this->getCache($key)->isMiss();
+        if ($this->is_retrieved === false) {
+            $this->retrieveSharedId();
+        }
+
+        if ($this->shared_id) {
+            return !$this->getCache($key)->isMiss();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -104,7 +146,13 @@ class Session
      */
     public function delete($key)
     {
-        $this->getCache($key)->clear();
+        if ($this->is_retrieved === false) {
+            $this->retrieveSharedId();
+        }
+
+        if ($this->shared_id) {
+            $this->getCache($key)->clear();
+        }
     }
 
     public function destroy()
@@ -113,19 +161,26 @@ class Session
     }
 
     /**
-     * @param string $field
-     * @return \Stash\Pool
-     */
-    public function getCache($field)
-    {
-        return $this->pool->getCache()->getItem('_session_shared/' . (string) $this->shared_id . '/' . $field);
-    }
-
-    /**
      * @return int
      */
     public function getLifetime()
     {
         return $this->pool->getLifetime();
+    }
+
+    /**
+     * @param string $field
+     * @return \Stash\Pool
+     */
+    protected function getCache($field)
+    {
+        return $this->pool->getCache()->getItem('_session_shared/' . (string) $this->shared_id . '/' . $field);
+    }
+
+    protected function retrieveSharedId()
+    {
+        $this->shared_id = $this->pool->getCache()->getItem('_session/' . $this->id)->get();
+
+        $this->is_retrieved = true;
     }
 }
