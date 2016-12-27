@@ -268,7 +268,7 @@ class Authentication
             return;
         }
 
-        $shared_id = Text::generateAlphabeticalString(20);
+        $shared_id = Text::generateAlphabeticString(20);
 
         $this->session = $this->session_pool->get();
         $this->session->setSharedId($shared_id);

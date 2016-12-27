@@ -25,7 +25,7 @@ class Text
      * @param int $length
      * @return string
      */
-    public static function generateAlphabeticalString($length = 8)
+    public static function generateAlphabeticString($length = 8)
     {
         $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
