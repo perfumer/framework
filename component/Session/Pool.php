@@ -23,6 +23,16 @@ class Pool
     protected $lifetime = 3600;
 
     /**
+     * @var string
+     */
+    protected $session_cache_prefix = '_session';
+
+    /**
+     * @var string
+     */
+    protected $shared_cache_prefix = '_session_shared';
+
+    /**
      * @param Cache $cache
      * @param array $options
      */
@@ -33,14 +43,21 @@ class Pool
         if (isset($options['lifetime'])) {
             $this->lifetime = (int) $options['lifetime'];
         }
+
+        if (isset($options['session_cache_prefix'])) {
+            $this->session_cache_prefix = (string) $options['session_cache_prefix'];
+        }
+
+        if (isset($options['shared_cache_prefix'])) {
+            $this->shared_cache_prefix = (string) $options['shared_cache_prefix'];
+        }
     }
 
     /**
      * @param string $id
-     * @param mixed $shared_id
      * @return Session
      */
-    public function get($id = null, $shared_id = null)
+    public function get($id = null)
     {
         if ($id === null) {
             $id = $this->generateId();
@@ -50,17 +67,7 @@ class Pool
             return $this->sessions[$id];
         }
 
-        $session = $this->cache->getItem('_session/' . $id);
-
-        if (!$session->isMiss()) {
-            $shared_id = $session->get();
-        }
-
-        if ($shared_id === null) {
-            $shared_id = $this->generateSharedId();
-        }
-
-        $this->sessions[$id] = new Session($id, $shared_id, $this);
+        $this->sessions[$id] = new Session($id, $this);
 
         return $this->sessions[$id];
     }
@@ -71,7 +78,7 @@ class Pool
      */
     public function has($id)
     {
-        return !$this->cache->getItem('_session/' . $id)->isMiss();
+        return !$this->cache->getItem($this->session_cache_prefix . '/' . $id)->isMiss();
     }
 
     /**
@@ -101,28 +108,30 @@ class Pool
     /**
      * @return string
      */
-    protected function generateId()
+    public function getSessionCachePrefix()
     {
-        do {
-            $id = Text::generateString(20);
-
-            $item = $this->cache->getItem('_session/' . $id);
-        } while (!$item->isMiss());
-
-        return $id;
+        return $this->session_cache_prefix;
     }
 
     /**
      * @return string
      */
-    protected function generateSharedId()
+    public function getSharedCachePrefix()
+    {
+        return $this->shared_cache_prefix;
+    }
+
+    /**
+     * @return string
+     */
+    protected function generateId()
     {
         do {
-            $shared_id = '_' . Text::generateString(20);
+            $id = Text::generateString(20);
 
-            $item = $this->cache->getItem('_session_shared/' . $shared_id);
+            $item = $this->cache->getItem($this->session_cache_prefix . '/' . $id);
         } while (!$item->isMiss());
 
-        return $shared_id;
+        return $id;
     }
 }

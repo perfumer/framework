@@ -42,7 +42,7 @@ class Session
         }
 
         if ($this->shared_id) {
-            $this->pool->getCache()->getItem('_session/' . $this->id)->set($this->shared_id, $this->getLifetime());
+            $this->pool->getCache()->getItem($this->pool->getSessionCachePrefix() . '/' . $this->id)->set($this->shared_id, $this->getLifetime());
         }
     }
 
@@ -73,7 +73,7 @@ class Session
     {
         $this->shared_id = $shared_id;
 
-        $this->pool->getCache()->getItem('_session/' . $this->id)->set($shared_id, $this->getLifetime());
+        $this->pool->getCache()->getItem($this->pool->getSessionCachePrefix() . '/' . $this->id)->set($shared_id, $this->getLifetime());
     }
 
     /**
@@ -157,7 +157,7 @@ class Session
 
     public function destroy()
     {
-        $this->pool->getCache()->getItem('_session/' . $this->id)->clear();
+        $this->pool->getCache()->getItem($this->pool->getSessionCachePrefix() . '/' . $this->id)->clear();
     }
 
     /**
@@ -174,12 +174,12 @@ class Session
      */
     protected function getCache($field)
     {
-        return $this->pool->getCache()->getItem('_session_shared/' . (string) $this->shared_id . '/' . $field);
+        return $this->pool->getCache()->getItem($this->pool->getSharedCachePrefix() . '/' . (string) $this->shared_id . '/' . $field);
     }
 
     protected function retrieveSharedId()
     {
-        $this->shared_id = $this->pool->getCache()->getItem('_session/' . $this->id)->get();
+        $this->shared_id = $this->pool->getCache()->getItem($this->pool->getSessionCachePrefix() . '/' . $this->id)->get();
 
         $this->is_retrieved = true;
     }
