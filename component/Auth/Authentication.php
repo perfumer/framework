@@ -6,7 +6,6 @@ use App\Model\Session as SessionEntry;
 use App\Model\SessionQuery as SessionEntryQuery;
 use Perfumer\Component\Auth\Exception\AuthException;
 use Perfumer\Component\Session\TokenHandler\AbstractHandler as TokenHandler;
-use Perfumer\Component\Session\Pool as SessionPool;
 use Perfumer\Component\Session\Session;
 use Perfumer\Helper\Text;
 use Propel\Runtime\Map\TableMap;
@@ -29,11 +28,6 @@ class Authentication
     const STATUS_REMOTE_SERVER_ERROR = 140;
     const STATUS_SIGNED_IN = 150;
     const STATUS_SIGNED_OUT = 160;
-
-    /**
-     * @var SessionPool
-     */
-    protected $session_pool;
 
     /**
      * @var Session
@@ -75,7 +69,7 @@ class Authentication
      */
     protected $options = [];
 
-    public function __construct(SessionPool $session_pool, TokenHandler $token_handler, $options = [])
+    public function __construct(Session $session, TokenHandler $token_handler, $options = [])
     {
         $default_options = [
             'model' => '\\App\\Model\\User',
@@ -86,7 +80,7 @@ class Authentication
 
         $this->options = array_merge($default_options, $options);
 
-        $this->session_pool = $session_pool;
+        $this->session = $session;
         $this->token_handler = $token_handler;
         $this->token = $this->token_handler->getToken();
     }
@@ -119,7 +113,7 @@ class Authentication
         $this->init();
 
         if ($this->user === null && $this->is_logged) {
-            $this->user = $this->retrieveUser($this->session->getSharedId());
+            $this->user = $this->retrieveUser($this->session->get($this->token));
 
             if ($this->options['acl']) {
                 $this->user->revealRoles();
@@ -195,7 +189,7 @@ class Authentication
                 throw new AuthException(self::STATUS_NO_TOKEN);
             }
 
-            if (!$this->session_pool->has($this->token)) {
+            if (!$this->session->has($this->token)) {
                 $_session_entry = $this->retrieveSessionEntry($this->token);
 
                 if (!$_session_entry) {
@@ -231,21 +225,18 @@ class Authentication
 
                 $this->session_entry = $_session_entry;
 
-                $this->session = $this->session_pool->get($this->token);
-                $this->session->setSharedId($user->getId());
+                $this->session->set($this->token, $user->getId());
 
                 $this->updateSessionEntry();
             } else {
-                $this->session = $this->session_pool->get($this->token);
-
-                $shared_id = $this->session->getSharedId();
+                $shared_id = $this->session->get($this->token);
 
                 if (is_int($shared_id)) {
                     $this->is_logged = true;
 
                     $this->status = self::STATUS_AUTHENTICATED;
                 } else {
-                    $this->session->setSharedId($shared_id);
+                    $this->session->set($this->token, $shared_id);
 
                     $this->status = self::STATUS_ANONYMOUS;
                 }
@@ -268,12 +259,12 @@ class Authentication
             return;
         }
 
+        $session_id = $this->session->generateId();
         $shared_id = Text::generateAlphabeticString(20);
 
-        $this->session = $this->session_pool->get();
-        $this->session->setSharedId($shared_id);
+        $this->session->set($session_id, $shared_id);
 
-        $this->token_handler->setToken($this->session->getId());
+        $this->token_handler->setToken($session_id);
     }
 
     /**
@@ -302,10 +293,9 @@ class Authentication
             return;
         }
 
-        $this->session = $this->session_pool->get();
-        $this->session->setSharedId($this->user->getId());
+        $this->token = $this->session->generateId();
 
-        $this->token = $this->session->getId();
+        $this->session->set($this->token, $this->user->getId());
 
         $this->session_entry = new SessionEntry();
         $this->session_entry->setToken($this->token);
@@ -358,7 +348,7 @@ class Authentication
             ->find();
 
         foreach ($_sessions as $_session) {
-            $this->session_pool->get($_session->getToken())->destroy();
+            $this->session->destroy($_session->getToken());
         }
 
         $_sessions->delete();
@@ -373,11 +363,8 @@ class Authentication
 
         $this->status = $status;
 
-        if ($this->session !== null) {
-            $this->session->destroy();
-        }
-
         if ($this->token !== null) {
+            $this->session->destroy($this->token);
             $this->token_handler->deleteToken();
         }
     }

@@ -128,7 +128,7 @@ return [
 
     'session' => [
         'shared' => true,
-        'class' => 'Perfumer\\Component\\Session\\Pool',
+        'class' => 'Perfumer\\Component\\Session\\Session',
         'arguments' => ['#cache.memcache']
     ],
 
