@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Component\Session\TokenHandler;
+namespace Perfumer\Component\Auth\TokenProvider;
 
-abstract class AbstractHandler
+abstract class AbstractProvider
 {
     /**
      * @return string|null

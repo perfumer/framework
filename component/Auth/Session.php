@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Session;
+namespace Perfumer\Component\Auth;
 
 use Perfumer\Helper\Text;
 use Stash\Pool as Cache;
@@ -73,14 +73,6 @@ class Session
     public function destroy($id)
     {
         $this->cache->getItem($this->cache_prefix . '/' . $id)->destroy();
-    }
-
-    /**
-     * @return int
-     */
-    public function getLifetime()
-    {
-        return $this->lifetime;
     }
 
     /**

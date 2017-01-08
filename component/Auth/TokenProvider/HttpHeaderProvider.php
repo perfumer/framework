@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Component\Session\TokenHandler;
+namespace Perfumer\Component\Auth\TokenProvider;
 
-class HttpHeaderHandler extends AbstractHandler
+class HttpHeaderProvider extends AbstractProvider
 {
     /**
      * @var array

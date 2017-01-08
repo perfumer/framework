@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Component\Session\TokenHandler;
+namespace Perfumer\Component\Auth\TokenProvider;
 
-use Perfumer\Component\Session\Cookie;
+use Perfumer\Component\Auth\Cookie;
 
-class CookieHandler extends AbstractHandler
+class CookieProvider extends AbstractProvider
 {
     /**
      * @var Cookie
