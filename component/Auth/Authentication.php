@@ -186,11 +186,12 @@ class Authentication
 
         $this->token = $this->session->generateId();
         $this->id = $id;
-        $this->is_user = true;
 
         $set = $this->user_provider->setUserToken($this->token, $this->id);
 
         if ($set) {
+            $this->is_user = true;
+
             $this->session->set($this->token, $this->id);
 
             $this->token_provider->setToken($this->token);
@@ -201,10 +202,6 @@ class Authentication
 
     public function logout()
     {
-        if ($this->is_user) {
-            $this->user_provider->deleteUserToken($this->token);
-        }
-
         $this->id = null;
         $this->is_user = false;
         $this->is_anonymous = false;
@@ -213,6 +210,18 @@ class Authentication
         if ($this->token !== null) {
             $this->session->destroy($this->token);
             $this->token_provider->deleteToken();
+        }
+    }
+
+    /**
+     * @param array $tokens
+     */
+    public function destroySessions($tokens)
+    {
+        if (is_array($tokens)) {
+            foreach ($tokens as $token) {
+                $this->session->destroy($token);
+            }
         }
     }
 }

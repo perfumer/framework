@@ -16,10 +16,4 @@ abstract class AbstractProvider
      * @return bool
      */
     abstract public function setUserToken($token, $id);
-
-    /**
-     * @param string $token
-     * @return bool
-     */
-    abstract public function deleteUserToken($token);
 }
