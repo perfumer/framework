@@ -239,14 +239,6 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
-     * @return mixed
-     */
-    protected function getUser()
-    {
-        return $this->getAuth()->getUser();
-    }
-
-    /**
      * @return Router
      */
     protected function getRouter()
