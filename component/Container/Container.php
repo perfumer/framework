@@ -3,8 +3,8 @@
 namespace Perfumer\Component\Container;
 
 use Interop\Container\ContainerInterface;
-use Perfumer\Component\Container\Exception\BundleException;
 use Perfumer\Component\Container\Exception\ContainerException;
+use Perfumer\Component\Container\Exception\NotFoundException;
 use Perfumer\Component\Container\Storage\ArrayStorage;
 use Perfumer\Component\Container\Storage\AbstractStorage;
 
@@ -51,7 +51,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @access public
      * @uses \ReflectionClass
-     * @throws ContainerException
+     * @throws NotFoundException
      */
     public function get($name, array $parameters = [])
     {
@@ -61,7 +61,7 @@ class Container implements ContainerInterface
         }
 
         if (!$this->has($name)) {
-            throw new ContainerException('No definition found for service "' . $name . '".');
+            throw new NotFoundException('No definition found for service "' . $name . '".');
         }
 
         $definition = $this->definitions[$name];
@@ -76,7 +76,7 @@ class Container implements ContainerInterface
             $service_class = call_user_func($definition['init'], $this, $parameters);
 
             if ($service_class === false) {
-                throw new ContainerException('"Init" directive for service "' . $name . '" did not produced any object.');
+                throw new NotFoundException('"Init" directive for service "' . $name . '" did not produced any object.');
             }
         } else {
             $arguments = [];
@@ -91,14 +91,14 @@ class Container implements ContainerInterface
                 $service_class = call_user_func_array([$definition['class'], $definition['static']], $arguments);
 
                 if ($service_class === false) {
-                    throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+                    throw new NotFoundException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
                 }
             } else {
                 // Service is made by normal constructor
                 try {
                     $reflection_class = new \ReflectionClass($definition['class']);
                 } catch (\ReflectionException $e) {
-                    throw new ContainerException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
+                    throw new NotFoundException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
                 }
 
                 $service_class = $reflection_class->newInstanceArgs($arguments);
@@ -129,7 +129,7 @@ class Container implements ContainerInterface
 
     /**
      * @param array $bundles
-     * @throws BundleException
+     * @throws ContainerException
      */
     public function registerBundles(array $bundles)
     {
@@ -137,7 +137,7 @@ class Container implements ContainerInterface
             /** @var AbstractBundle $bundle */
 
             if (isset($this->bundles[$bundle->getName()])) {
-                throw new BundleException('Bundle "' . $bundle->getName() . '" is already registered.');
+                throw new ContainerException('Bundle "' . $bundle->getName() . '" is already registered.');
             }
 
             $this->bundles[$bundle->getName()] = $bundle;
@@ -150,12 +150,6 @@ class Container implements ContainerInterface
 
             /** @var ArrayStorage $array_storage */
             $array_storage = $this->getStorage('array');
-
-            foreach ($bundle->getParamFiles() as $file) {
-                $array_storage->addResourcesFromFile($file);
-            }
-
-            $array_storage->addResources($bundle->getParams());
 
             foreach ($bundle->getResourceFiles() as $file) {
                 $array_storage->addResourcesFromFile($file);
@@ -273,12 +267,12 @@ class Container implements ContainerInterface
      * @param string $alias
      * @param bool $object
      * @return mixed
-     * @throws BundleException
+     * @throws ContainerException
      */
     public function resolveBundleAlias($name, $alias, $object = false)
     {
         if (!isset($this->bundles[$name])) {
-            throw new BundleException('Bundle "' . $name . '" is not registered.');
+            throw new ContainerException('Bundle "' . $name . '" is not registered.');
         }
 
         /** @var AbstractBundle $bundle */

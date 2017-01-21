@@ -1,5 +1,7 @@
 .idea
+composer.lock
 nbproject
 tmp/cache/*
 tmp/logs/*
 tmp/twig/*
+vendor
