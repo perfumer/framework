@@ -13,6 +13,10 @@ return [
         'arguments' => ['*_domains']
     ],
 
+    'cache' => [
+        'alias' => 'cache.memcache'
+    ],
+
     'cache.ephemeral' => [
         'shared' => true,
         'class' => 'Stash\\Pool',
@@ -54,7 +58,7 @@ return [
 
     'cookie' => [
         'shared' => true,
-        'class' => 'Perfumer\\Component\\Session\\Cookie'
+        'class' => 'Perfumer\\Component\\Auth\\Cookie'
     ],
 
     'logger' => [
@@ -128,8 +132,8 @@ return [
 
     'session' => [
         'shared' => true,
-        'class' => 'Perfumer\\Component\\Session\\Session',
-        'arguments' => ['#cache.memcache']
+        'class' => 'Perfumer\\Component\\Auth\\Session',
+        'arguments' => ['#cache']
     ],
 
     'storage.database' => [
