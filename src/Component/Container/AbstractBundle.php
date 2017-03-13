@@ -2,7 +2,7 @@
 
 namespace Perfumer\Component\Container;
 
-use Perfumer\Component\Container\Exception\BundleException;
+use Perfumer\Component\Container\Exception\ContainerException;
 
 abstract class AbstractBundle
 {
@@ -22,24 +22,6 @@ abstract class AbstractBundle
      * @return array
      */
     public function getDefinitionFiles()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     * @deprecated use getResources() instead
-     */
-    public function getParams()
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     * @deprecated use getResourceFiles() instead
-     */
-    public function getParamFiles()
     {
         return [];
     }
@@ -79,14 +61,14 @@ abstract class AbstractBundle
     /**
      * @param string $alias
      * @return string
-     * @throws BundleException
+     * @throws ContainerException
      */
     public function resolveAlias($alias)
     {
         $aliases = $this->getAliases();
 
         if (!isset($aliases[$alias])) {
-            throw new BundleException('Service alias "' . $alias . '" is not found for the bundle "' . $this->getName() . '"');
+            throw new ContainerException('Service alias "' . $alias . '" is not found for the bundle "' . $this->getName() . '"');
         }
 
         return $aliases[$alias];
