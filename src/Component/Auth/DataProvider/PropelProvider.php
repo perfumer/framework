@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Auth\UserProvider;
+namespace Perfumer\Component\Auth\DataProvider;
 
 use App\Model\SessionEntry;
 use App\Model\SessionEntryQuery;
@@ -28,7 +28,7 @@ class PropelProvider extends AbstractProvider
      * @param string $token
      * @return mixed
      */
-    public function getUserId($token)
+    public function getData(string $token)
     {
         $session_entry = SessionEntryQuery::create()->findOneByToken($token);
 
@@ -55,15 +55,28 @@ class PropelProvider extends AbstractProvider
     }
 
     /**
+     * @param string $data
+     * @return array
+     */
+    public function getTokens(string $data): array
+    {
+        return SessionEntryQuery::create()
+            ->select('Token')
+            ->filterByModelId($data)
+            ->find()
+            ->getData();
+    }
+
+    /**
      * @param string $token
-     * @param mixed $id
+     * @param string $data
      * @return bool
      */
-    public function setUserToken($token, $id)
+    public function saveData(string $token, string $data): bool
     {
         $session_entry = new SessionEntry();
         $session_entry->setToken($token);
-        $session_entry->setModelId($id);
+        $session_entry->setModelId($data);
         $session_entry->setModelName('App\\Model\\User');
 
         $expired_at = (new \DateTime())->modify('+' . $this->lifetime . ' second');
@@ -71,5 +84,18 @@ class PropelProvider extends AbstractProvider
         $session_entry->setExpiredAt($expired_at);
 
         return (bool) $session_entry->save();
+    }
+
+    /**
+     * @param string $token
+     * @return bool
+     */
+    public function deleteToken(string $token): bool
+    {
+        SessionEntryQuery::create()
+            ->filterByToken($token)
+            ->delete();
+
+        return true;
     }
 }

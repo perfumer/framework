@@ -3,16 +3,15 @@
 namespace Perfumer\Component\Auth;
 
 use Perfumer\Component\Auth\Exception\AuthException;
-use Perfumer\Component\Auth\UserProvider\AbstractProvider as UserProvider;
+use Perfumer\Component\Auth\DataProvider\AbstractProvider as DataProvider;
 use Perfumer\Component\Auth\TokenProvider\AbstractProvider as TokenProvider;
-use Perfumer\Helper\Text;
 
 class Authentication
 {
     /**
-     * @var UserProvider
+     * @var DataProvider
      */
-    protected $user_provider;
+    protected $data_provider;
 
     /**
      * @var Session
@@ -27,12 +26,7 @@ class Authentication
     /**
      * @var bool
      */
-    protected $is_user = false;
-
-    /**
-     * @var bool
-     */
-    protected $is_anonymous = false;
+    protected $is_authenticated = false;
 
     /**
      * @var bool
@@ -40,9 +34,9 @@ class Authentication
     protected $is_processed = false;
 
     /**
-     * @var mixed
+     * @var string
      */
-    protected $id;
+    protected $data;
 
     /**
      * @var string
@@ -50,14 +44,14 @@ class Authentication
     protected $token;
 
     /**
-     * @param UserProvider $user_provider
      * @param Session $session
+     * @param DataProvider $data_provider
      * @param TokenProvider $token_provider
      */
-    public function __construct(UserProvider $user_provider, Session $session, TokenProvider $token_provider)
+    public function __construct(Session $session, DataProvider $data_provider, TokenProvider $token_provider)
     {
-        $this->user_provider = $user_provider;
         $this->session = $session;
+        $this->data_provider = $data_provider;
         $this->token_provider = $token_provider;
     }
 
@@ -68,41 +62,21 @@ class Authentication
     {
         $this->authenticate();
 
-        return $this->is_user || $this->is_anonymous;
+        return $this->is_authenticated;
     }
 
     /**
-     * @return bool
+     * @return string|null
      */
-    public function isUser()
+    public function getData()
     {
         $this->authenticate();
 
-        return $this->is_user;
+        return $this->data;
     }
 
     /**
-     * @return bool
-     */
-    public function isAnonymous()
-    {
-        $this->authenticate();
-
-        return $this->is_anonymous;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        $this->authenticate();
-
-        return $this->id;
-    }
-
-    /**
-     * @return string
+     * @return string|null
      */
     public function getToken()
     {
@@ -111,88 +85,25 @@ class Authentication
         return $this->token;
     }
 
-    protected function authenticate()
-    {
-        if ($this->is_processed === true) {
-            return;
-        }
-
-        $this->token = $this->token_provider->getToken();
-
-        try {
-            if ($this->token === null) {
-                throw new AuthException();
-            }
-
-            if (!$this->session->has($this->token)) {
-                $this->id = $this->user_provider->getUserId($this->token);
-
-                if (!$this->id) {
-                    throw new AuthException();
-                }
-
-                $this->is_user = true;
-
-                $this->session->set($this->token, $this->id);
-            } else {
-                $this->id = $this->session->get($this->token);
-
-                if (is_int($this->id)) {
-                    $this->is_user = true;
-                } else {
-                    $this->is_anonymous = true;
-
-                    $this->session->set($this->token, $this->id);
-                }
-            }
-
-            $this->is_processed = true;
-
-            $this->token_provider->setToken($this->token);
-        } catch (AuthException $e) {
-            $this->logout();
-        }
-    }
-
     /**
+     * @param string $data
      * @return bool
      */
-    public function startAnonymousSession()
+    public function startSession(string $data)
     {
         if ($this->isAuthenticated()) {
             return false;
         }
 
         $this->token = $this->session->generateId();
-        $this->id = Text::generateAlphabeticString(20);
-        $this->is_anonymous = true;
+        $this->data = $data;
 
-        $this->session->set($this->token, $this->id);
-
-        $this->token_provider->setToken($this->token);
-
-        return true;
-    }
-
-    /**
-     * @param int $id
-     * @return bool
-     */
-    public function startUserSession($id)
-    {
-        if ($this->isAuthenticated()) {
-            return false;
-        }
-
-        $this->token = $this->session->generateId();
-        $this->id = $id;
-
-        $set = $this->user_provider->setUserToken($this->token, $this->id);
+        $set = $this->data_provider->saveData($this->token, $this->data);
 
         if ($set) {
-            $this->is_user = true;
+            $this->is_authenticated = true;
 
-            $this->session->set($this->token, $this->id);
+            $this->session->set($this->token, $this->data);
 
             $this->token_provider->setToken($this->token);
         }
@@ -200,28 +111,85 @@ class Authentication
         return $set;
     }
 
+    /**
+     * @return bool
+     */
     public function logout()
     {
-        $this->id = null;
-        $this->is_user = false;
-        $this->is_anonymous = false;
-        $this->is_processed = true;
+        if (!$this->isAuthenticated()) {
+            return false;
+        }
 
         if ($this->token !== null) {
             $this->session->destroy($this->token);
             $this->token_provider->deleteToken();
+            $this->data_provider->deleteToken($this->token);
         }
+
+        $this->data = null;
+        $this->token = null;
+        $this->is_authenticated = false;
+        $this->is_processed = false;
+
+        return true;
     }
 
     /**
-     * @param array $tokens
+     * @param array|null $tokens
+     * @return bool
      */
-    public function destroySessions($tokens)
+    public function destroySessions($tokens = null)
     {
+        if (!$this->isAuthenticated()) {
+            return false;
+        }
+
+        if ($tokens === null) {
+            $tokens = $this->data_provider->getTokens($this->data);
+        }
+
         if (is_array($tokens)) {
             foreach ($tokens as $token) {
                 $this->session->destroy($token);
             }
+        }
+
+        return true;
+    }
+
+    protected function authenticate()
+    {
+        if ($this->is_processed === true) {
+            return;
+        }
+
+        $token = (string) $this->token_provider->getToken();
+
+        try {
+            if (!$token) {
+                throw new AuthException();
+            }
+
+            if ($this->session->has($token)) {
+                $data = $this->session->get($token);
+            } else {
+                $data = $this->data_provider->getData($token);
+
+                if (!$data) {
+                    throw new AuthException();
+                }
+
+                $this->session->set($token, $data);
+            }
+
+            $this->data = $data;
+            $this->token = $token;
+            $this->is_authenticated = true;
+            $this->is_processed = true;
+
+            $this->token_provider->setToken($token);
+        } catch (AuthException $e) {
+            $this->logout();
         }
     }
 }
