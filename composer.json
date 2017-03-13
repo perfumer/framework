@@ -18,12 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Perfumer\\Component\\": "component/",
-            "Perfumer\\Framework\\": "framework/",
-            "Perfumer\\Helper\\": "helper/",
-            "Perfumer\\Package\\Framework\\Bundle\\": "package/framework/bundle/",
-            "Perfumer\\Package\\Framework\\Command\\": "package/framework/command/",
-            "Perfumer\\Package\\Framework\\Controller\\": "package/framework/controller/"
+            "Perfumer\\": "src/"
         }
     },
     "config": {

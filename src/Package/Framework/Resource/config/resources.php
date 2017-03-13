@@ -2,9 +2,9 @@
 
 return [
     'dir' => [
-        'log_file' => __DIR__ . '/../../../../tmp/logs/example.log',
-        'twig_cache' => __DIR__ . '/../../../../tmp/twig/',
-        'file_cache' => __DIR__ . '/../../../../tmp/cache/'
+        'log_file' => __DIR__ . '/../../../../../tmp/logs/example.log',
+        'twig_cache' => __DIR__ . '/../../../../../tmp/twig/',
+        'file_cache' => __DIR__ . '/../../../../../tmp/cache/'
     ],
 
     'propel' => [

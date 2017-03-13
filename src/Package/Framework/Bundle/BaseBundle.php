@@ -28,7 +28,7 @@ abstract class BaseBundle extends AbstractBundle
     public function getDefinitionFiles()
     {
         return [
-            __DIR__ . '/../config/services/framework.php',
+            __DIR__ . '/../Resource/config/services.php',
         ];
     }
 
@@ -38,7 +38,7 @@ abstract class BaseBundle extends AbstractBundle
     public function getResourceFiles()
     {
         return [
-            __DIR__ . '/../config/resources/framework.php',
+            __DIR__ . '/../Resource/config/resources.php',
         ];
     }
 }
