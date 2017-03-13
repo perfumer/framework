@@ -2,11 +2,11 @@
 
 namespace Perfumer\Component\Container;
 
-use Interop\Container\ContainerInterface;
 use Perfumer\Component\Container\Exception\ContainerException;
 use Perfumer\Component\Container\Exception\NotFoundException;
 use Perfumer\Component\Container\Storage\ArrayStorage;
 use Perfumer\Component\Container\Storage\AbstractStorage;
+use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
 {
@@ -210,7 +210,6 @@ class Container implements ContainerInterface
 
     /**
      * @param array $definitions
-     * @return $this
      */
     public function addDefinitions($definitions)
     {
@@ -219,7 +218,6 @@ class Container implements ContainerInterface
 
     /**
      * @param string $file
-     * @return $this
      */
     public function addDefinitionsFromFile($file)
     {
