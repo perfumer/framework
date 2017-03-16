@@ -2,7 +2,6 @@
 
 namespace Perfumer\Component\Auth;
 
-use Perfumer\Component\Auth\Exception\AuthException;
 use Perfumer\Component\Auth\DataProvider\AbstractProvider as DataProvider;
 use Perfumer\Component\Auth\TokenProvider\AbstractProvider as TokenProvider;
 
@@ -95,12 +94,13 @@ class Authentication
             return false;
         }
 
-        $this->token = $this->session->generateId();
-        $this->data = $data;
+        $token = $this->session->generateId();
 
-        $set = $this->data_provider->saveData($this->token, $this->data);
+        $set = $this->data_provider->saveData($token, $data);
 
         if ($set) {
+            $this->token = $token;
+            $this->data = $data;
             $this->is_authenticated = true;
 
             $this->session->set($this->token, $this->data);
@@ -120,11 +120,7 @@ class Authentication
             return false;
         }
 
-        if ($this->token !== null) {
-            $this->session->destroy($this->token);
-            $this->token_provider->deleteToken();
-            $this->data_provider->deleteToken($this->token);
-        }
+        $this->deleteToken($this->token);
 
         $this->data = null;
         $this->token = null;
@@ -165,31 +161,42 @@ class Authentication
 
         $token = (string) $this->token_provider->getToken();
 
-        try {
-            if (!$token) {
-                throw new AuthException();
-            }
-
-            if ($this->session->has($token)) {
-                $data = $this->session->get($token);
-            } else {
-                $data = $this->data_provider->getData($token);
-
-                if (!$data) {
-                    throw new AuthException();
-                }
-
-                $this->session->set($token, $data);
-            }
-
-            $this->data = $data;
-            $this->token = $token;
-            $this->is_authenticated = true;
+        if (!$token) {
             $this->is_processed = true;
+            return;
+        }
 
-            $this->token_provider->setToken($token);
-        } catch (AuthException $e) {
-            $this->logout();
+        if ($this->session->has($token)) {
+            $data = $this->session->get($token);
+        } else {
+            $data = $this->data_provider->getData($token);
+
+            if (!$data) {
+                $this->deleteToken($token);
+                $this->is_processed = true;
+                return;
+            }
+
+            $this->session->set($token, $data);
+        }
+
+        $this->data = $data;
+        $this->token = $token;
+        $this->is_authenticated = true;
+        $this->is_processed = true;
+
+        $this->token_provider->setToken($token);
+    }
+
+    /**
+     * @param string $token
+     */
+    protected function deleteToken(string $token)
+    {
+        if ($token) {
+            $this->session->destroy($token);
+            $this->token_provider->deleteToken();
+            $this->data_provider->deleteToken($token);
         }
     }
 }

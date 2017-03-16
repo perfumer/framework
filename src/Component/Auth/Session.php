@@ -45,17 +45,18 @@ class Session
      */
     public function get($id)
     {
-        return $this->cache->getItem($this->cache_prefix . '/' . $id);
+        $item = $this->cache->getItem($this->cache_prefix . '/' . $id);
+
+        return $item->isMiss() ? null : $item->get();
     }
 
     /**
      * @param string $id
      * @param string $shared_id
-     * @return Session
      */
     public function set($id, $shared_id)
     {
-        return $this->cache->getItem($this->cache_prefix . '/' . $id)->set($shared_id, $this->lifetime);
+        $this->cache->getItem($this->cache_prefix . '/' . $id)->set($shared_id, $this->lifetime);
     }
 
     /**
@@ -72,7 +73,7 @@ class Session
      */
     public function destroy($id)
     {
-        $this->cache->getItem($this->cache_prefix . '/' . $id)->destroy();
+        $this->cache->getItem($this->cache_prefix . '/' . $id)->clear();
     }
 
     /**
