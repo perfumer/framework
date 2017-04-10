@@ -35,7 +35,6 @@ class HttpRouterExtension extends \Twig_Extension
     {
         return [
             new \Twig_SimpleFunction('url', [$this, 'url'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('prefix', [$this, 'prefix']),
             new \Twig_SimpleFunction('id', [$this, 'id']),
             new \Twig_SimpleFunction('fields', [$this, 'fields'])
         ];
@@ -45,22 +44,11 @@ class HttpRouterExtension extends \Twig_Extension
      * @param string $url
      * @param mixed $id
      * @param array $query
-     * @param array $prefixes
      * @return string
      */
-    public function url($url, $id = null, $query = [], $prefixes = [])
+    public function url($url, $id = null, $query = [])
     {
-        return $this->getRouter()->generateUrl($url, $id, $query, $prefixes);
-    }
-
-    /**
-     * @param string|null $name
-     * @param mixed $default
-     * @return string
-     */
-    public function prefix($name = null, $default = null)
-    {
-        return $this->getRouter()->getPrefix($name, $default);
+        return $this->getRouter()->generateUrl($url, $id, $query);
     }
 
     /**

@@ -5,7 +5,6 @@ namespace Perfumer\Framework\Router\Http;
 use Perfumer\Framework\BundleResolver\HttpResolver;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
-use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Symfony\Component\HttpFoundation\Response;
 
 class DefaultRouter implements RouterInterface
@@ -29,11 +28,6 @@ class DefaultRouter implements RouterInterface
      * @var array
      */
     protected $options = [];
-
-    /**
-     * @var array
-     */
-    protected $http_prefixes = [];
 
     /**
      * @var mixed
@@ -63,8 +57,6 @@ class DefaultRouter implements RouterInterface
             'auto_trim' => true,
             'data_type' => 'query_string',
             'default_url' => 'home',
-            'prefixes' => [],
-            'prefix_options' => [],
             'allowed_actions' => ['get', 'post', 'head', 'options'],
             'not_found_attributes' => ['framework', 'exception/plain', 'pageNotFound']
         ];
@@ -102,64 +94,26 @@ class DefaultRouter implements RouterInterface
     public function dispatch()
     {
         $action = strtolower($_SERVER['REQUEST_METHOD']);
+        $url = trim($_SERVER['PATH_INFO'], '/');
 
-        if ($prefixes = $this->options['prefixes']) {
-            $this->http_prefixes = array_fill_keys($prefixes, null);
+        if ($url) {
+            if ((int) $url > 0) {
+                $this->http_id = $url;
+            } else {
+                preg_match('/\/[0-9]+/', $url, $matches, PREG_OFFSET_CAPTURE);
 
-            $prefix_options = $this->options['prefix_options'];
+                if (isset($matches[0])) {
+                    $slash_position = $matches[0][1];
 
-            if (is_array($prefix_options)) {
-                foreach ($prefixes as $prefix) {
-                    if (isset($prefix_options[$prefix]['default_value'])) {
-                        $this->http_prefixes[$prefix] = $prefix_options[$prefix]['default_value'];
+                    $this->http_id = substr($url, $slash_position + 1);
+
+                    if ($slash_position > 0) {
+                        $url = substr($url, 0, $slash_position);
                     }
                 }
             }
-        }
-
-        if ($_SERVER['PATH_INFO'] == '/') {
-            $url = $this->options['default_url'];
         } else {
-            $url = trim($_SERVER['PATH_INFO'], '/');
-
-            // Try to define prefixes
-            if ($prefixes = $this->options['prefixes']) {
-                $url = explode('/', $url);
-
-                $prefix_options = $this->options['prefix_options'];
-
-                while ($prefixes && $url) {
-                    $one_prefix = array_shift($prefixes);
-                    $one_url = $url[0];
-
-                    if ($this->validateUrlPartForPrefix($one_prefix, $one_url, $prefix_options)) {
-                        $this->http_prefixes[$one_prefix] = $one_url;
-
-                        array_shift($url);
-                    }
-                }
-
-                $url = count($url) > 0 ? implode('/', $url) : $this->options['default_url'];
-            }
-
-            // Try to define id
-            if ($url) {
-                if ((int) $url > 0) {
-                    $this->http_id = $url;
-                } else {
-                    preg_match('/\/[0-9]+/', $url, $matches, PREG_OFFSET_CAPTURE);
-
-                    if (isset($matches[0])) {
-                        $slash_position = $matches[0][1];
-
-                        $this->http_id = substr($url, $slash_position + 1);
-
-                        if ($slash_position > 0) {
-                            $url = substr($url, 0, $slash_position);
-                        }
-                    }
-                }
-            }
+            $url = $this->options['default_url'];
         }
 
         $this->input = file_get_contents("php://input");
@@ -218,26 +172,14 @@ class DefaultRouter implements RouterInterface
      * @param string $url
      * @param mixed $id
      * @param array $query
-     * @param array $prefixes
      * @return string
      */
-    public function generateUrl($url, $id = null, $query = [], $prefixes = [])
+    public function generateUrl($url, $id = null, $query = [])
     {
         $generated_url = trim($url, '/');
 
         if ($generated_url) {
             $generated_url = '/' . $generated_url;
-        }
-
-        if ($this->options['prefixes']) {
-            if ($prefixes) {
-                $prefixes = Arr::fetch($prefixes, $this->options['prefixes']);
-                $prefixes = array_merge($this->getPrefix(), $prefixes);
-            } else {
-                $prefixes = $this->getPrefix();
-            }
-
-            $generated_url = '/' . implode('/', $prefixes) . $generated_url;
         }
 
         if ($id) {
@@ -267,37 +209,6 @@ class DefaultRouter implements RouterInterface
     public function getInput()
     {
         return $this->input;
-    }
-
-    /**
-     * @param string $name
-     * @param mixed $default
-     * @return mixed
-     */
-    public function getPrefix($name = null, $default = null)
-    {
-        if ($name === null) {
-            return $this->http_prefixes;
-        }
-
-        return isset($this->http_prefixes[$name]) ? $this->http_prefixes[$name] : $default;
-    }
-
-    /**
-     * @param string $name
-     * @param string $value
-     * @return $this
-     * @throws ProxyException
-     */
-    public function setPrefix($name, $value)
-    {
-        if (!in_array($name, $this->options['prefixes'])) {
-            throw new ProxyException('Prefix "' . $name . '" is not registered in configuration');
-        }
-
-        $this->http_prefixes[$name] = $value;
-
-        return $this;
     }
 
     /**
@@ -368,34 +279,5 @@ class DefaultRouter implements RouterInterface
     public function setFields(array $fields)
     {
         $this->http_fields = array_merge($this->http_fields, $fields);
-    }
-
-    /**
-     * @param string $prefix
-     * @param string $part
-     * @param array $options
-     * @return bool
-     */
-    protected function validateUrlPartForPrefix($prefix, $part, array $options)
-    {
-        if ($options === null || !isset($options[$prefix])) {
-            return true;
-        }
-
-        $options = $options[$prefix];
-
-        if (isset($options['white_list'])) {
-            return in_array($part, $options['white_list']);
-        }
-
-        if (isset($options['black_list'])) {
-            return !in_array($part, $options['black_list']);
-        }
-
-        if (isset($options['regex'])) {
-            return preg_match($options['regex'], $part);
-        }
-
-        return true;
     }
 }
