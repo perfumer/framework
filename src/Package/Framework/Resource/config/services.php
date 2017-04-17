@@ -1,18 +1,6 @@
 <?php
 
 return [
-    'bundle.console_resolver' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Framework\\BundleResolver\\ConsoleGateway',
-        'arguments' => ['*_domains']
-    ],
-
-    'bundle.http_resolver' => [
-        'shared' => true,
-        'class' => 'Perfumer\\Framework\\BundleResolver\\HttpResolver',
-        'arguments' => ['*_domains']
-    ],
-
     'cache' => [
         'alias' => 'cache.memcache'
     ],
@@ -59,6 +47,24 @@ return [
     'cookie' => [
         'shared' => true,
         'class' => 'Perfumer\\Component\\Auth\\Cookie'
+    ],
+
+    'gateway' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Gateway\\CompositeGateway',
+        'arguments' => ['#gateway.http', '#gateway.console']
+    ],
+
+    'gateway.console' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Gateway\\ConsoleGateway',
+        'arguments' => ['*_domains']
+    ],
+
+    'gateway.http' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Framework\\Gateway\\HttpGateway',
+        'arguments' => ['*_domains']
     ],
 
     'logger' => [
