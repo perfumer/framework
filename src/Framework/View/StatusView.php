@@ -14,13 +14,30 @@ class StatusView extends SerializeView
 
         $this->addVars([
             'status' => true,
-            'message' => '',
+            'message' => null,
             'content' => null
         ]);
 
         $this->addGroup('errors');
     }
 
+    public function render()
+    {
+        if (!$this->hasMessage()) {
+            $this->deleteVar('message');
+        }
+
+        if (!$this->hasContent()) {
+            $this->deleteVar('content');
+        }
+
+        if (!$this->hasErrors()) {
+            $this->deleteVars('errors');
+        }
+
+        return parent::render();
+    }
+    
     /**
      * @return bool
      */
