@@ -2,7 +2,7 @@
 
 namespace Perfumer\Framework\Router\Http;
 
-use Perfumer\Framework\BundleResolver\HttpResolver;
+use Perfumer\Framework\Gateway\HttpGateway;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 class DefaultRouter implements RouterInterface
 {
     /**
-     * @var HttpResolver
+     * @var HttpGateway
      */
-    protected $bundle_resolver;
+    protected $gateway;
 
     /**
      * @var Response
@@ -45,12 +45,12 @@ class DefaultRouter implements RouterInterface
     protected $http_fields = [];
 
     /**
-     * @param HttpResolver $bundle_resolver
+     * @param HttpGateway $gateway
      * @param array $options
      */
-    public function __construct(HttpResolver $bundle_resolver, $options = [])
+    public function __construct(HttpGateway $gateway, $options = [])
     {
-        $this->bundle_resolver = $bundle_resolver;
+        $this->gateway = $gateway;
 
         $default_options = [
             'auto_null' => true,
@@ -194,7 +194,7 @@ class DefaultRouter implements RouterInterface
             }
         }
 
-        $generated_url = $this->bundle_resolver->getPrefix() . $generated_url;
+        $generated_url = $this->gateway->getPrefix() . $generated_url;
 
         if (!$generated_url) {
             $generated_url = '/';

@@ -3,7 +3,7 @@
 namespace Perfumer\Framework\Router\Http;
 
 use FastRoute\Dispatcher;
-use Perfumer\Framework\BundleResolver\HttpResolver;
+use Perfumer\Framework\Gateway\HttpGateway;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,9 +16,9 @@ class FastRouteRouter implements RouterInterface
     protected $fast_router;
 
     /**
-     * @var HttpResolver
+     * @var HttpGateway
      */
-    protected $bundle_resolver;
+    protected $gateway;
 
     /**
      * @var Response
@@ -31,10 +31,15 @@ class FastRouteRouter implements RouterInterface
 
     protected $http_fields = [];
 
-    public function __construct(HttpResolver $bundle_resolver, Dispatcher $fast_router, $options = [])
+    /**
+     * @param HttpGateway $gateway
+     * @param Dispatcher $fast_router
+     * @param array $options
+     */
+    public function __construct(HttpGateway $gateway, Dispatcher $fast_router, $options = [])
     {
         $this->fast_router = $fast_router;
-        $this->bundle_resolver = $bundle_resolver;
+        $this->gateway = $gateway;
 
         $default_options = [
             'auto_null' => true,
