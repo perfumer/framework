@@ -3,7 +3,7 @@
 return [
     'bundle.console_resolver' => [
         'shared' => true,
-        'class' => 'Perfumer\\Framework\\BundleResolver\\ConsoleResolver',
+        'class' => 'Perfumer\\Framework\\BundleResolver\\ConsoleGateway',
         'arguments' => ['*_domains']
     ],
 

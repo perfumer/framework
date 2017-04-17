@@ -1,10 +1,8 @@
 <?php
 
-namespace Perfumer\Framework\BundleResolver;
+namespace Perfumer\Framework\Gateway;
 
-use Perfumer\Component\Container\Exception\BundleException;
-
-class HttpResolver implements ResolverInterface
+class HttpGateway implements GatewayInterface
 {
     /**
      * @var array
@@ -17,7 +15,6 @@ class HttpResolver implements ResolverInterface
     protected $prefix;
 
     /**
-     * HttpResolver constructor.
      * @param array $bundles
      */
     public function __construct($bundles = [])
@@ -27,7 +24,6 @@ class HttpResolver implements ResolverInterface
 
     /**
      * @return string
-     * @throws BundleException
      */
     public function dispatch()
     {
@@ -55,10 +51,6 @@ class HttpResolver implements ResolverInterface
             }
         }
 
-        if ($bundle === null) {
-            throw new BundleException('Bundle resolver could not find bundle.');
-        }
-
         return $bundle;
     }
 
@@ -68,13 +60,5 @@ class HttpResolver implements ResolverInterface
     public function getPrefix()
     {
         return $this->prefix;
-    }
-
-    /**
-     * @param string $prefix
-     */
-    public function setPrefix($prefix)
-    {
-        $this->prefix = $prefix;
     }
 }

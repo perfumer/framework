@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Framework\BundleResolver;
+namespace Perfumer\Framework\Gateway;
 
-class ConsoleResolver implements ResolverInterface
+class ConsoleGateway implements GatewayInterface
 {
     /**
      * @var array
@@ -10,7 +10,6 @@ class ConsoleResolver implements ResolverInterface
     protected $bundles = [];
 
     /**
-     * ConsoleResolver constructor.
      * @param array $bundles
      */
     public function __construct($bundles = [])

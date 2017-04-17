@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Framework\BundleResolver;
+namespace Perfumer\Framework\Gateway;
 
-interface ResolverInterface
+interface GatewayInterface
 {
     /**
      * @return string
