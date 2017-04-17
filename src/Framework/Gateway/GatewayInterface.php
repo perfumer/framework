@@ -7,5 +7,5 @@ interface GatewayInterface
     /**
      * @return string
      */
-    public function dispatch();
+    public function dispatch(): string;
 }

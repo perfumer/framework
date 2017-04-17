@@ -19,8 +19,9 @@ class ConsoleGateway implements GatewayInterface
 
     /**
      * @return string
+     * @throws GatewayException
      */
-    public function dispatch()
+    public function dispatch(): string
     {
         $bundle = $_SERVER['argv'][1];
 
@@ -29,6 +30,10 @@ class ConsoleGateway implements GatewayInterface
                 $bundle = $route['bundle'];
                 break;
             }
+        }
+
+        if ($bundle === null) {
+            throw new GatewayException("Console gateway could not determine bundle.");
         }
 
         return $bundle;

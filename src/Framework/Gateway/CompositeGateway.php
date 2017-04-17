@@ -24,7 +24,11 @@ class CompositeGateway implements GatewayInterface
         $this->console_gateway = $console_gateway;
     }
 
-    public function dispatch()
+    /**
+     * @return string
+     * @throws GatewayException
+     */
+    public function dispatch(): string
     {
         $bundle = null;
 
@@ -34,6 +38,10 @@ class CompositeGateway implements GatewayInterface
 
         if (isset($_SERVER['argv'])) {
             $bundle = $this->console_gateway->dispatch();
+        }
+
+        if ($bundle === null) {
+            throw new GatewayException("Composite gateway could not determine bundle.");
         }
 
         return $bundle;

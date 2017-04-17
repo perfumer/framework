@@ -24,8 +24,9 @@ class HttpGateway implements GatewayInterface
 
     /**
      * @return string
+     * @throws GatewayException
      */
-    public function dispatch()
+    public function dispatch(): string
     {
         $bundle = null;
 
@@ -49,6 +50,10 @@ class HttpGateway implements GatewayInterface
             if ($bundle !== null) {
                 break;
             }
+        }
+
+        if ($bundle === null) {
+            throw new GatewayException("Http gateway could not determine bundle.");
         }
 
         return $bundle;
