@@ -4,7 +4,7 @@ namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Controller\ControllerInterface;
-use Perfumer\Framework\BundleResolver\ResolverInterface as BundleResolver;
+use Perfumer\Framework\Gateway\GatewayInterface;
 use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
@@ -17,9 +17,9 @@ class Proxy
     protected $container;
 
     /**
-     * @var BundleResolver
+     * @var GatewayInterface
      */
-    protected $bundle_resolver;
+    protected $gateway;
 
     /**
      * @var Router
@@ -88,7 +88,7 @@ class Proxy
     public function __construct(Container $container, array $options = [])
     {
         $this->container = $container;
-        $this->bundle_resolver = $container->get('bundle_resolver');
+        $this->gateway = $container->get('gateway');
 
         $default_options = [
             'debug' => false
@@ -98,11 +98,11 @@ class Proxy
     }
 
     /**
-     * @return BundleResolver
+     * @return GatewayInterface
      */
-    public function getBundleResolver()
+    public function getGateway()
     {
-        return $this->bundle_resolver;
+        return $this->gateway;
     }
 
     /**
@@ -139,7 +139,7 @@ class Proxy
 
     public function run()
     {
-        $bundle = $this->bundle_resolver->dispatch();
+        $bundle = $this->gateway->dispatch();
 
         $router_service_name = $this->container->resolveBundleAlias($bundle, 'router');
 
