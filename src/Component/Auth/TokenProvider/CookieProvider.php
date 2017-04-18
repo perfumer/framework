@@ -26,6 +26,7 @@ class CookieProvider extends AbstractProvider
         $this->cookie = $cookie;
 
         $default_options = [
+            'name' => '_session',
             'lifetime' => 3600
         ];
 
@@ -37,7 +38,7 @@ class CookieProvider extends AbstractProvider
      */
     public function getToken()
     {
-        return $this->cookie->get('_session');
+        return $this->cookie->get($this->options['name']);
     }
 
     /**
@@ -45,12 +46,12 @@ class CookieProvider extends AbstractProvider
      */
     public function setToken($token)
     {
-        $this->cookie->set('_session', $token, $this->options['lifetime']);
+        $this->cookie->set($this->options['name'], $token, $this->options['lifetime']);
     }
 
     public function deleteToken()
     {
-        $this->cookie->delete('_session');
+        $this->cookie->delete($this->options['name']);
     }
 
     /**
