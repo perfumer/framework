@@ -24,7 +24,7 @@ class SerializeView extends AbstractView
     public function render()
     {
         if ($this->serializer === 'json') {
-            $data = json_encode($this->vars);
+            $data = json_encode($this->vars, JSON_UNESCAPED_UNICODE);
         } elseif (is_callable($this->serializer)) {
             $data = $this->serializer($this->vars);
         } else {
