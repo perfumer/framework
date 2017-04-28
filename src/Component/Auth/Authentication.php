@@ -112,6 +112,27 @@ class Authentication
     }
 
     /**
+     * @param string $data
+     * @return bool
+     */
+    public function updateSession(string $data)
+    {
+        if (!$this->isAuthenticated()) {
+            return false;
+        }
+
+        $set = $this->data_provider->saveData($this->token, $data);
+
+        if ($set) {
+            $this->data = $data;
+
+            $this->session->set($this->token, $this->data);
+        }
+
+        return $set;
+    }
+
+    /**
      * @return bool
      */
     public function logout()
