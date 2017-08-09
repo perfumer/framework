@@ -67,16 +67,16 @@ class Arr
 
     /**
      * @param array $array
-     * @param string $char
+     * @param string $charlist
      * @return array
      */
-    public static function trim(array $array, $char = ' ')
+    public static function trim(array $array, $charlist = " \t\n\r\0\x0B")
     {
         foreach ($array as &$value) {
             if (is_array($value)) {
-                $value = self::trim($value, $char);
+                $value = self::trim($value, $charlist);
             } elseif (is_string($value)) {
-                $value = trim($value, $char);
+                $value = trim($value, $charlist);
             }
         }
 
