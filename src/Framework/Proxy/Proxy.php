@@ -211,6 +211,18 @@ class Proxy
     }
 
     /**
+     * @param callable $callable
+     */
+    public function deferCallable(callable $callable)
+    {
+        if ($this->is_deferred_stage) {
+            $callable();
+        } else {
+            $this->deferred[] = $callable;
+        }
+    }
+
+    /**
      * @param string $event_name
      * @param Event $event
      */
@@ -325,9 +337,11 @@ class Proxy
         $this->is_deferred_stage = true;
 
         foreach ($this->deferred as $deferred) {
-            /** @var Attributes $deferred */
-
-            $this->execute($deferred->getBundle(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
+            if ($deferred instanceof Attributes) {
+                $this->execute($deferred->getBundle(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
+            } elseif (is_callable($deferred)) {
+                $deferred();
+            }
         }
     }
 
