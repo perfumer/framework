@@ -8,7 +8,10 @@ abstract class AbstractBundle
 {
     abstract public function getName();
 
-    abstract public function getDescription();
+    public function getDescription()
+    {
+        return '';
+    }
 
     /**
      * @return array

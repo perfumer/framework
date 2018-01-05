@@ -3,6 +3,7 @@
 namespace Perfumer\Framework\Controller;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Framework\Application\Application;
 use Perfumer\Framework\Controller\Exception\ExitActionException;
 use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Event;
@@ -168,6 +169,14 @@ abstract class AbstractController implements ControllerInterface
     protected function getContainer()
     {
         return $this->_container;
+    }
+
+    /**
+     * @return Application
+     */
+    protected function getApplication()
+    {
+        return $this->_container->get('application');
     }
 
     /**

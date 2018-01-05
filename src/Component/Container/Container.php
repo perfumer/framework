@@ -128,38 +128,48 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param AbstractBundle $bundle
+     * @throws ContainerException
+     * @throws NotFoundException
+     */
+    public function registerBundle(AbstractBundle $bundle)
+    {
+        if (isset($this->bundles[$bundle->getName()])) {
+            throw new ContainerException('Bundle "' . $bundle->getName() . '" is already registered.');
+        }
+
+        $this->bundles[$bundle->getName()] = $bundle;
+
+        foreach ($bundle->getDefinitionFiles() as $file) {
+            $this->addDefinitionsFromFile($file);
+        }
+
+        $this->addDefinitions($bundle->getDefinitions());
+
+        /** @var ArrayStorage $array_storage */
+        $array_storage = $this->getStorage('array');
+
+        foreach ($bundle->getResourceFiles() as $file) {
+            $array_storage->addResourcesFromFile($file);
+        }
+
+        $array_storage->addResources($bundle->getResources());
+
+        foreach ($bundle->getStorages() as $storage) {
+            $this->registerStorage($storage, $this->get($storage));
+        }
+    }
+
+    /**
      * @param array $bundles
      * @throws ContainerException
+     * @throws NotFoundException
      */
     public function registerBundles(array $bundles)
     {
         foreach ($bundles as $bundle) {
             /** @var AbstractBundle $bundle */
-
-            if (isset($this->bundles[$bundle->getName()])) {
-                throw new ContainerException('Bundle "' . $bundle->getName() . '" is already registered.');
-            }
-
-            $this->bundles[$bundle->getName()] = $bundle;
-
-            foreach ($bundle->getDefinitionFiles() as $file) {
-                $this->addDefinitionsFromFile($file);
-            }
-
-            $this->addDefinitions($bundle->getDefinitions());
-
-            /** @var ArrayStorage $array_storage */
-            $array_storage = $this->getStorage('array');
-
-            foreach ($bundle->getResourceFiles() as $file) {
-                $array_storage->addResourcesFromFile($file);
-            }
-
-            $array_storage->addResources($bundle->getResources());
-
-            foreach ($bundle->getStorages() as $storage) {
-                $this->registerStorage($storage, $this->get($storage));
-            }
+            $this->registerBundle($bundle);
         }
     }
 
