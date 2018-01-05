@@ -15,11 +15,18 @@ class HttpGateway implements GatewayInterface
     protected $prefix;
 
     /**
-     * @param array $bundles
+     * @var bool
      */
-    public function __construct($bundles = [])
+    protected $debug;
+
+    /**
+     * @param array $bundles
+     * @param array $options
+     */
+    public function __construct($bundles = [], $options = [])
     {
         $this->bundles = $bundles;
+        $this->debug = $options['debug'] ?? false;
     }
 
     /**
@@ -28,6 +35,12 @@ class HttpGateway implements GatewayInterface
      */
     public function dispatch(): string
     {
+        if ($this->debug && class_exists('\\Whoops\\Run')) {
+            $whoops = new \Whoops\Run;
+            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
+            $whoops->register();
+        }
+
         $bundle = null;
 
         foreach ($this->bundles as $route) {

@@ -58,13 +58,17 @@ return [
     'gateway.console' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Gateway\\ConsoleGateway',
-        'arguments' => ['*_domains']
+        'arguments' => ['*_domains', [
+            'debug' => '@gateway/debug'
+        ]]
     ],
 
     'gateway.http' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Gateway\\HttpGateway',
-        'arguments' => ['*_domains']
+        'arguments' => ['*_domains', [
+            'debug' => '@gateway/debug'
+        ]]
     ],
 
     'logger' => [

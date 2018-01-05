@@ -7,6 +7,10 @@ return [
         'file_cache' => __DIR__ . '/../../../../../tmp/cache/'
     ],
 
+    'gateway' => [
+        'debug' => false
+    ],
+
     'propel' => [
         'bin' => 'vendor/bin/propel',
         'project' => 'example',
