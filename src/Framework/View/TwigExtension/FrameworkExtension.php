@@ -4,6 +4,7 @@ namespace Perfumer\Framework\View\TwigExtension;
 
 use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Proxy\Proxy;
+use Stash\Pool;
 
 class FrameworkExtension extends \Twig_Extension
 {
@@ -34,25 +35,27 @@ class FrameworkExtension extends \Twig_Extension
 
     public function request($bundle, $url, $action, array $args = [], $cache_key = null, $cache_lifetime = 3600)
     {
+        /** @var Proxy $proxy */
         $proxy = $this->container->get('proxy');
 
-        if ($cache_key !== null)
-        {
-            $cache = $this->container->get('cache')->getItem($cache_key);
+        if ($cache_key !== null) {
+            /** @var Pool $pool */
+            $pool = $this->container->get('cache');
 
-            $content = $cache->get();
+            $item = $pool->getItem($cache_key);
 
-            if ($cache->isMiss())
-            {
-                $cache->lock();
+            if ($item->isHit()) {
+                $content = $item->get();
+            } else {
+                $item->lock();
 
                 $content = $proxy->execute($bundle, $url, $action, $args)->getContent();
 
-                $cache->set($content, $cache_lifetime);
+                $item->set($content);
+                $item->expiresAfter($cache_lifetime);
+                $item->save();
             }
-        }
-        else
-        {
+        } else {
             $content = $proxy->execute($bundle, $url, $action, $args)->getContent();
         }
 

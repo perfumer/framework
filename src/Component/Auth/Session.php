@@ -47,7 +47,7 @@ class Session
     {
         $item = $this->cache->getItem($this->cache_prefix . '/' . $id);
 
-        return $item->isMiss() ? null : $item->get();
+        return $item->isHit() ? $item->get() : null;
     }
 
     /**
@@ -56,7 +56,10 @@ class Session
      */
     public function set($id, $shared_id)
     {
-        $this->cache->getItem($this->cache_prefix . '/' . $id)->set($shared_id, $this->lifetime);
+        $item = $this->cache->getItem($this->cache_prefix . '/' . $id);
+        $item->set($shared_id);
+        $item->expiresAfter($this->lifetime);
+        $item->save();
     }
 
     /**
@@ -65,7 +68,7 @@ class Session
      */
     public function has($id)
     {
-        return !$this->cache->getItem($this->cache_prefix . '/' . $id)->isMiss();
+        return $this->cache->getItem($this->cache_prefix . '/' . $id)->isHit();
     }
 
     /**
@@ -85,7 +88,7 @@ class Session
             $id = Text::generateString(20);
 
             $item = $this->cache->getItem($this->cache_prefix . '/' . $id);
-        } while (!$item->isMiss());
+        } while ($item->isHit());
 
         return $id;
     }
