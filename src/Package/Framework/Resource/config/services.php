@@ -25,9 +25,7 @@ return [
     'cache.file_driver' => [
         'shared' => true,
         'class' => 'Stash\\Driver\\FileSystem',
-        'after' => function(\Perfumer\Component\Container\Container $container, \Stash\Driver\FileSystem $driver) {
-            $driver->setOptions(['path' => $container->getParam('dir/file_cache')]);
-        }
+        'arguments' => [['path' => '@dir/file_cache']]
     ],
 
     'cache.memcache' => [
@@ -38,10 +36,7 @@ return [
 
     'cache.memcache_driver' => [
         'shared' => true,
-        'class' => 'Stash\\Driver\\Memcache',
-        'after' => function(\Perfumer\Component\Container\Container $container, \Stash\Driver\Memcache $driver) {
-            $driver->setOptions();
-        }
+        'class' => 'Stash\\Driver\\Memcache'
     ],
 
     'cookie' => [
