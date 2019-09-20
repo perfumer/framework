@@ -12,16 +12,23 @@ class ConsoleGateway implements GatewayInterface
     /**
      * @var bool
      */
-    protected $debug;
+    protected $debug = false;
 
     /**
-     * @param array $bundles
      * @param array $options
      */
-    public function __construct($bundles = [], $options = [])
+    public function __construct($options = [])
     {
-        $this->bundles = $bundles;
         $this->debug = $options['debug'] ?? false;
+    }
+
+    public function addBundle($name, $domain, $prefix = null)
+    {
+        $this->bundles[] = [
+            'name' => $name,
+            'domain' => $domain,
+            'prefix' => $prefix,
+        ];
     }
 
     /**
@@ -36,19 +43,19 @@ class ConsoleGateway implements GatewayInterface
             $whoops->register();
         }
 
-        $bundle = $_SERVER['argv'][1];
+        $value = $_SERVER['argv'][1];
 
-        foreach ($this->bundles as $route) {
-            if ($route['domain'] === $_SERVER['argv'][1]) {
-                $bundle = $route['bundle'];
+        foreach ($this->bundles as $bundle) {
+            if ($bundle['domain'] === $_SERVER['argv'][1]) {
+                $value = $bundle['name'];
                 break;
             }
         }
 
-        if ($bundle === null) {
+        if ($value === null) {
             throw new GatewayException("Console gateway could not determine bundle.");
         }
 
-        return $bundle;
+        return $value;
     }
 }

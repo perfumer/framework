@@ -17,16 +17,23 @@ class HttpGateway implements GatewayInterface
     /**
      * @var bool
      */
-    protected $debug;
+    protected $debug = false;
 
     /**
-     * @param array $bundles
      * @param array $options
      */
-    public function __construct($bundles = [], $options = [])
+    public function __construct($options = [])
     {
-        $this->bundles = $bundles;
         $this->debug = $options['debug'] ?? false;
+    }
+
+    public function addBundle($name, $domain, $prefix = null)
+    {
+        $this->bundles[] = [
+            'name' => $name,
+            'domain' => $domain,
+            'prefix' => $prefix,
+        ];
     }
 
     /**
@@ -41,35 +48,35 @@ class HttpGateway implements GatewayInterface
             $whoops->register();
         }
 
-        $bundle = null;
+        $value = null;
 
-        foreach ($this->bundles as $route) {
-            if ($route['domain'] === $_SERVER['SERVER_NAME']) {
-                if (empty($route['prefix'])) {
-                    $bundle = $route['bundle'];
+        foreach ($this->bundles as $bundle) {
+            if ($bundle['domain'] === $_SERVER['SERVER_NAME']) {
+                if (empty($bundle['prefix'])) {
+                    $value = $bundle['name'];
                 } else {
-                    $prefix = $route['prefix'];
+                    $prefix = $bundle['prefix'];
 
                     if (strpos($_SERVER['PATH_INFO'], $prefix) === 0) {
                         $this->prefix = $prefix;
 
-                        $bundle = $route['bundle'];
+                        $value = $bundle['name'];
 
                         $_SERVER['PATH_INFO'] = substr($_SERVER['PATH_INFO'], strlen($prefix));
                     }
                 }
             }
 
-            if ($bundle !== null) {
+            if ($value !== null) {
                 break;
             }
         }
 
-        if ($bundle === null) {
+        if ($value === null) {
             throw new GatewayException("Http gateway could not determine bundle.");
         }
 
-        return $bundle;
+        return $value;
     }
 
     /**

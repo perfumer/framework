@@ -2,6 +2,8 @@
 
 namespace Perfumer\Framework\Gateway;
 
+use Perfumer\Framework\Application\Application;
+
 class CompositeGateway implements GatewayInterface
 {
     /**
@@ -15,13 +17,49 @@ class CompositeGateway implements GatewayInterface
     protected $console_gateway;
 
     /**
+     * @var Application
+     */
+    protected $application;
+
+    /**
+     * @param Application $application
      * @param HttpGateway $http_gateway
      * @param ConsoleGateway $console_gateway
      */
-    public function __construct(HttpGateway $http_gateway, ConsoleGateway $console_gateway)
+    public function __construct(Application $application, HttpGateway $http_gateway, ConsoleGateway $console_gateway)
     {
+        $this->application = $application;
         $this->http_gateway = $http_gateway;
         $this->console_gateway = $console_gateway;
+
+        $this->configure();
+    }
+
+    protected function configure(): void
+    {
+    }
+
+    public function addBundle($name, $domain, $prefix = null, $env = null, $build_type = null, $flavor = null)
+    {
+        if ($env !== null && $env !== $this->application->getEnv()) {
+            return;
+        }
+
+        if ($build_type !== null && $build_type !== $this->application->getBuildType()) {
+            return;
+        }
+
+        if ($flavor !== null && $flavor !== $this->application->getFlavor()) {
+            return;
+        }
+
+        if ($env !== Application::CLI) {
+            $this->http_gateway->addBundle($name, $domain, $prefix);
+        }
+
+        if ($env !== Application::HTTP) {
+            $this->console_gateway->addBundle($name, $domain, $prefix);
+        }
     }
 
     /**

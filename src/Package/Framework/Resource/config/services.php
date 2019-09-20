@@ -47,13 +47,13 @@ return [
     'gateway' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Gateway\\CompositeGateway',
-        'arguments' => ['#gateway.http', '#gateway.console']
+        'arguments' => ['#application', '#gateway.http', '#gateway.console']
     ],
 
     'gateway.console' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Gateway\\ConsoleGateway',
-        'arguments' => ['*_domains', [
+        'arguments' => [[
             'debug' => '@gateway/debug'
         ]]
     ],
@@ -61,7 +61,7 @@ return [
     'gateway.http' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Gateway\\HttpGateway',
-        'arguments' => ['*_domains', [
+        'arguments' => [[
             'debug' => '@gateway/debug'
         ]]
     ],

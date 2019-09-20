@@ -72,8 +72,8 @@ class Application
     protected function configure()
     {
     }
-    
-    protected function addBundle(AbstractBundle $bundle, $env = null, $build_type = null, $flavor = null)
+
+    public function addBundle(AbstractBundle $bundle, $env = null, $build_type = null, $flavor = null)
     {
         if ($env !== null && $env !== $this->env) {
             return;
