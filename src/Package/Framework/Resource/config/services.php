@@ -126,8 +126,7 @@ return [
         'class' => 'Perfumer\\Framework\\Proxy\\Proxy',
         'arguments' => ['container', [
             'debug' => '@proxy/debug'
-        ]],
-        'after' => 'Perfumer\\Framework\\Proxy\\proxyDefinitionAfter'
+        ]]
     ],
 
     'router.console' => [

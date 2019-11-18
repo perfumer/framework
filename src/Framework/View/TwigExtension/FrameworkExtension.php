@@ -64,11 +64,6 @@ class FrameworkExtension extends \Twig_Extension
 
     public function tpl($bundle, $template)
     {
-        /** @var Proxy $proxy */
-        $proxy = $this->container->get('proxy');
-
-        list($bundle, $template) = $proxy->overrideTemplate($bundle, $template);
-
         $template_provider_service_name = $this->container->resolveBundleAlias($bundle, 'template_provider');
 
         $template = $this->container->get($template_provider_service_name)->dispatch($template);
@@ -84,5 +79,10 @@ class FrameworkExtension extends \Twig_Extension
     public function t($key, $placeholders = [])
     {
         return $this->container->get('translator')->trans($key, $placeholders);
+    }
+
+    public function tc($key, $number, $placeholders = [])
+    {
+        return $this->container->get('translator')->transChoice($key, $number, $placeholders);
     }
 }

@@ -61,26 +61,6 @@ class Proxy
     protected $is_deferred_stage = false;
 
     /**
-     * @var array
-     */
-    protected $controller_overrides = [];
-
-    /**
-     * @var array
-     */
-    protected $template_overrides = [];
-
-    /**
-     * @var array
-     */
-    protected $sync_subscribers = [];
-
-    /**
-     * @var array
-     */
-    protected $async_subscribers = [];
-
-    /**
      * Proxy constructor.
      * @param Container $container
      * @param array $options
@@ -222,25 +202,6 @@ class Proxy
         }
     }
 
-    /**
-     * @param string $event_name
-     * @param Event $event
-     */
-    public function trigger($event_name, Event $event)
-    {
-        if ($subscribers = $this->getSyncSubscribers($event_name)) {
-            foreach ($subscribers as $subscriber) {
-                $this->execute($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
-            }
-        }
-
-        if ($subscribers = $this->getAsyncSubscribers($event_name)) {
-            foreach ($subscribers as $subscriber) {
-                $this->defer($subscriber[0], $subscriber[1], $subscriber[2], [$event]);
-            }
-        }
-    }
-
     public function pageNotFoundException()
     {
         $controller_not_found = $this->router->getNotFoundAttributes();
@@ -271,8 +232,6 @@ class Proxy
      */
     protected function initializeRequest($bundle, $resource, $action, array $args = [])
     {
-        list($bundle, $resource, $action) = $this->overrideController($bundle, $resource, $action);
-
         $request_service_name = $this->container->resolveBundleAlias($bundle, 'request');
 
         return $this->container->get($request_service_name, [$bundle, $resource, $action, $args]);
@@ -344,110 +303,4 @@ class Proxy
             }
         }
     }
-
-    /**
-     * @param string $bundle
-     * @param string $resource
-     * @param string $action
-     * @return array
-     */
-    public function overrideController($bundle, $resource, $action)
-    {
-        $key = $bundle . '.' . $resource . '.' . $action;
-
-        if (isset($this->controller_overrides[$key])) {
-            $result = $this->controller_overrides[$key];
-        } else {
-            $result = [$bundle, $resource, $action];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string $bundle
-     * @param string $template
-     * @return array
-     */
-    public function overrideTemplate($bundle, $template)
-    {
-        $key = $bundle . '.' . $template;
-
-        if (isset($this->template_overrides[$key])) {
-            $result = $this->template_overrides[$key];
-        } else {
-            $result = [$bundle, $template];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param array $overrides
-     */
-    public function addControllersOverrides(array $overrides)
-    {
-        $this->controller_overrides = array_merge($this->controller_overrides, $overrides);
-    }
-
-    /**
-     * @param array $overrides
-     */
-    public function addTemplateOverrides(array $overrides)
-    {
-        $this->template_overrides = array_merge($this->template_overrides, $overrides);
-    }
-
-    /**
-     * @param array $subscribers
-     */
-    public function addSyncSubscribers(array $subscribers)
-    {
-        foreach ($subscribers as $event_name => $attributes) {
-            if (!isset($this->sync_subscribers[$event_name])) {
-                $this->sync_subscribers[$event_name] = [];
-            }
-
-            $this->sync_subscribers[$event_name] = array_merge($this->sync_subscribers[$event_name], $attributes);
-        }
-    }
-
-    /**
-     * @param array $subscribers
-     */
-    public function addAsyncSubscribers(array $subscribers)
-    {
-        foreach ($subscribers as $event_name => $attributes) {
-            if (!isset($this->async_subscribers[$event_name])) {
-                $this->async_subscribers[$event_name] = [];
-            }
-
-            $this->async_subscribers[$event_name] = array_merge($this->async_subscribers[$event_name], $attributes);
-        }
-    }
-
-    /**
-     * @param string $event_name
-     * @return array
-     */
-    public function getSyncSubscribers($event_name)
-    {
-        return isset($this->sync_subscribers[$event_name]) ? $this->sync_subscribers[$event_name] : [];
-    }
-
-    /**
-     * @param string $event_name
-     * @return array
-     */
-    public function getAsyncSubscribers($event_name)
-    {
-        return isset($this->async_subscribers[$event_name]) ? $this->async_subscribers[$event_name] : [];
-    }
-}
-
-function proxyDefinitionAfter(Container $container, Proxy $proxy) {
-    $proxy->addControllersOverrides($container->getResource('_controller_overrides'));
-    $proxy->addTemplateOverrides($container->getResource('_template_overrides'));
-    $proxy->addSyncSubscribers($container->getResource('_sync_subscribers'));
-    $proxy->addAsyncSubscribers($container->getResource('_async_subscribers'));
 }

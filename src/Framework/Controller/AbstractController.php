@@ -6,7 +6,6 @@ use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Application\Application;
 use Perfumer\Framework\Controller\Exception\ExitActionException;
 use Perfumer\Framework\Router\RouterInterface as Router;
-use Perfumer\Framework\Proxy\Event;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Proxy;
 use Perfumer\Framework\Proxy\Request;
@@ -126,15 +125,6 @@ abstract class AbstractController implements ControllerInterface
     protected function defer($resource, $action, array $args = [])
     {
         $this->getProxy()->defer($this->getCurrent()->getBundle(), $resource, $action, $args);
-    }
-
-    /**
-     * @param $event_name
-     * @param Event $event
-     */
-    protected function trigger($event_name, Event $event)
-    {
-        $this->getProxy()->trigger($event_name, $event);
     }
 
     /**
