@@ -11,13 +11,24 @@ use Perfumer\Framework\Proxy\Proxy;
 use Perfumer\Framework\Proxy\Request;
 use Perfumer\Framework\Proxy\Response;
 use Perfumer\Framework\View\AbstractView;
+use Psr\Container\ContainerInterface;
 
 abstract class AbstractController implements ControllerInterface
 {
     /**
-     * @var Container
+     * @var ContainerInterface
      */
-    protected $_container;
+    private $_container;
+
+    /**
+     * @var bool
+     */
+    private $_is_container_reachable = true;
+
+    /**
+     * @var Application
+     */
+    protected $_application;
 
     /**
      * @var Proxy
@@ -50,21 +61,47 @@ abstract class AbstractController implements ControllerInterface
     protected $_auth;
 
     /**
+     * @var array
+     */
+    private $_components;
+
+    /**
      * AbstractController constructor.
-     * @param Container $container
+     * @param ContainerInterface $container
+     * @param bool $is_container_reachable
+     * @param Application $application
+     * @param Proxy $proxy
      * @param Request $request
+     * @param Response $response
+     * @param array $components
      * @param \ReflectionClass $reflection_class
      */
-    public function __construct(Container $container, Request $request, \ReflectionClass $reflection_class)
+    public function __construct(
+        ContainerInterface $container,
+        bool $is_container_reachable,
+        Application $application,
+        Proxy $proxy,
+        Request $request,
+        Response $response,
+        array $components,
+        \ReflectionClass $reflection_class
+    )
     {
         $this->_container = $container;
-        $this->_proxy = $container->get('proxy');
+        $this->_is_container_reachable = $is_container_reachable;
+        $this->_application = $application;
+        $this->_proxy = $proxy;
         $this->_current = $request;
-        $this->_response = new Response();
+        $this->_response = $response;
+        $this->_components = $components;
         $this->_reflection_class = $reflection_class;
     }
 
-    public function _run()
+    /**
+     * @return Response
+     * @throws \ReflectionException
+     */
+    public function _run(): Response
     {
         $current = $this->getCurrent();
 
@@ -91,6 +128,22 @@ abstract class AbstractController implements ControllerInterface
     {
     }
 
+    /**
+     * @param $name
+     * @return mixed
+     * @throws ProxyException
+     */
+    protected function getComponent($name)
+    {
+        $component_service_name = $this->_components[$name] ?? null;
+
+        if (!$component_service_name) {
+            throw new ProxyException("Component '$name' is not defined");
+        }
+
+        return $this->_container->get($component_service_name);
+    }
+
     protected function pageNotFoundException()
     {
         $this->getProxy()->pageNotFoundException();
@@ -104,7 +157,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function execute($resource, $action, array $args = [])
     {
-        return $this->getProxy()->execute($this->getCurrent()->getBundle(), $resource, $action, $args);
+        return $this->getProxy()->execute($this->getCurrent()->getModule(), $resource, $action, $args);
     }
 
     /**
@@ -114,7 +167,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function forward($resource, $action, array $args = [])
     {
-        $this->getProxy()->forward($this->getCurrent()->getBundle(), $resource, $action, $args);
+        $this->getProxy()->forward($this->getCurrent()->getModule(), $resource, $action, $args);
     }
 
     /**
@@ -124,7 +177,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function defer($resource, $action, array $args = [])
     {
-        $this->getProxy()->defer($this->getCurrent()->getBundle(), $resource, $action, $args);
+        $this->getProxy()->defer($this->getCurrent()->getModule(), $resource, $action, $args);
     }
 
     /**
@@ -136,7 +189,8 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function s($name, array $parameters = [])
     {
-        return $this->getContainer()->get($name, $parameters);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        return $this->_container->get($name, $parameters);
     }
 
     /**
@@ -150,14 +204,19 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function t($key, array $parameters = [], $domain = null, $locale = null)
     {
-        return $this->getContainer()->get('translator')->trans($key, $parameters, $domain, $locale);
+        return $this->_container->get('translator')->trans($key, $parameters, $domain, $locale);
     }
 
     /**
      * @return Container
      */
-    protected function getContainer()
+    final protected function getContainer()
     {
+        if (!$this->_is_container_reachable) {
+            throw new ProxyException("Container is not reachable in module '{$this->getCurrent()->getModule()}'");
+        }
+
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->_container;
     }
 
@@ -166,7 +225,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function getApplication()
     {
-        return $this->_container->get('application');
+        return $this->_application;
     }
 
     /**
@@ -215,9 +274,7 @@ abstract class AbstractController implements ControllerInterface
     protected function getView()
     {
         if ($this->_view === null) {
-            $view_service_name = $this->getContainer()->resolveBundleAlias($this->getCurrent()->getBundle(), 'view');
-
-            $this->_view = $this->getContainer()->get($view_service_name);
+            $this->_view = $this->getComponent('view');
         }
 
         return $this->_view;
@@ -229,9 +286,7 @@ abstract class AbstractController implements ControllerInterface
     protected function getAuth()
     {
         if ($this->_auth === null) {
-            $auth_service_name = $this->getContainer()->resolveBundleAlias($this->getCurrent()->getBundle(), 'auth');
-
-            $this->_auth = $this->getContainer()->get($auth_service_name);
+            $this->_auth = $this->getComponent('auth');
         }
 
         return $this->_auth;

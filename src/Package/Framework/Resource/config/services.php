@@ -129,6 +129,10 @@ return [
         ]]
     ],
 
+    'response' => [
+        'class' => 'Perfumer\\Framework\\Proxy\\Response'
+    ],
+
     'router.console' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Router\\ConsoleRouter'

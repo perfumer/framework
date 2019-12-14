@@ -2,8 +2,9 @@
 
 namespace Perfumer\Framework\Application;
 
-use Perfumer\Component\Container\AbstractBundle;
 use Perfumer\Component\Container\Container;
+use Perfumer\Framework\Controller\Module;
+use Perfumer\Framework\Proxy\Proxy;
 
 class Application
 {
@@ -35,9 +36,19 @@ class Application
     protected $flavor;
 
     /**
+     * @var bool
+     */
+    protected $is_configured = false;
+
+    /**
+     * @var array
+     */
+    protected $modules = [];
+
+    /**
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->before();
 
@@ -45,49 +56,99 @@ class Application
         
         $this->configure();
 
+        $this->is_configured = true;
+
         $this->after();
         
         $this->container->registerSharedService('application', $this);
 
-        $this->container->get('proxy')->run();
+        /** @var Proxy $proxy */
+        $proxy = $this->container->get('proxy');
+
+        $proxy->setModules($this->modules);
+
+        $proxy->run();
     }
 
     /**
      * @return void
      */
-    protected function before()
+    protected function before(): void
     {
     }
 
     /**
      * @return void
      */
-    protected function after()
+    protected function after(): void
     {
     }
 
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
     }
 
-    public function addBundle(AbstractBundle $bundle, $env = null, $build_type = null, $flavor = null)
+    /**
+     * @param $file
+     * @param null $env
+     * @param null $build_type
+     * @param null $flavor
+     * @throws ApplicationException
+     */
+    protected function addResources($file, $env = null, $build_type = null, $flavor = null): void
     {
-        if ($env !== null && $env !== $this->env) {
+        if ($this->is_configured) {
+            throw new ApplicationException('Application is already configured. You can not add new resources.');
+        }
+
+        if (!$this->passVariants($env, $build_type, $flavor)) {
             return;
         }
 
-        if ($build_type !== null && $build_type !== $this->build_type) {
+        $this->container->addResourcesFromFile($file);
+    }
+
+    /**
+     * @param $file
+     * @param null $env
+     * @param null $build_type
+     * @param null $flavor
+     * @throws ApplicationException
+     */
+    protected function addDefinitions($file, $env = null, $build_type = null, $flavor = null): void
+    {
+        if ($this->is_configured) {
+            throw new ApplicationException('Application is already configured. You can not add new service definitions.');
+        }
+
+        if (!$this->passVariants($env, $build_type, $flavor)) {
             return;
         }
 
-        if ($flavor !== null && $flavor !== $this->flavor) {
+        $this->container->addDefinitionsFromFile($file);
+    }
+
+    /**
+     * @param Module $module
+     * @param null $env
+     * @param null $build_type
+     * @param null $flavor
+     * @throws ApplicationException
+     */
+    protected function addModule(Module $module, $env = null, $build_type = null, $flavor = null): void
+    {
+        if ($this->is_configured) {
+            throw new ApplicationException('Application is already configured. You can not add new stacks.');
+        }
+
+        if (!$this->passVariants($env, $build_type, $flavor)) {
             return;
         }
-        
-        $this->container->registerBundle($bundle);
+
+        $this->modules[$module->name] = $module;
     }
 
     /**
@@ -101,7 +162,7 @@ class Application
     /**
      * @param string $build_type
      */
-    public function setBuildType(string $build_type)
+    public function setBuildType(string $build_type): void
     {
         $this->build_type = $build_type;
     }
@@ -117,7 +178,7 @@ class Application
     /**
      * @param string $env
      */
-    public function setEnv(string $env)
+    public function setEnv(string $env): void
     {
         $this->env = $env;
     }
@@ -133,8 +194,31 @@ class Application
     /**
      * @param string $flavor
      */
-    public function setFlavor(string $flavor)
+    public function setFlavor(string $flavor): void
     {
         $this->flavor = $flavor;
+    }
+
+    /**
+     * @param $env
+     * @param $build_type
+     * @param $flavor
+     * @return bool
+     */
+    protected function passVariants($env, $build_type, $flavor): bool
+    {
+        if ($env !== null && $env !== $this->env) {
+            return false;
+        }
+
+        if ($build_type !== null && $build_type !== $this->build_type) {
+            return false;
+        }
+
+        if ($flavor !== null && $flavor !== $this->flavor) {
+            return false;
+        }
+
+        return true;
     }
 }

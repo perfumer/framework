@@ -10,15 +10,15 @@ class Request extends Attributes
     protected $options = [];
 
     /**
-     * @param string $bundle
+     * @param string $module
      * @param string $resource
      * @param string $action
      * @param array $args
      * @param array $options
      */
-    public function __construct($bundle, $resource, $action, $args = [], $options = [])
+    public function __construct($module, $resource, $action, $args = [], $options = [])
     {
-        parent::__construct($bundle, $resource, $action, $args);
+        parent::__construct($module, $resource, $action, $args);
 
         $default_options = [
             'prefix' => 'App\\Controller',

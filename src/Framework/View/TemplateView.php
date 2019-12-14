@@ -19,11 +19,6 @@ class TemplateView extends AbstractView
     /**
      * @var string
      */
-    protected $bundle;
-
-    /**
-     * @var string
-     */
     protected $template;
 
     /**

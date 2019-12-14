@@ -7,7 +7,7 @@ class Attributes
     /**
      * @var string
      */
-    protected $bundle;
+    protected $module;
 
     /**
      * @var string
@@ -25,14 +25,14 @@ class Attributes
     protected $args;
 
     /**
-     * @param string $bundle
+     * @param string $module
      * @param string $resource
      * @param string $action
      * @param array $args
      */
-    public function __construct($bundle, $resource, $action, $args = [])
+    public function __construct($module, $resource, $action, $args = [])
     {
-        $this->bundle = (string) $bundle;
+        $this->module = (string) $module;
         $this->resource = (string) $resource;
         $this->action = (string) $action;
         $this->args = (array) $args;
@@ -43,15 +43,24 @@ class Attributes
      */
     public function getIdentity()
     {
-        return $this->bundle . '.' . $this->resource . '.' . $this->action;
+        return $this->module . '.' . $this->resource . '.' . $this->action;
+    }
+
+    /**
+     * @return string
+     * @deprecated Use getModule() instead
+     */
+    public function getBundle()
+    {
+        return $this->module;
     }
 
     /**
      * @return string
      */
-    public function getBundle()
+    public function getModule()
     {
-        return $this->bundle;
+        return $this->module;
     }
 
     /**

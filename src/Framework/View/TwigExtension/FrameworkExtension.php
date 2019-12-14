@@ -3,7 +3,9 @@
 namespace Perfumer\Framework\View\TwigExtension;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Proxy;
+use Perfumer\Framework\View\TemplateProvider\ProviderInterface;
 use Stash\Pool;
 
 class FrameworkExtension extends \Twig_Extension
@@ -62,11 +64,21 @@ class FrameworkExtension extends \Twig_Extension
         return $content;
     }
 
-    public function tpl($bundle, $template)
+    public function tpl($module, $template)
     {
-        $template_provider_service_name = $this->container->resolveBundleAlias($bundle, 'template_provider');
+        /** @var Proxy $proxy */
+        $proxy = $this->container->get('proxy');
 
-        $template = $this->container->get($template_provider_service_name)->dispatch($template);
+        $template_provider_service_name = $proxy->getModuleComponent($module, 'template_provider');
+
+        if (!$template_provider_service_name) {
+            throw new ProxyException("Template provider for module '$module' is not defined");
+        }
+
+        /** @var ProviderInterface $template_provider */
+        $template_provider =  $this->container->get($template_provider_service_name);
+
+        $template = $template_provider->dispatch($template);
 
         return $template;
     }

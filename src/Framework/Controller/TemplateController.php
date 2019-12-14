@@ -4,6 +4,9 @@ namespace Perfumer\Framework\Controller;
 
 use Perfumer\Framework\View\TemplateView;
 
+/**
+ * @method TemplateView getView()
+ */
 class TemplateController extends ViewController
 {
     protected function before()
@@ -19,7 +22,8 @@ class TemplateController extends ViewController
             $current = $this->getCurrent();
 
             $this->getView()->addVars([
-                'bundle' => $current->getBundle(),
+                'bundle' => $current->getModule(),
+                'module' => $current->getModule(),
                 'initial' => $this->getInitial(),
                 'main' => $this->getMain(),
                 'current' => $current
@@ -33,13 +37,5 @@ class TemplateController extends ViewController
         }
 
         parent::after();
-    }
-
-    /**
-     * @return TemplateView
-     */
-    protected function getView()
-    {
-        return parent::getView();
     }
 }

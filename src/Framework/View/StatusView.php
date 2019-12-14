@@ -74,7 +74,7 @@ class StatusView extends SerializeView
     }
 
     /**
-     * @return string $message
+     * @param string $message
      */
     public function setSuccessMessage($message)
     {

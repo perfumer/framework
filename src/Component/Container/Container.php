@@ -18,11 +18,6 @@ class Container implements ContainerInterface
     /**
      * @var array
      */
-    protected $bundles = [];
-
-    /**
-     * @var array
-     */
     protected $shared = [];
 
     /**
@@ -32,14 +27,10 @@ class Container implements ContainerInterface
 
     /**
      * Container constructor.
-     *
-     * @param array $bundles
      */
-    public function __construct(array $bundles = [])
+    public function __construct()
     {
         $this->registerStorage('array', new ArrayStorage());
-
-        $this->registerBundles($bundles);
     }
 
     /**
@@ -128,52 +119,6 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param AbstractBundle $bundle
-     * @throws ContainerException
-     * @throws NotFoundException
-     */
-    public function registerBundle(AbstractBundle $bundle)
-    {
-        if (isset($this->bundles[$bundle->getName()])) {
-            throw new ContainerException('Bundle "' . $bundle->getName() . '" is already registered.');
-        }
-
-        $this->bundles[$bundle->getName()] = $bundle;
-
-        foreach ($bundle->getDefinitionFiles() as $file) {
-            $this->addDefinitionsFromFile($file);
-        }
-
-        $this->addDefinitions($bundle->getDefinitions());
-
-        /** @var ArrayStorage $array_storage */
-        $array_storage = $this->getStorage('array');
-
-        foreach ($bundle->getResourceFiles() as $file) {
-            $array_storage->addResourcesFromFile($file);
-        }
-
-        $array_storage->addResources($bundle->getResources());
-
-        foreach ($bundle->getStorages() as $storage) {
-            $this->registerStorage($storage, $this->get($storage));
-        }
-    }
-
-    /**
-     * @param array $bundles
-     * @throws ContainerException
-     * @throws NotFoundException
-     */
-    public function registerBundles(array $bundles)
-    {
-        foreach ($bundles as $bundle) {
-            /** @var AbstractBundle $bundle */
-            $this->registerBundle($bundle);
-        }
-    }
-
-    /**
      * @param string $name
      * @param AbstractStorage $storage
      */
@@ -219,6 +164,28 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param array $resources
+     */
+    public function addResources($resources)
+    {
+        /** @var ArrayStorage $array_storage */
+        $array_storage = $this->getStorage('array');
+
+        $array_storage->addResources($resources);
+    }
+
+    /**
+     * @param string $file
+     */
+    public function addResourcesFromFile($file)
+    {
+        /** @var ArrayStorage $array_storage */
+        $array_storage = $this->getStorage('array');
+
+        $array_storage->addResourcesFromFile($file);
+    }
+
+    /**
      * @param array $definitions
      */
     public function addDefinitions($definitions)
@@ -231,6 +198,7 @@ class Container implements ContainerInterface
      */
     public function addDefinitionsFromFile($file)
     {
+        /** @noinspection PhpIncludeInspection */
         $definitions = require $file;
 
         $this->addDefinitions($definitions);
@@ -268,46 +236,6 @@ class Container implements ContainerInterface
         list($storage, $name) = $this->extractResourceKey($key);
 
         return $this->getStorage($storage)->getResource($name);
-    }
-
-    /**
-     * @param string $name
-     * @param string $alias
-     * @param bool $object
-     * @return mixed
-     * @throws ContainerException
-     */
-    public function resolveBundleAlias($name, $alias, $object = false)
-    {
-        if (!isset($this->bundles[$name])) {
-            throw new ContainerException('Bundle "' . $name . '" is not registered.');
-        }
-
-        /** @var AbstractBundle $bundle */
-        $bundle = $this->bundles[$name];
-
-        $service_name = $bundle->resolveAlias($alias);
-
-        if ($object) {
-            return $this->get($service_name);
-        }
-
-        return $service_name;
-    }
-
-    /**
-     * @param bool $preserve_order
-     * @return array
-     */
-    public function listBundles($preserve_order = true)
-    {
-        $list = array_keys($this->bundles);
-
-        if (!$preserve_order) {
-            sort($list);
-        }
-
-        return $list;
     }
 
     /**

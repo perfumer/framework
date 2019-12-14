@@ -4,6 +4,7 @@ namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\Container;
 use Perfumer\Framework\Controller\ControllerInterface;
+use Perfumer\Framework\Controller\Module;
 use Perfumer\Framework\Gateway\GatewayInterface;
 use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
@@ -20,6 +21,11 @@ class Proxy
      * @var GatewayInterface
      */
     protected $gateway;
+
+    /**
+     * @var array
+     */
+    protected $modules = [];
 
     /**
      * @var Router
@@ -86,6 +92,22 @@ class Proxy
     }
 
     /**
+     * @return array
+     */
+    public function getModules(): array
+    {
+        return $this->modules;
+    }
+
+    /**
+     * @param array $modules
+     */
+    public function setModules(array $modules): void
+    {
+        $this->modules = $modules;
+    }
+
+    /**
      * @return Router
      */
     public function getRouter()
@@ -119,15 +141,19 @@ class Proxy
 
     public function run()
     {
-        $bundle = $this->gateway->dispatch();
+        $module = $this->gateway->dispatch();
 
-        $router_service_name = $this->container->resolveBundleAlias($bundle, 'router');
+        $router_service_name = $this->getModuleComponent($module, 'router');
+
+        if (!$router_service_name) {
+            throw new ProxyException("Router for module '$module' is not defined");
+        }
 
         $this->router = $this->container->get($router_service_name);
 
         list($resource, $action, $args) = $this->router->dispatch();
 
-        $this->initial = $this->main = $this->initializeRequest($bundle, $resource, $action, $args);
+        $this->initial = $this->main = $this->initializeRequest($module, $resource, $action, $args);
 
         $response = $this->start();
 
@@ -143,50 +169,50 @@ class Proxy
     }
 
     /**
-     * @param string $bundle
+     * @param string $module
      * @param string $resource
      * @param string $action
      * @param array $args
      * @return Response
      */
-    public function execute($bundle, $resource, $action, array $args = [])
+    public function execute($module, $resource, $action, array $args = [])
     {
-        $request = $this->initializeRequest($bundle, $resource, $action, $args);
+        $request = $this->initializeRequest($module, $resource, $action, $args);
 
         return $this->executeRequest($request);
     }
 
     /**
-     * @param string $bundle
+     * @param string $module
      * @param string $resource
      * @param string $action
      * @param array $args
      * @throws ProxyException
      * @throws ForwardException
      */
-    public function forward($bundle, $resource, $action, array $args = [])
+    public function forward($module, $resource, $action, array $args = [])
     {
         if ($this->is_deferred_stage) {
             throw new ProxyException('"Forward" method is not allowed in deferred stage of runtime.');
         }
 
-        $this->main = $this->initializeRequest($bundle, $resource, $action, $args);
+        $this->main = $this->initializeRequest($module, $resource, $action, $args);
 
         throw new ForwardException();
     }
 
     /**
-     * @param string $bundle
+     * @param string $module
      * @param string $resource
      * @param string $action
      * @param array $args
      */
-    public function defer($bundle, $resource, $action, array $args = [])
+    public function defer($module, $resource, $action, array $args = [])
     {
         if ($this->is_deferred_stage) {
-            $this->execute($bundle, $resource, $action, $args);
+            $this->execute($module, $resource, $action, $args);
         } else {
-            $this->deferred[] = new Attributes($bundle, $resource, $action, $args);
+            $this->deferred[] = new Attributes($module, $resource, $action, $args);
         }
     }
 
@@ -200,6 +226,42 @@ class Proxy
         } else {
             $this->deferred[] = $callable;
         }
+    }
+
+    /**
+     * @param string $module_name
+     * @param string $key
+     * @return string|null
+     * @throws ProxyException
+     */
+    public function getModuleComponent(string $module_name, string $key): ?string
+    {
+        if (!isset($this->modules[$module_name])) {
+            throw new ProxyException("Module \'$module_name\' is not found while getting component \'$key\'");
+        }
+
+        /** @var Module $module */
+        $module = $this->modules[$module_name];
+
+        switch ($key) {
+            case 'container':
+                $component = $module->container;
+                break;
+            case 'router':
+                $component = $module->router;
+                break;
+            case 'request':
+                $component = $module->request;
+                break;
+            case 'response':
+                $component = $module->response;
+                break;
+            default:
+                $component = $module->getComponent($key);
+                break;
+        }
+
+        return $component;
     }
 
     public function pageNotFoundException()
@@ -224,17 +286,21 @@ class Proxy
     }
 
     /**
-     * @param string $bundle
+     * @param string $module
      * @param string $resource
      * @param string $action
      * @param array $args
      * @return Request
      */
-    protected function initializeRequest($bundle, $resource, $action, array $args = [])
+    protected function initializeRequest($module, $resource, $action, array $args = []): Request
     {
-        $request_service_name = $this->container->resolveBundleAlias($bundle, 'request');
+        $request_service_name = $this->getModuleComponent($module, 'request');
 
-        return $this->container->get($request_service_name, [$bundle, $resource, $action, $args]);
+        if (!$request_service_name) {
+            throw new ProxyException("Request for module '$module' is not defined");
+        }
+
+        return $this->container->get($request_service_name, [$module, $resource, $action, $args]);
     }
 
     /**
@@ -254,29 +320,45 @@ class Proxy
             throw new ProxyException('Action "' . $request->getAction() . '" is reserved by router for main requests, so can not be used for other requests.');
         }
 
-        $definition = $request->getBundle() . '.' . $request->getResource();
+        $response_service_name = $this->getModuleComponent($request->getModule(), 'response');
+        $container_service_name = $this->getModuleComponent($request->getModule(), 'container');
 
-        if ($this->container->has($definition)) {
-            $controller = $this->container->get($definition);
-        } else {
-            try {
-                $reflection_class = new \ReflectionClass($request->getController());
+        if (!$response_service_name) {
+            throw new ProxyException("Response for module '{$request->getModule()}' is not defined");
+        }
 
-                $controller = $reflection_class->newInstance($this->container, $request, $reflection_class);
+        /** @var Module $request_module */
+        $request_module = $this->modules[$request->getModule()];
 
-                if (!method_exists($controller, $request->getAction())) {
-                    if ($request === $this->initial) {
-                        $this->pageNotFoundException();
-                    } else {
-                        throw new ProxyException('Action "' . $request->getAction() . '" not found in controller "' . $request->getController() . '".');
-                    }
-                }
-            } catch (\ReflectionException $e) {
+        $inject_response = $this->container->get($response_service_name);
+        $inject_container = $container_service_name ? $this->container->get($container_service_name) : $this->container;
+
+        try {
+            $reflection_class = new \ReflectionClass($request->getController());
+
+            $controller = $reflection_class->newInstance(
+                $inject_container,
+                $request_module->is_container_reachable,
+                $this->container->get('application'),
+                $this,
+                $request,
+                $inject_response,
+                $request_module->getComponents(),
+                $reflection_class
+            );
+
+            if (!method_exists($controller, $request->getAction())) {
                 if ($request === $this->initial) {
                     $this->pageNotFoundException();
                 } else {
-                    throw new ProxyException('Controller "' . $request->getController() . '" not found.');
+                    throw new ProxyException('Action "' . $request->getAction() . '" not found in controller "' . $request->getController() . '".');
                 }
+            }
+        } catch (\ReflectionException $e) {
+            if ($request === $this->initial) {
+                $this->pageNotFoundException();
+            } else {
+                throw new ProxyException('Controller "' . $request->getController() . '" not found.');
             }
         }
 
@@ -297,7 +379,7 @@ class Proxy
 
         foreach ($this->deferred as $deferred) {
             if ($deferred instanceof Attributes) {
-                $this->execute($deferred->getBundle(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
+                $this->execute($deferred->getModule(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
             } elseif (is_callable($deferred)) {
                 $deferred();
             }
