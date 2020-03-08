@@ -6,7 +6,7 @@ use FastRoute\Dispatcher;
 use Perfumer\Framework\Gateway\HttpGateway;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 
 class FastRouteRouter implements RouterInterface
 {
@@ -19,11 +19,6 @@ class FastRouteRouter implements RouterInterface
      * @var HttpGateway
      */
     protected $gateway;
-
-    /**
-     * @var Response
-     */
-    protected $response;
 
     protected $input;
 
@@ -55,7 +50,7 @@ class FastRouteRouter implements RouterInterface
     /**
      * @return array
      */
-    public function getAllowedActions()
+    public function getAllowedActions(): array
     {
         return $this->options['allowed_actions'];
     }
@@ -63,27 +58,35 @@ class FastRouteRouter implements RouterInterface
     /**
      * @return array
      */
-    public function getNotFoundAttributes()
+    public function getNotFoundAttributes(): array
     {
         return $this->options['not_found_attributes'];
     }
 
     /**
      * @return bool
+     * @deprecated Use $this->getApplication()->getEnv() instead
      */
-    public function isHttp()
+    public function isHttp(): bool
     {
         return true;
     }
 
     /**
+     * @param Request $request
      * @return array
      */
-    public function dispatch()
+    public function dispatch($request): array
     {
-        $this->http_fields = $_GET;
+        $path_info = $request->getPathInfo();
 
-        $info = $this->fast_router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['PATH_INFO']);
+        if ($this->gateway->getPrefix()) {
+            $path_info = substr($request->getPathInfo(), strlen($this->gateway->getPrefix()));
+        }
+
+        $this->http_fields = $request->query->all();
+
+        $info = $this->fast_router->dispatch($request->getMethod(), $path_info);
 
         switch ($info[0]) {
             case Dispatcher::FOUND:
@@ -99,7 +102,7 @@ class FastRouteRouter implements RouterInterface
                 break;
         }
 
-        $this->input = file_get_contents("php://input");
+        $this->input = $request->getContent();
 
         $data_type = $this->options['data_type'];
 
@@ -129,26 +132,6 @@ class FastRouteRouter implements RouterInterface
         }
 
         return [$resource, $action, []];
-    }
-
-    /**
-     * @return Response
-     */
-    public function getResponse()
-    {
-        if ($this->response === null) {
-            $this->response = new Response();
-        }
-
-        return $this->response;
-    }
-
-    /**
-     * @param string $content
-     */
-    public function sendResponse($content)
-    {
-        $this->getResponse()->setContent($content)->send();
     }
 
     /**

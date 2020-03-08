@@ -13,8 +13,13 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0",
-        "psr/container": "^1.0"
+        "php": ">=7.1.0",
+        "psr/container": "^1.0",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "symfony/http-foundation": "^4",
+        "symfony/console": "^4"
     },
     "autoload": {
         "psr-4": {

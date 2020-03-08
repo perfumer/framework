@@ -3,8 +3,10 @@
 namespace Perfumer\Framework\Controller;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Component\Container\Exception\NotFoundException;
 use Perfumer\Framework\Application\Application;
 use Perfumer\Framework\Controller\Exception\ExitActionException;
+use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Proxy;
@@ -144,6 +146,11 @@ abstract class AbstractController implements ControllerInterface
         return $this->_container->get($component_service_name);
     }
 
+    /**
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
+     */
     protected function pageNotFoundException()
     {
         $this->getProxy()->pageNotFoundException();
@@ -154,6 +161,9 @@ abstract class AbstractController implements ControllerInterface
      * @param $action
      * @param array $args
      * @return Response
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
      */
     protected function execute($resource, $action, array $args = [])
     {
@@ -164,6 +174,9 @@ abstract class AbstractController implements ControllerInterface
      * @param $resource
      * @param $action
      * @param array $args
+     * @throws ForwardException
+     * @throws NotFoundException
+     * @throws ProxyException
      */
     protected function forward($resource, $action, array $args = [])
     {
@@ -174,6 +187,9 @@ abstract class AbstractController implements ControllerInterface
      * @param $resource
      * @param $action
      * @param array $args
+     * @throws ForwardException
+     * @throws NotFoundException
+     * @throws ProxyException
      */
     protected function defer($resource, $action, array $args = [])
     {
@@ -209,6 +225,7 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * @return Container
+     * @throws ProxyException
      */
     final protected function getContainer()
     {
@@ -270,6 +287,7 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * @return AbstractView
+     * @throws ProxyException
      */
     protected function getView()
     {
@@ -282,6 +300,7 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * @return mixed
+     * @throws ProxyException
      */
     protected function getAuth()
     {
@@ -300,20 +319,27 @@ abstract class AbstractController implements ControllerInterface
         return $this->getProxy()->getRouter();
     }
 
+    protected function getExternalRequest()
+    {
+        return $this->getProxy()->getExternalRequest();
+    }
+
     protected function getExternalResponse()
     {
-        return $this->getRouter()->getResponse();
+        return $this->getProxy()->getExternalResponse();
     }
 
     /**
      * @param string $url
      * @param int $status_code
+     * @throws ForwardException
+     * @throws NotFoundException
      * @throws ProxyException
      */
     protected function redirect($url, $status_code = 302)
     {
-        if (!$this->getRouter()->isHttp()) {
-            throw new ProxyException('Redirect is not available for non-http external routers');
+        if (!$this->getApplication()->getEnv() !== 'http') {
+            throw new ProxyException('Redirect is not available for non-http requests');
         }
 
         $this->getProxy()->forward('framework', 'http', 'redirect', [$url, $status_code]);

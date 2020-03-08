@@ -5,7 +5,7 @@ namespace Perfumer\Framework\Router\Http;
 use Perfumer\Framework\Gateway\HttpGateway;
 use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Helper\Arr;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 
 class DefaultRouter implements RouterInterface
 {
@@ -13,11 +13,6 @@ class DefaultRouter implements RouterInterface
      * @var HttpGateway
      */
     protected $gateway;
-
-    /**
-     * @var Response
-     */
-    protected $response;
 
     /**
      * @var string
@@ -67,7 +62,7 @@ class DefaultRouter implements RouterInterface
     /**
      * @return array
      */
-    public function getAllowedActions()
+    public function getAllowedActions(): array
     {
         return $this->options['allowed_actions'];
     }
@@ -75,26 +70,34 @@ class DefaultRouter implements RouterInterface
     /**
      * @return array
      */
-    public function getNotFoundAttributes()
+    public function getNotFoundAttributes(): array
     {
         return $this->options['not_found_attributes'];
     }
 
     /**
      * @return bool
+     * @deprecated Use $this->getApplication()->getEnv() instead
      */
-    public function isHttp()
+    public function isHttp(): bool
     {
         return true;
     }
 
     /**
+     * @param Request $request
      * @return array
      */
-    public function dispatch()
+    public function dispatch($request): array
     {
-        $action = strtolower($_SERVER['REQUEST_METHOD']);
-        $url = trim($_SERVER['PATH_INFO'], '/');
+        $path_info = $request->getPathInfo();
+
+        if ($this->gateway->getPrefix()) {
+            $path_info = substr($request->getPathInfo(), strlen($this->gateway->getPrefix()));
+        }
+
+        $action = strtolower($request->getMethod());
+        $url = trim($path_info, '/');
 
         if ($url) {
             if ((int) $url > 0) {
@@ -116,7 +119,7 @@ class DefaultRouter implements RouterInterface
             $url = $this->options['default_url'];
         }
 
-        $this->input = file_get_contents("php://input");
+        $this->input = $request->getContent();
 
         $args = [];
 
@@ -133,7 +136,7 @@ class DefaultRouter implements RouterInterface
             }
         }
 
-        $this->http_fields = array_merge($_GET, $args);
+        $this->http_fields = array_merge($request->query->all(), $args);
 
         // Trim all args if auto_trim setting enabled
         if ($this->options['auto_trim']) {
@@ -146,26 +149,6 @@ class DefaultRouter implements RouterInterface
         }
 
         return [$url, $action, []];
-    }
-
-    /**
-     * @return Response
-     */
-    public function getResponse()
-    {
-        if ($this->response === null) {
-            $this->response = new Response();
-        }
-
-        return $this->response;
-    }
-
-    /**
-     * @param string $content
-     */
-    public function sendResponse($content)
-    {
-        $this->getResponse()->setContent($content)->send();
     }
 
     /**

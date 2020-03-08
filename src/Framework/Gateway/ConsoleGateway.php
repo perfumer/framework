@@ -2,12 +2,16 @@
 
 namespace Perfumer\Framework\Gateway;
 
+use Perfumer\Framework\Proxy\Response;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\Output;
+
 class ConsoleGateway implements GatewayInterface
 {
     /**
      * @var array
      */
-    protected $bundles = [];
+    protected $modules = [];
 
     /**
      * @var bool
@@ -22,9 +26,14 @@ class ConsoleGateway implements GatewayInterface
         $this->debug = $options['debug'] ?? false;
     }
 
-    public function addBundle($name, $domain, $prefix = null)
+    /**
+     * @param $name
+     * @param $domain
+     * @param null $prefix
+     */
+    public function addModule($name, $domain, $prefix = null): void
     {
-        $this->bundles[] = [
+        $this->modules[] = [
             'name' => $name,
             'domain' => $domain,
             'prefix' => $prefix,
@@ -32,10 +41,22 @@ class ConsoleGateway implements GatewayInterface
     }
 
     /**
+     * @param $name
+     * @param $domain
+     * @param null $prefix
+     * @deprecated use addModule() instead
+     */
+    public function addBundle($name, $domain, $prefix = null): void
+    {
+        $this->addModule($name, $domain, $prefix);
+    }
+
+    /**
+     * @param ConsoleRequest $request
      * @return string
      * @throws GatewayException
      */
-    public function dispatch(): string
+    public function dispatch($request): string
     {
         if ($this->debug && class_exists('\\Whoops\\Run')) {
             $whoops = new \Whoops\Run;
@@ -43,19 +64,51 @@ class ConsoleGateway implements GatewayInterface
             $whoops->register();
         }
 
-        $value = $_SERVER['argv'][1];
+        $argv = $request->getArgv();
 
-        foreach ($this->bundles as $bundle) {
-            if ($bundle['domain'] === $_SERVER['argv'][1]) {
-                $value = $bundle['name'];
+        $value = $argv[1];
+
+        foreach ($this->modules as $module) {
+            if ($module['domain'] === $argv[1]) {
+                $value = $module['name'];
                 break;
             }
         }
 
         if ($value === null) {
-            throw new GatewayException("Console gateway could not determine bundle.");
+            throw new GatewayException("Console gateway could not determine module.");
         }
 
         return $value;
+    }
+
+    /**
+     * @return ConsoleRequest
+     */
+    public function createRequestFromGlobals()
+    {
+        $argv = $_SERVER['argv'] ?? [];
+
+        $request = new ConsoleRequest();
+        $request->setArgv($argv);
+
+        return $request;
+    }
+
+    /**
+     * @return ConsoleOutput
+     */
+    public function createResponse()
+    {
+        return new ConsoleOutput();
+    }
+
+    /**
+     * @param ConsoleOutput $response
+     * @param Response $internal_response
+     */
+    public function sendResponse($response, Response $internal_response): void
+    {
+        $response->writeln($internal_response->getContent());
     }
 }

@@ -3,6 +3,7 @@
 namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Component\Container\Exception\NotFoundException;
 use Perfumer\Framework\Controller\ControllerInterface;
 use Perfumer\Framework\Controller\Module;
 use Perfumer\Framework\Gateway\GatewayInterface;
@@ -26,6 +27,16 @@ class Proxy
      * @var array
      */
     protected $modules = [];
+
+    /**
+     * @var mixed
+     */
+    protected $external_request;
+
+    /**
+     * @var mixed
+     */
+    protected $external_response;
 
     /**
      * @var Router
@@ -70,6 +81,7 @@ class Proxy
      * Proxy constructor.
      * @param Container $container
      * @param array $options
+     * @throws NotFoundException
      */
     public function __construct(Container $container, array $options = [])
     {
@@ -89,6 +101,22 @@ class Proxy
     public function getGateway()
     {
         return $this->gateway;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExternalRequest()
+    {
+        return $this->external_request;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExternalResponse()
+    {
+        return $this->external_response;
     }
 
     /**
@@ -139,9 +167,26 @@ class Proxy
         return $this->main;
     }
 
-    public function run()
+    /**
+     * @param $external_request mixed
+     *
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
+     */
+    public function run($external_request = null): void
     {
-        $module = $this->gateway->dispatch();
+        if (!$external_request) {
+            $external_request = $this->gateway->createRequestFromGlobals();
+        }
+
+        $this->external_request = $external_request;
+        $this->external_response = $this->gateway->createResponse();
+
+        $this->container->registerSharedService('external_request', $this->external_request);
+        $this->container->registerSharedService('external_response', $this->external_response);
+
+        $module = $this->gateway->dispatch($this->external_request);
 
         $router_service_name = $this->getModuleComponent($module, 'router');
 
@@ -151,7 +196,7 @@ class Proxy
 
         $this->router = $this->container->get($router_service_name);
 
-        list($resource, $action, $args) = $this->router->dispatch();
+        list($resource, $action, $args) = $this->router->dispatch($this->external_request);
 
         $this->initial = $this->main = $this->initializeRequest($module, $resource, $action, $args);
 
@@ -160,9 +205,9 @@ class Proxy
         if ($this->options['debug'] === true) {
             $this->runDeferred();
 
-            $this->router->sendResponse($response->getContent());
+            $this->gateway->sendResponse($this->external_response, $response);
         } else {
-            $this->router->sendResponse($response->getContent());
+            $this->gateway->sendResponse($this->external_response, $response);
 
             $this->runDeferred();
         }
@@ -174,6 +219,9 @@ class Proxy
      * @param string $action
      * @param array $args
      * @return Response
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
      */
     public function execute($module, $resource, $action, array $args = [])
     {
@@ -189,6 +237,7 @@ class Proxy
      * @param array $args
      * @throws ProxyException
      * @throws ForwardException
+     * @throws NotFoundException
      */
     public function forward($module, $resource, $action, array $args = [])
     {
@@ -206,6 +255,9 @@ class Proxy
      * @param string $resource
      * @param string $action
      * @param array $args
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
      */
     public function defer($module, $resource, $action, array $args = [])
     {
@@ -264,6 +316,11 @@ class Proxy
         return $component;
     }
 
+    /**
+     * @throws ForwardException
+     * @throws NotFoundException
+     * @throws ProxyException
+     */
     public function pageNotFoundException()
     {
         $controller_not_found = $this->router->getNotFoundAttributes();
@@ -273,6 +330,8 @@ class Proxy
 
     /**
      * @return Response
+     * @throws ProxyException
+     * @throws NotFoundException
      */
     protected function start()
     {
@@ -291,6 +350,8 @@ class Proxy
      * @param string $action
      * @param array $args
      * @return Request
+     * @throws ProxyException
+     * @throws NotFoundException
      */
     protected function initializeRequest($module, $resource, $action, array $args = []): Request
     {
@@ -307,6 +368,8 @@ class Proxy
      * @param Request $request
      * @return Response
      * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
      */
     protected function executeRequest(Request $request)
     {
@@ -373,6 +436,11 @@ class Proxy
         return $response;
     }
 
+    /**
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
+     */
     protected function runDeferred()
     {
         $this->is_deferred_stage = true;

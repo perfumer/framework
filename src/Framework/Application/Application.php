@@ -3,7 +3,10 @@
 namespace Perfumer\Framework\Application;
 
 use Perfumer\Component\Container\Container;
+use Perfumer\Component\Container\Exception\NotFoundException;
 use Perfumer\Framework\Controller\Module;
+use Perfumer\Framework\Proxy\Exception\ForwardException;
+use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Proxy;
 
 class Application
@@ -46,9 +49,14 @@ class Application
     protected $modules = [];
 
     /**
+     * @param $request mixed
+     *
      * @return void
+     * @throws NotFoundException
+     * @throws ProxyException
+     * @throws ForwardException
      */
-    public function run(): void
+    public function run($request = null): void
     {
         $this->before();
 
@@ -67,7 +75,7 @@ class Application
 
         $proxy->setModules($this->modules);
 
-        $proxy->run();
+        $proxy->run($request);
     }
 
     /**

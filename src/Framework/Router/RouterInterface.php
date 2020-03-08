@@ -7,30 +7,22 @@ interface RouterInterface
     /**
      * @return array
      */
-    public function getAllowedActions();
+    public function getAllowedActions(): array;
 
     /**
      * @return array
      */
-    public function getNotFoundAttributes();
+    public function getNotFoundAttributes(): array;
 
     /**
      * @return bool
+     * @deprecated Use $this->getApplication()->getEnv() instead
      */
-    public function isHttp();
+    public function isHttp(): bool;
 
     /**
+     * @param $request
      * @return array
      */
-    public function dispatch();
-
-    /**
-     * @return mixed
-     */
-    public function getResponse();
-
-    /**
-     * @param string $content
-     */
-    public function sendResponse($content);
+    public function dispatch($request): array;
 }

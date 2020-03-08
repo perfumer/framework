@@ -2,15 +2,10 @@
 
 namespace Perfumer\Framework\Router;
 
-use Symfony\Component\Console\Output\ConsoleOutput as Response;
+use Perfumer\Framework\Gateway\ConsoleRequest;
 
 class ConsoleRouter implements RouterInterface
 {
-    /**
-     * @var Response
-     */
-    protected $response;
-
     /**
      * @var array
      */
@@ -43,7 +38,7 @@ class ConsoleRouter implements RouterInterface
     /**
      * @return array
      */
-    public function getAllowedActions()
+    public function getAllowedActions(): array
     {
         return $this->settings['allowed_actions'];
     }
@@ -51,25 +46,27 @@ class ConsoleRouter implements RouterInterface
     /**
      * @return array
      */
-    public function getNotFoundAttributes()
+    public function getNotFoundAttributes(): array
     {
         return $this->settings['not_found_attributes'];
     }
 
     /**
      * @return bool
+     * @deprecated Use $this->getApplication()->getEnv() instead
      */
-    public function isHttp()
+    public function isHttp(): bool
     {
         return false;
     }
 
     /**
+     * @param ConsoleRequest $request
      * @return array
      */
-    public function dispatch()
+    public function dispatch($request): array
     {
-        $argv = $_SERVER['argv'];
+        $argv = $request->getArgv();
         $resource = $argv[2];
         array_shift($argv);
         array_shift($argv);
@@ -130,25 +127,5 @@ class ConsoleRouter implements RouterInterface
     public function getArguments()
     {
         return $this->arguments;
-    }
-
-    /**
-     * @return Response
-     */
-    public function getResponse()
-    {
-        if ($this->response === null) {
-            $this->response = new Response();
-        }
-
-        return $this->response;
-    }
-
-    /**
-     * @param string $content
-     */
-    public function sendResponse($content)
-    {
-        $this->getResponse()->writeln($content);
     }
 }

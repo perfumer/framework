@@ -2,12 +2,15 @@
 
 namespace Perfumer\Framework\Gateway;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 class HttpGateway implements GatewayInterface
 {
     /**
      * @var array
      */
-    protected $bundles = [];
+    protected $modules = [];
 
     /**
      * @var string
@@ -27,9 +30,14 @@ class HttpGateway implements GatewayInterface
         $this->debug = $options['debug'] ?? false;
     }
 
-    public function addBundle($name, $domain, $prefix = null)
+    /**
+     * @param $name
+     * @param $domain
+     * @param null $prefix
+     */
+    public function addModule($name, $domain, $prefix = null): void
     {
-        $this->bundles[] = [
+        $this->modules[] = [
             'name' => $name,
             'domain' => $domain,
             'prefix' => $prefix,
@@ -37,10 +45,22 @@ class HttpGateway implements GatewayInterface
     }
 
     /**
+     * @param $name
+     * @param $domain
+     * @param null $prefix
+     * @deprecated use addModule() instead
+     */
+    public function addBundle($name, $domain, $prefix = null): void
+    {
+        $this->addModule($name, $domain, $prefix);
+    }
+
+    /**
+     * @param Request $request
      * @return string
      * @throws GatewayException
      */
-    public function dispatch(): string
+    public function dispatch($request): string
     {
         if ($this->debug && class_exists('\\Whoops\\Run')) {
             $whoops = new \Whoops\Run;
@@ -50,19 +70,17 @@ class HttpGateway implements GatewayInterface
 
         $value = null;
 
-        foreach ($this->bundles as $bundle) {
-            if ($bundle['domain'] === $_SERVER['SERVER_NAME']) {
-                if (empty($bundle['prefix'])) {
-                    $value = $bundle['name'];
+        foreach ($this->modules as $module) {
+            if ($module['domain'] === $request->getHost()) {
+                if (empty($module['prefix'])) {
+                    $value = $module['name'];
                 } else {
-                    $prefix = $bundle['prefix'];
+                    $prefix = $module['prefix'];
 
-                    if (strpos($_SERVER['PATH_INFO'], $prefix) === 0) {
+                    if (strpos($request->getPathInfo(), $prefix) === 0) {
                         $this->prefix = $prefix;
 
-                        $value = $bundle['name'];
-
-                        $_SERVER['PATH_INFO'] = substr($_SERVER['PATH_INFO'], strlen($prefix));
+                        $value = $module['name'];
                     }
                 }
             }
@@ -73,10 +91,35 @@ class HttpGateway implements GatewayInterface
         }
 
         if ($value === null) {
-            throw new GatewayException("Http gateway could not determine bundle.");
+            throw new GatewayException("Http gateway could not determine module.");
         }
 
         return $value;
+    }
+
+    /**
+     * @return Request
+     */
+    public function createRequestFromGlobals()
+    {
+        return Request::createFromGlobals();
+    }
+
+    /**
+     * @return Response
+     */
+    public function createResponse()
+    {
+        return new Response();
+    }
+
+    /**
+     * @param Response $response
+     * @param \Perfumer\Framework\Proxy\Response $internal_response
+     */
+    public function sendResponse($response, \Perfumer\Framework\Proxy\Response $internal_response): void
+    {
+        $response->setContent($internal_response->getContent())->send();
     }
 
     /**
