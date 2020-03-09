@@ -8,7 +8,7 @@ class PlainController extends AbstractController
 {
     public function pageNotFound()
     {
-        if ($this->getRouter()->isHttp()) {
+        if ($this->getApplication()->getEnv() === 'http') {
             $this->getExternalResponse()->setStatusCode(404);
         }
 
@@ -17,7 +17,7 @@ class PlainController extends AbstractController
 
     public function isLogged()
     {
-        if ($this->getRouter()->isHttp()) {
+        if ($this->getApplication()->getEnv() === 'http') {
             $this->getExternalResponse()->setStatusCode(403);
         }
 
@@ -26,7 +26,7 @@ class PlainController extends AbstractController
 
     public function isAdmin()
     {
-        if ($this->getRouter()->isHttp()) {
+        if ($this->getApplication()->getEnv() === 'http') {
             $this->getExternalResponse()->setStatusCode(403);
         }
 
@@ -35,7 +35,7 @@ class PlainController extends AbstractController
 
     public function isGranted()
     {
-        if ($this->getRouter()->isHttp()) {
+        if ($this->getApplication()->getEnv() === 'http') {
             $this->getExternalResponse()->setStatusCode(403);
         }
 

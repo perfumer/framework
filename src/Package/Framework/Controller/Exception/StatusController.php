@@ -12,7 +12,7 @@ class StatusController extends ViewController
 
     public function pageNotFound()
     {
-        if ($this->getRouter()->isHttp()) {
+        if ($this->getApplication()->getEnv() === 'http') {
             $this->getExternalResponse()->setStatusCode(404);
         }
 
@@ -21,7 +21,7 @@ class StatusController extends ViewController
 
     public function isLogged()
     {
-        if ($this->getRouter()->isHttp()) {
+        if ($this->getApplication()->getEnv() === 'http') {
             $this->getExternalResponse()->setStatusCode(403);
         }
 
@@ -30,7 +30,7 @@ class StatusController extends ViewController
 
     public function isAdmin()
     {
-        if ($this->getRouter()->isHttp()) {
+        if ($this->getApplication()->getEnv() === 'http') {
             $this->getExternalResponse()->setStatusCode(403);
         }
 
@@ -39,7 +39,7 @@ class StatusController extends ViewController
 
     public function isGranted()
     {
-        if ($this->getRouter()->isHttp()) {
+        if ($this->getApplication()->getEnv() === 'http') {
             $this->getExternalResponse()->setStatusCode(403);
         }
 
