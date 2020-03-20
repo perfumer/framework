@@ -158,7 +158,5 @@ class CompositeGateway implements GatewayInterface
         if (isset($_SERVER['argv'])) {
             $this->console_gateway->sendResponse($response, $internal_response);
         }
-
-        throw new GatewayException("Composite gateway could not create response.");
     }
 }

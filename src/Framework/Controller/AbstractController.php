@@ -14,6 +14,7 @@ use Perfumer\Framework\Proxy\Request;
 use Perfumer\Framework\Proxy\Response;
 use Perfumer\Framework\View\AbstractView;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Console\Output\Output;
 
 abstract class AbstractController implements ControllerInterface
 {
@@ -319,11 +320,17 @@ abstract class AbstractController implements ControllerInterface
         return $this->getProxy()->getRouter();
     }
 
+    /**
+     * @return \Symfony\Component\HttpFoundation\Request
+     */
     protected function getExternalRequest()
     {
         return $this->getProxy()->getExternalRequest();
     }
 
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response|Output
+     */
     protected function getExternalResponse()
     {
         return $this->getProxy()->getExternalResponse();
