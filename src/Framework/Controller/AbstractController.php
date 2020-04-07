@@ -345,7 +345,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function redirect($url, $status_code = 302)
     {
-        if (!$this->getApplication()->getEnv() !== 'http') {
+        if ($this->getApplication()->getEnv() !== 'http') {
             throw new ProxyException('Redirect is not available for non-http requests');
         }
 
