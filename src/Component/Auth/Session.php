@@ -85,7 +85,7 @@ class Session
     public function generateId()
     {
         do {
-            $id = Text::generateString(20);
+            $id = Text::generateString(255);
 
             $item = $this->cache->getItem($this->cache_prefix . '/' . $id);
         } while ($item->isHit());

@@ -33,6 +33,7 @@ class StatusView extends SerializeView
 
         if (!$this->hasErrors()) {
             $this->deleteVars('errors');
+            $this->deleteVar('errors');
         }
 
         return parent::render();

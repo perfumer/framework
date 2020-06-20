@@ -15,7 +15,7 @@ class Text
         $string = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $string .= $characters[rand(0, 61)];
+            $string .= $characters[random_int(0, 61)];
         }
 
         return $string;
@@ -32,7 +32,7 @@ class Text
         $string = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $string .= $characters[rand(0, 51)];
+            $string .= $characters[random_int(0, 51)];
         }
 
         return $string;
@@ -49,7 +49,7 @@ class Text
         $string = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $string .= $characters[rand(0, 9)];
+            $string .= $characters[random_int(0, 9)];
         }
 
         return $string;
