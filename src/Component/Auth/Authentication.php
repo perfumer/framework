@@ -102,6 +102,7 @@ class Authentication
             $this->token = $token;
             $this->data = $data;
             $this->is_authenticated = true;
+            $this->is_processed = true;
 
             $this->session->set($this->token, $this->data);
 
