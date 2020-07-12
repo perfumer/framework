@@ -90,10 +90,6 @@ class Authentication
      */
     public function startSession(string $data)
     {
-        if ($this->isAuthenticated()) {
-            return false;
-        }
-
         $token = $this->session->generateId();
 
         $set = $this->data_provider->saveData($token, $data);
@@ -158,7 +154,7 @@ class Authentication
      */
     public function destroySessions($tokens = null)
     {
-        if (!$this->isAuthenticated()) {
+        if ($tokens === null && !$this->isAuthenticated()) {
             return false;
         }
 
