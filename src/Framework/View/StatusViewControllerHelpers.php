@@ -36,6 +36,33 @@ trait StatusViewControllerHelpers
     /**
      * @return string
      */
+    protected function getStatusCode()
+    {
+        return $this->getView()->getStatusCode();
+    }
+
+    /**
+     * @param string $status_code
+     */
+    protected function setStatusCode($status_code)
+    {
+        $this->getView()->setStatusCode($status_code);
+    }
+
+    /**
+     * @param string $status_code
+     * @throws ExitActionException
+     */
+    protected function setStatusCodeAndExit($status_code)
+    {
+        $this->getView()->setStatusCode($status_code);
+
+        throw new ExitActionException();
+    }
+
+    /**
+     * @return string
+     */
     protected function getMessage()
     {
         return $this->getView()->getMessage();

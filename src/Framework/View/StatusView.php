@@ -14,6 +14,7 @@ class StatusView extends SerializeView
 
         $this->addVars([
             'status' => true,
+            'status_code' => null,
             'message' => null,
             'content' => null
         ]);
@@ -23,6 +24,10 @@ class StatusView extends SerializeView
 
     public function render()
     {
+        if (!$this->hasStatusCode()) {
+            $this->deleteVar('status_code');
+        }
+
         if (!$this->hasMessage()) {
             $this->deleteVar('message');
         }
@@ -38,7 +43,7 @@ class StatusView extends SerializeView
 
         return parent::render();
     }
-    
+
     /**
      * @return bool
      */
@@ -53,6 +58,30 @@ class StatusView extends SerializeView
     public function setStatus($status)
     {
         $this->addVar('status', (bool) $status);
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusCode()
+    {
+        return $this->getVar('status_code');
+    }
+
+    /**
+     * @param string $status_code
+     */
+    public function setStatusCode($status_code)
+    {
+        $this->addVar('status_code', $status_code);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasStatusCode()
+    {
+        return $this->hasVar('status_code');
     }
 
     /**
