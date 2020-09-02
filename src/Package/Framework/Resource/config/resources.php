@@ -23,6 +23,7 @@ return [
         'schema_dir' => '',
         'model_dir' => '',
         'migration_dir' => '',
+        'migration_table' => 'propel_migration',
     ],
 
     'proxy' => [

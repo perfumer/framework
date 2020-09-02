@@ -17,12 +17,14 @@ class DownCommand extends PlainController
         $platform = $this->getContainer()->getParam('propel/platform');
         $config_dir = $this->getContainer()->getParam('propel/config_dir');
         $migration_dir = $this->getContainer()->getParam('propel/migration_dir');
+        $migration_table = $this->getContainer()->getParam('propel/migration_table');
 
         echo shell_exec(join(' ', [
             $bin . ' migration:down',
             '--platform=' . $platform,
             '--config-dir=' . $config_dir,
-            '--output-dir=' . $migration_dir
+            '--output-dir=' . $migration_dir,
+            '--migration-table=' . $migration_table,
         ]));
     }
 }

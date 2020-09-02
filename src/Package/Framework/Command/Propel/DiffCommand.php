@@ -17,6 +17,7 @@ class DiffCommand extends PlainController
         $platform = $this->getContainer()->getParam('propel/platform');
         $config_dir = $this->getContainer()->getParam('propel/config_dir');
         $migration_dir = $this->getContainer()->getParam('propel/migration_dir');
+        $migration_table = $this->getContainer()->getParam('propel/migration_table');
         $schema_dir = $this->getContainer()->getParam('propel/schema_dir');
 
         echo shell_exec(join(' ', [
@@ -25,6 +26,7 @@ class DiffCommand extends PlainController
             '--schema-dir=' . $schema_dir,
             '--config-dir=' . $config_dir,
             '--output-dir=' . $migration_dir,
+            '--migration-table=' . $migration_table,
             '--recursive'
         ]));
     }
