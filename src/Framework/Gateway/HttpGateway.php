@@ -71,7 +71,7 @@ class HttpGateway implements GatewayInterface
         $value = null;
 
         foreach ($this->modules as $module) {
-            if ($module['domain'] === $request->getHost() || $module['name'] === null) {
+            if ($module['domain'] === $request->getHost() || $module['domain'] === null) {
                 if (empty($module['prefix'])) {
                     $value = $module['name'];
                 } else {
