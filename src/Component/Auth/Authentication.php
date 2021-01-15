@@ -100,7 +100,9 @@ class Authentication
             $this->is_authenticated = true;
             $this->is_processed = true;
 
-            $this->session->set($this->token, $this->data);
+            $hashed_token = hash('sha512', $this->token);
+
+            $this->session->set($hashed_token, $this->data);
 
             $this->token_provider->setToken($this->token);
         }
@@ -123,7 +125,9 @@ class Authentication
         if ($set) {
             $this->data = $data;
 
-            $this->session->set($this->token, $this->data);
+            $hashed_token = hash('sha512', $this->token);
+
+            $this->session->set($hashed_token, $this->data);
         }
 
         return $set;
@@ -138,7 +142,9 @@ class Authentication
             return false;
         }
 
-        $this->deleteToken($this->token);
+        $hashed_token = hash('sha512', $this->token);
+
+        $this->deleteToken($this->token, $hashed_token);
 
         $this->data = null;
         $this->token = null;
@@ -184,18 +190,20 @@ class Authentication
             return;
         }
 
-        if ($this->session->has($token)) {
-            $data = $this->session->get($token);
+        $hashed_token = hash('sha512', $token);
+
+        if ($this->session->has($hashed_token)) {
+            $data = $this->session->get($hashed_token);
         } else {
             $data = $this->data_provider->getData($token);
 
             if (!$data) {
-                $this->deleteToken($token);
+                $this->deleteToken($token, $hashed_token);
                 $this->is_processed = true;
                 return;
             }
 
-            $this->session->set($token, $data);
+            $this->session->set($hashed_token, $data);
         }
 
         $this->data = $data;
@@ -208,11 +216,12 @@ class Authentication
 
     /**
      * @param string $token
+     * @param string $hashed_token
      */
-    protected function deleteToken(string $token)
+    protected function deleteToken(string $token, string $hashed_token)
     {
         if ($token) {
-            $this->session->destroy($token);
+            $this->session->destroy($hashed_token);
             $this->token_provider->deleteToken();
             $this->data_provider->deleteToken($token);
         }

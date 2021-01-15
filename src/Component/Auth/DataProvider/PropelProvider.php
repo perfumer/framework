@@ -30,7 +30,9 @@ class PropelProvider extends AbstractProvider
      */
     public function getData(string $token)
     {
-        $session_entry = SessionEntryQuery::create()->findOneByToken($token);
+        $hashed_token = hash('sha512', $token);
+
+        $session_entry = SessionEntryQuery::create()->findOneByToken($hashed_token);
 
         if (!$session_entry) {
             return null;
@@ -74,8 +76,10 @@ class PropelProvider extends AbstractProvider
      */
     public function saveData(string $token, string $data): bool
     {
+        $hashed_token = hash('sha512', $token);
+
         $session_entry = new SessionEntry();
-        $session_entry->setToken($token);
+        $session_entry->setToken($hashed_token);
         $session_entry->setModelId($data);
         $session_entry->setModelName('App\\Model\\User');
 
@@ -92,8 +96,10 @@ class PropelProvider extends AbstractProvider
      */
     public function deleteToken(string $token): bool
     {
+        $hashed_token = hash('sha512', $token);
+
         SessionEntryQuery::create()
-            ->filterByToken($token)
+            ->filterByToken($hashed_token)
             ->delete();
 
         return true;
