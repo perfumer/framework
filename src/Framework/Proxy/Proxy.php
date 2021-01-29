@@ -283,10 +283,10 @@ class Proxy
     /**
      * @param string $module_name
      * @param string $key
-     * @return string|null
+     * @return mixed
      * @throws ProxyException
      */
-    public function getModuleComponent(string $module_name, string $key): ?string
+    public function getModuleComponent(string $module_name, string $key)
     {
         if (!isset($this->modules[$module_name])) {
             throw new ProxyException("Module \'$module_name\' is not found while getting component \'$key\'");

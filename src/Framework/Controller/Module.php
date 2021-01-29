@@ -41,9 +41,9 @@ class Module
 
     /**
      * @param string $name
-     * @return string
+     * @return mixed
      */
-    public function getComponent(string $name): ?string
+    public function getComponent(string $name)
     {
         return $this->components[$name] ?? null;
     }
