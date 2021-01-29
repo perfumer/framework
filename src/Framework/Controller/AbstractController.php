@@ -134,6 +134,24 @@ abstract class AbstractController implements ControllerInterface
     /**
      * @param $name
      * @return mixed
+     */
+    protected function getComponentValue($name)
+    {
+        return $this->_components[$name] ?? null;
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    protected function hasComponent($name): bool
+    {
+        return isset($this->_components[$name]);
+    }
+
+    /**
+     * @param $name
+     * @return mixed
      * @throws ProxyException
      */
     protected function getComponent($name)
@@ -142,6 +160,10 @@ abstract class AbstractController implements ControllerInterface
 
         if (!$component_service_name) {
             throw new ProxyException("Component '$name' is not defined");
+        }
+
+        if (!is_string($component_service_name)) {
+            throw new ProxyException("Component '$name' is not a valid service name");
         }
 
         return $this->_container->get($component_service_name);
