@@ -36,7 +36,10 @@ return [
 
     'cache.memcache_driver' => [
         'shared' => true,
-        'class' => 'Stash\\Driver\\Memcache'
+        'class' => 'Stash\\Driver\\Memcache',
+        'arguments' => [[
+            'servers' => ['@memcache/host', '@memcache/port']
+        ]]
     ],
 
     'cookie' => [

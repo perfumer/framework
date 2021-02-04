@@ -11,6 +11,11 @@ return [
         'debug' => false
     ],
 
+    'memcache' => [
+        'host' => '127.0.0.1',
+        'port' => 11211
+    ],
+
     'propel' => [
         'bin' => 'vendor/bin/propel',
         'project' => 'example',
