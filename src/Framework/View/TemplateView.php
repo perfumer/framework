@@ -56,11 +56,33 @@ class TemplateView extends AbstractView
     }
 
     /**
+     * @param mixed $templating
+     * @return $this
+     */
+    public function setTemplating($templating)
+    {
+        $this->templating = $templating;
+
+        return $this;
+    }
+
+    /**
      * @return ProviderInterface
      */
     public function getTemplateProvider()
     {
         return $this->template_provider;
+    }
+
+    /**
+     * @param ProviderInterface $template_provider
+     * @return $this
+     */
+    public function setTemplateProvider(ProviderInterface $template_provider)
+    {
+        $this->template_provider = $template_provider;
+
+        return $this;
     }
 
     /**
