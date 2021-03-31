@@ -12,9 +12,8 @@ class DatabaseStorage extends AbstractStorage
      * @param string $name
      * @param mixed $default
      * @return mixed
-     * @access public
      */
-    public function getParam($resource, $name, $default = null)
+    public function getParam(string $resource, string $name, $default = null)
     {
         $this->loadResource($resource);
 
@@ -25,24 +24,52 @@ class DatabaseStorage extends AbstractStorage
      * @param string $name
      * @return array
      * @throws ContainerException
-     * @access public
      */
-    public function getResource($name)
+    public function getResource(string $name): array
     {
         $this->loadResource($name);
 
         return $this->resources[$name];
     }
 
-    protected function loadResource($name)
+    /**
+     * @param string $resource
+     * @param string $name
+     * @param mixed $value
+     * @throws \Propel\Runtime\Exception\PropelException
+     */
+    public function saveParam(string $resource, string $name, $value): void
+    {
+        if ($value === null) {
+            return;
+        }
+
+        $param = ResourceQuery::create()
+            ->filterByName($resource)
+            ->filterByParameter($name)
+            ->findOneOrCreate();
+
+        $param->setValue(serialize($value));
+        $param->save();
+    }
+
+    /**
+     * @param string $name
+     */
+    protected function loadResource(string $name): void
     {
         if (!isset($this->resources[$name])) {
-            $value = ResourceQuery::create()
-                ->filterByName($name)
-                ->select(['value'])
-                ->findOne();
+            $this->resources[$name] = [];
 
-            $this->resources[$name] = $value ? unserialize($value) : [];
+            $params = ResourceQuery::create()
+                ->filterByName($name)
+                ->find();
+
+            foreach ($params as $param) {
+                $value = $param->getValue() ? unserialize($param->getValue()) : null;
+
+                $this->resources[$name][$param->getParameter()] = $value;
+            }
         }
     }
 }

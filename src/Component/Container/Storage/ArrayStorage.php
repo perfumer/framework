@@ -2,6 +2,8 @@
 
 namespace Perfumer\Component\Container\Storage;
 
+use Perfumer\Component\Container\Exception\ContainerException;
+
 class ArrayStorage extends AbstractStorage
 {
     /**
@@ -9,9 +11,8 @@ class ArrayStorage extends AbstractStorage
      * @param string $name
      * @param mixed $default
      * @return mixed
-     * @access public
      */
-    public function getParam($resource, $name, $default = null)
+    public function getParam(string $resource, string $name, $default = null)
     {
         if (!isset($this->resources[$resource]) || !isset($this->resources[$resource][$name])) {
             return $default;
@@ -23,19 +24,27 @@ class ArrayStorage extends AbstractStorage
     /**
      * @param string $name
      * @return array
-     * @access public
-     * @abstract
      */
-    public function getResource($name)
+    public function getResource(string $name): array
     {
         return isset($this->resources[$name]) ? $this->resources[$name] : [];
     }
 
     /**
-     * @param array $resources
-     * @access public
+     * @param string $resource
+     * @param string $name
+     * @param mixed $value
+     * @throws ContainerException
      */
-    public function addResources($resources)
+    public function saveParam(string $resource, string $name, $value): void
+    {
+        throw new ContainerException('ArrayStorage does not implement "saveParam" method');
+    }
+
+    /**
+     * @param array $resources
+     */
+    public function addResources(array $resources): void
     {
         foreach ($resources as $name => $value) {
             if (isset($this->resources[$name])) {
@@ -48,9 +57,8 @@ class ArrayStorage extends AbstractStorage
 
     /**
      * @param string $file
-     * @access public
      */
-    public function addResourcesFromFile($file)
+    public function addResourcesFromFile(string $file): void
     {
         $resources = require $file;
 
