@@ -17,7 +17,7 @@ class Application
     const DEV = 'dev';
     const STAGE = 'stage';
     const TEST = 'test';
-    
+
     /**
      * @var Container
      */
@@ -61,13 +61,13 @@ class Application
         $this->before();
 
         $this->container = new Container();
-        
+
         $this->configure();
 
         $this->is_configured = true;
 
         $this->after();
-        
+
         $this->container->registerSharedService('application', $this);
 
         /** @var Proxy $proxy */
@@ -106,7 +106,7 @@ class Application
      * @param null $flavor
      * @throws ApplicationException
      */
-    protected function addResources($file, $env = null, $build_type = null, $flavor = null): void
+    public function addResources($file, $env = null, $build_type = null, $flavor = null): void
     {
         if ($this->is_configured) {
             throw new ApplicationException('Application is already configured. You can not add new resources.');
@@ -126,7 +126,7 @@ class Application
      * @param null $flavor
      * @throws ApplicationException
      */
-    protected function addDefinitions($file, $env = null, $build_type = null, $flavor = null): void
+    public function addDefinitions($file, $env = null, $build_type = null, $flavor = null): void
     {
         if ($this->is_configured) {
             throw new ApplicationException('Application is already configured. You can not add new service definitions.');
@@ -146,7 +146,7 @@ class Application
      * @param null $flavor
      * @throws ApplicationException
      */
-    protected function addModule(Module $module, $env = null, $build_type = null, $flavor = null): void
+    public function addModule(Module $module, $env = null, $build_type = null, $flavor = null): void
     {
         if ($this->is_configured) {
             throw new ApplicationException('Application is already configured. You can not add new stacks.');
