@@ -53,6 +53,11 @@ class DatabaseStorage extends AbstractStorage
         $param->save();
     }
 
+    public function flush(): void
+    {
+        $this->resources = [];
+    }
+
     /**
      * @param string $name
      */
