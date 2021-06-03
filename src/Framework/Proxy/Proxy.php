@@ -169,12 +169,8 @@ class Proxy
 
     /**
      * @param $external_request mixed
-     *
-     * @throws ProxyException
-     * @throws NotFoundException
-     * @throws ForwardException
      */
-    public function run($external_request = null): void
+    public function initExternalRequestResponse($external_request = null): void
     {
         if (!$external_request) {
             $external_request = $this->gateway->createRequestFromGlobals();
@@ -185,7 +181,15 @@ class Proxy
 
         $this->container->registerSharedService('external_request', $this->external_request);
         $this->container->registerSharedService('external_response', $this->external_response);
+    }
 
+    /**
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
+     */
+    public function run(): void
+    {
         $module = $this->gateway->dispatch($this->external_request);
 
         $router_service_name = $this->getModuleComponent($module, 'router');

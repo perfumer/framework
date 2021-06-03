@@ -58,7 +58,7 @@ class Application
      */
     public function run($request = null): void
     {
-        $this->before();
+        $this->beforeContainerInit();
 
         $this->container = new Container();
 
@@ -66,7 +66,7 @@ class Application
 
         $this->is_configured = true;
 
-        $this->after();
+        $this->afterContainerInit();
 
         $this->container->registerSharedService('application', $this);
 
@@ -75,20 +75,33 @@ class Application
 
         $proxy->setModules($this->modules);
 
-        $proxy->run($request);
+        $proxy->initExternalRequestResponse($request);
+
+        $this->afterRequestResponseInit();
+
+        $proxy->run();
     }
 
     /**
      * @return void
      */
-    protected function before(): void
+    protected function beforeContainerInit(): void
     {
+        $this->before();
     }
 
     /**
      * @return void
      */
-    protected function after(): void
+    protected function afterContainerInit(): void
+    {
+        $this->after();
+    }
+
+    /**
+     * @return void
+     */
+    protected function afterRequestResponseInit(): void
     {
     }
 
@@ -97,6 +110,42 @@ class Application
      */
     protected function configure(): void
     {
+    }
+
+    /**
+     * @return void
+     * @deprecated use beforeContainerInit() instead
+     */
+    protected function before(): void
+    {
+    }
+
+    /**
+     * @return void
+     * @deprecated use afterContainerInit() instead
+     */
+    protected function after(): void
+    {
+    }
+
+    /**
+     * @param Package $package
+     * @param null $env
+     * @param null $build_type
+     * @param null $flavor
+     * @throws ApplicationException
+     */
+    public function addPackage(Package $package, $env = null, $build_type = null, $flavor = null): void
+    {
+        if ($this->is_configured) {
+            throw new ApplicationException('Application is already configured. You can not add new packages.');
+        }
+
+        if (!$this->passVariants($env, $build_type, $flavor)) {
+            return;
+        }
+
+        $package->configure($this);
     }
 
     /**
