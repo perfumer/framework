@@ -233,6 +233,18 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
+     * Shortcut for DI Container getParam() method. Only for Perfumer Container.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    protected function p(string $key, $default = null)
+    {
+        return $this->_container->getParam($key, $default);
+    }
+
+    /**
      * Shortcut for Translator trans() method
      *
      * @param string $key

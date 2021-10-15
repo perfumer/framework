@@ -219,7 +219,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @access public
      */
-    public function getParam($key, $default = null)
+    public function getParam(string $key, $default = null)
     {
         list($storage, $resource, $name) = $this->extractParamKey($key);
 
@@ -320,7 +320,7 @@ class Container implements ContainerInterface
      * @access protected
      * @throws ContainerException
      */
-    protected function extractParamKey($key)
+    protected function extractParamKey(string $key)
     {
         $parts = explode('/', (string) $key, 3);
 
@@ -345,7 +345,7 @@ class Container implements ContainerInterface
      * @access protected
      * @throws ContainerException
      */
-    protected function extractResourceKey($key)
+    protected function extractResourceKey(string $key)
     {
         $parts = explode('/', (string) $key, 2);
 
