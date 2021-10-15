@@ -19,12 +19,18 @@ class MigrateCommand extends PlainController
         $migration_dir = $this->getContainer()->getParam('propel/migration_dir');
         $migration_table = $this->getContainer()->getParam('propel/migration_table');
 
-        echo shell_exec(join(' ', [
+        exec(join(' ', [
             $bin . ' migrate',
             '--platform=' . $platform,
             '--config-dir=' . $config_dir,
             '--output-dir=' . $migration_dir,
             '--migration-table=' . $migration_table,
-        ]));
+        ]), $output, $result_code);
+
+        echo implode("\n", $output);
+
+        if ($result_code !== 0) {
+            exit(1);
+        }
     }
 }

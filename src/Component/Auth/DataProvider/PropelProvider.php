@@ -78,8 +78,10 @@ class PropelProvider extends AbstractProvider
     {
         $hashed_token = hash('sha512', $token);
 
-        $session_entry = new SessionEntry();
-        $session_entry->setToken($hashed_token);
+        $session_entry = SessionEntryQuery::create()
+            ->filterByToken($hashed_token)
+            ->findOneOrCreate();
+
         $session_entry->setModelId($data);
         $session_entry->setModelName('App\\Model\\User');
 

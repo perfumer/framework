@@ -19,14 +19,21 @@ class BuildCommand extends PlainController
         $model_dir = $this->getContainer()->getParam('propel/model_dir');
         $schema_dir = $this->getContainer()->getParam('propel/schema_dir');
 
-        echo shell_exec(join(' ', [
+        exec(join(' ', [
             $bin . ' model:build',
             '--platform=' . $platform,
             '--schema-dir=' . $schema_dir,
             '--config-dir=' . $config_dir,
             '--output-dir=' . $model_dir,
+            '--loader-script-dir=' . $model_dir,
             '--disable-namespace-auto-package',
             '--recursive'
-        ]));
+        ]), $output, $result_code);
+
+        echo implode("\n", $output);
+
+        if ($result_code !== 0) {
+            exit(1);
+        }
     }
 }

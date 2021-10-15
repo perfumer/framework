@@ -116,6 +116,10 @@ return [
         'class' => 'Propel\\Runtime\\Propel',
         'static' => 'getServiceContainer',
         'after' => function(\Perfumer\Component\Container\Container $container, $service_container) {
+            $model_dir = $container->getParam('propel/model_dir');
+
+            @include_once $model_dir . '/loadDatabase.php';
+
             $project = $container->getParam('propel/project');
             $database = $container->getParam('propel/database');
             $connection_manager = $container->get('propel.connection_manager');

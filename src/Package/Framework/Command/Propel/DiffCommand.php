@@ -20,7 +20,7 @@ class DiffCommand extends PlainController
         $migration_table = $this->getContainer()->getParam('propel/migration_table');
         $schema_dir = $this->getContainer()->getParam('propel/schema_dir');
 
-        echo shell_exec(join(' ', [
+        exec(join(' ', [
             $bin . ' diff',
             '--platform=' . $platform,
             '--schema-dir=' . $schema_dir,
@@ -28,6 +28,12 @@ class DiffCommand extends PlainController
             '--output-dir=' . $migration_dir,
             '--migration-table=' . $migration_table,
             '--recursive'
-        ]));
+        ]), $output, $result_code);
+
+        echo implode("\n", $output);
+
+        if ($result_code !== 0) {
+            exit(1);
+        }
     }
 }

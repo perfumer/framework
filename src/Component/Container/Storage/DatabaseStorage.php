@@ -40,10 +40,6 @@ class DatabaseStorage extends AbstractStorage
      */
     public function saveParam(string $resource, string $name, $value): void
     {
-        if ($value === null) {
-            return;
-        }
-
         $param = ResourceQuery::create()
             ->filterByName($resource)
             ->filterByParameter($name)
