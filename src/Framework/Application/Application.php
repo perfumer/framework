@@ -8,6 +8,13 @@ use Perfumer\Framework\Controller\Module;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Proxy;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
+use Symfony\Component\VarDumper\Dumper\CliDumper;
+use Symfony\Component\VarDumper\Dumper\ContextProvider\CliContextProvider;
+use Symfony\Component\VarDumper\Dumper\ContextProvider\SourceContextProvider;
+use Symfony\Component\VarDumper\Dumper\HtmlDumper;
+use Symfony\Component\VarDumper\Dumper\ServerDumper;
+use Symfony\Component\VarDumper\VarDumper;
 
 class Application
 {
@@ -67,6 +74,24 @@ class Application
         $this->is_configured = true;
 
         $this->afterContainerInit();
+
+        // VarDumper initialization
+        // "symfony/var-dumper" lib must be included to composer
+        $var_dumper_remote = $this->container->getParam('var_dumper/remote');
+        $var_dumper_server = $this->container->getParam('var_dumper/server');
+
+        if ($var_dumper_remote && $var_dumper_server && class_exists('\\Symfony\\Component\\VarDumper\\VarDumper')) {
+            $cloner = new VarCloner();
+            $fallbackDumper = \in_array(\PHP_SAPI, ['cli', 'phpdbg']) ? new CliDumper() : new HtmlDumper();
+            $dumper = new ServerDumper($var_dumper_server, $fallbackDumper, [
+                'cli' => new CliContextProvider(),
+                'source' => new SourceContextProvider(),
+            ]);
+
+            VarDumper::setHandler(function ($var) use ($cloner, $dumper) {
+                $dumper->dump($cloner->cloneVar($var));
+            });
+        }
 
         $this->container->registerSharedService('application', $this);
 
