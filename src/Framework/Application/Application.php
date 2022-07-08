@@ -24,6 +24,11 @@ class Application
     protected $container;
 
     /**
+     * @var Proxy
+     */
+    protected $proxy;
+
+    /**
      * @var string
      */
     protected $build_type;
@@ -50,13 +55,12 @@ class Application
 
     /**
      * @param $request mixed
-     *
-     * @return void
+     * @param bool $return_response
+     * @throws ForwardException
      * @throws NotFoundException
      * @throws ProxyException
-     * @throws ForwardException
      */
-    public function run($request = null): void
+    public function run($request = null, $return_response = false)
     {
         $this->beforeContainerInit();
 
@@ -70,16 +74,15 @@ class Application
 
         $this->container->registerSharedService('application', $this);
 
-        /** @var Proxy $proxy */
-        $proxy = $this->container->get('proxy');
+        $this->proxy = $this->container->get('proxy');
 
-        $proxy->setModules($this->modules);
+        $this->proxy->setModules($this->modules);
 
-        $proxy->initExternalRequestResponse($request);
+        $this->proxy->initExternalRequestResponse($request);
 
         $this->afterRequestResponseInit();
 
-        $proxy->run();
+        return $this->proxy->run($return_response);
     }
 
     /**
@@ -206,6 +209,14 @@ class Application
         }
 
         $this->modules[$module->name] = $module;
+    }
+
+    /**
+     * @return Proxy
+     */
+    public function getProxy(): Proxy
+    {
+        return $this->proxy;
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Perfumer\Component\Auth\DataProvider;
 use App\Model\SessionEntry;
 use App\Model\SessionEntryQuery;
 use App\Model\UserQuery;
+use Propel\Runtime\ActiveQuery\Criteria;
 
 class PropelProvider extends AbstractProvider
 {
@@ -32,7 +33,9 @@ class PropelProvider extends AbstractProvider
     {
         $hashed_token = hash('sha512', $token);
 
-        $session_entry = SessionEntryQuery::create()->findOneByToken($hashed_token);
+        $session_entry = SessionEntryQuery::create()
+            ->filterByToken([$hashed_token, $token], Criteria::IN)
+            ->findOne();
 
         if (!$session_entry) {
             return null;
@@ -79,7 +82,7 @@ class PropelProvider extends AbstractProvider
         $hashed_token = hash('sha512', $token);
 
         $session_entry = SessionEntryQuery::create()
-            ->filterByToken($hashed_token)
+            ->filterByToken([$hashed_token, $token], Criteria::IN)
             ->findOneOrCreate();
 
         $session_entry->setModelId($data);
@@ -101,7 +104,7 @@ class PropelProvider extends AbstractProvider
         $hashed_token = hash('sha512', $token);
 
         SessionEntryQuery::create()
-            ->filterByToken($hashed_token)
+            ->filterByToken([$hashed_token, $token], Criteria::IN)
             ->delete();
 
         return true;

@@ -131,9 +131,13 @@ return [
     'proxy' => [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Proxy\\Proxy',
-        'arguments' => ['container', [
+        'arguments' => [[
             'debug' => '@proxy/debug'
-        ]]
+        ]],
+        'after' => function(Perfumer\Component\Container\Container $container, \Perfumer\Framework\Proxy\Proxy $proxy) {
+            $proxy->setContainer($container);
+            $proxy->setGateway($container->get('gateway'));
+        }
     ],
 
     'response' => [

@@ -7,9 +7,11 @@ use Perfumer\Component\Container\Exception\NotFoundException;
 use Perfumer\Framework\Controller\ControllerInterface;
 use Perfumer\Framework\Controller\Module;
 use Perfumer\Framework\Gateway\GatewayInterface;
+use Perfumer\Framework\Gateway\HttpGateway;
 use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Proxy
 {
@@ -79,20 +81,32 @@ class Proxy
 
     /**
      * Proxy constructor.
-     * @param Container $container
      * @param array $options
      * @throws NotFoundException
      */
-    public function __construct(Container $container, array $options = [])
+    public function __construct(array $options = [])
     {
-        $this->container = $container;
-        $this->gateway = $container->get('gateway');
-
         $default_options = [
-            'debug' => false
+            'debug' => false,
         ];
 
         $this->options = array_merge($default_options, $options);
+    }
+
+    /**
+     * @param Container $container
+     */
+    public function setContainer(Container $container): void
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * @param GatewayInterface $gateway
+     */
+    public function setGateway(mixed $gateway): void
+    {
+        $this->gateway = $gateway;
     }
 
     /**
@@ -184,11 +198,13 @@ class Proxy
     }
 
     /**
-     * @throws ProxyException
-     * @throws NotFoundException
+     * @param bool $return_response
+     * @return ConsoleOutput|\Symfony\Component\HttpFoundation\Response|null
      * @throws ForwardException
+     * @throws NotFoundException
+     * @throws ProxyException
      */
-    public function run(): void
+    public function run($return_response = false)
     {
         $module = $this->gateway->dispatch($this->external_request);
 
@@ -206,14 +222,22 @@ class Proxy
 
         $response = $this->start();
 
-        if ($this->options['debug'] === true) {
-            $this->runDeferred();
+        if ($return_response === true && $this->external_response instanceof \Symfony\Component\HttpFoundation\Response) {
+            $this->external_response->setContent($response->getContent());
 
-            $this->gateway->sendResponse($this->external_response, $response);
+            return $this->external_response;
         } else {
-            $this->gateway->sendResponse($this->external_response, $response);
+            if ($this->options['debug'] === true) {
+                $this->runDeferred();
 
-            $this->runDeferred();
+                $this->gateway->sendResponse($this->external_response, $response);
+            } else {
+                $this->gateway->sendResponse($this->external_response, $response);
+
+                $this->runDeferred();
+            }
+
+            return null;
         }
     }
 
@@ -333,6 +357,24 @@ class Proxy
     }
 
     /**
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
+     */
+    public function runDeferred()
+    {
+        $this->is_deferred_stage = true;
+
+        foreach ($this->deferred as $deferred) {
+            if ($deferred instanceof Attributes) {
+                $this->execute($deferred->getModule(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
+            } elseif (is_callable($deferred)) {
+                $deferred();
+            }
+        }
+    }
+
+    /**
      * @return Response
      * @throws ProxyException
      * @throws NotFoundException
@@ -438,23 +480,5 @@ class Proxy
         }
 
         return $response;
-    }
-
-    /**
-     * @throws ProxyException
-     * @throws NotFoundException
-     * @throws ForwardException
-     */
-    protected function runDeferred()
-    {
-        $this->is_deferred_stage = true;
-
-        foreach ($this->deferred as $deferred) {
-            if ($deferred instanceof Attributes) {
-                $this->execute($deferred->getModule(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
-            } elseif (is_callable($deferred)) {
-                $deferred();
-            }
-        }
     }
 }
