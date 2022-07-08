@@ -26,6 +26,11 @@ class Container implements ContainerInterface
     protected $storages = [];
 
     /**
+     * @var ContainerInterface
+     */
+    protected $fallback_container;
+
+    /**
      * Container constructor.
      */
     public function __construct()
@@ -52,6 +57,10 @@ class Container implements ContainerInterface
         }
 
         if (!$this->has($name)) {
+            if ($this->fallback_container) {
+                return $this->fallback_container->get($name);
+            }
+
             throw new NotFoundException('No definition found for service "' . $name . '".');
         }
 
@@ -62,11 +71,16 @@ class Container implements ContainerInterface
             return $this->get($definition['alias']);
         }
 
+        // Alias is a link to another definition
+        if (isset($definition['fallback']) && $this->fallback_container) {
+            return $this->fallback_container->get($definition['fallback']);
+        }
+
         // "Init" directive is a function that returns instance of service
         if (isset($definition['init'])) {
-            $service_class = call_user_func($definition['init'], $this, $parameters);
+            $service_instance = call_user_func($definition['init'], $this, $parameters);
 
-            if ($service_class === false) {
+            if ($service_instance === false) {
                 throw new NotFoundException('"Init" directive for service "' . $name . '" did not produced any object.');
             }
         } else {
@@ -79,9 +93,9 @@ class Container implements ContainerInterface
 
             // Service is made by static method
             if (isset($definition['static'])) {
-                $service_class = call_user_func_array([$definition['class'], $definition['static']], $arguments);
+                $service_instance = call_user_func_array([$definition['class'], $definition['static']], $arguments);
 
-                if ($service_class === false) {
+                if ($service_instance === false) {
                     throw new NotFoundException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
                 }
             } else {
@@ -92,21 +106,21 @@ class Container implements ContainerInterface
                     throw new NotFoundException('Class "' . $definition['class'] . '" for service "' . $name . '" was not found.');
                 }
 
-                $service_class = $reflection_class->newInstanceArgs($arguments);
+                $service_instance = $reflection_class->newInstanceArgs($arguments);
             }
         }
 
         // "After" directive is a function that is called after instantiation of service object
         if (isset($definition['after'])) {
-            call_user_func($definition['after'], $this, $service_class, $parameters);
+            call_user_func($definition['after'], $this, $service_instance, $parameters);
         }
 
         // Preserve shared service
         if (isset($definition['shared']) && $definition['shared'] === true) {
-            $this->shared[$name] = $service_class;
+            $this->shared[$name] = $service_instance;
         }
 
-        return $service_class;
+        return $service_instance;
     }
 
     /**
@@ -272,6 +286,22 @@ class Container implements ContainerInterface
         sort($list);
 
         return $list;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getFallbackContainer(): ?ContainerInterface
+    {
+        return $this->fallback_container;
+    }
+
+    /**
+     * @param ContainerInterface $fallback_container
+     */
+    public function setFallbackContainer(ContainerInterface $fallback_container): void
+    {
+        $this->fallback_container = $fallback_container;
     }
 
     /**

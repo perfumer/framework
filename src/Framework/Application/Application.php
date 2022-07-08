@@ -8,6 +8,7 @@ use Perfumer\Framework\Controller\Module;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
 use Perfumer\Framework\Proxy\Proxy;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
 use Symfony\Component\VarDumper\Dumper\ContextProvider\CliContextProvider;
@@ -29,6 +30,11 @@ class Application
      * @var Container
      */
     protected $container;
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $fallback_container;
 
     /**
      * @var Proxy
@@ -72,6 +78,10 @@ class Application
         $this->beforeContainerInit();
 
         $this->container = new Container();
+
+        if ($this->fallback_container) {
+            $this->container->setFallbackContainer($this->fallback_container);
+        }
 
         $this->configure();
 
@@ -234,6 +244,22 @@ class Application
         }
 
         $this->modules[$module->name] = $module;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getFallbackContainer(): ?ContainerInterface
+    {
+        return $this->fallback_container;
+    }
+
+    /**
+     * @param ContainerInterface $fallback_container
+     */
+    public function setFallbackContainer(ContainerInterface $fallback_container): void
+    {
+        $this->fallback_container = $fallback_container;
     }
 
     /**
