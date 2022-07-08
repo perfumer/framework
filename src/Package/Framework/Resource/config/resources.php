@@ -41,5 +41,11 @@ return [
 
     'twig' => [
         'debug' => false
-    ]
+    ],
+
+    // Symfony VarDumper component is required to be installed to work this parameters
+    'var_dumper' => [
+        'remote' => false, // if "true" VarDumper will send dumps to the server below
+        'server' => 'tcp://127.0.0.1:9912',
+    ],
 ];
