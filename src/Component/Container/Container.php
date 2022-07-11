@@ -237,7 +237,17 @@ class Container implements ContainerInterface
     {
         list($storage, $resource, $name) = $this->extractParamKey($key);
 
-        return $this->getStorage($storage)->getParam($resource, $name, $default);
+        $value = $this->getStorage($storage)->getParam($resource, $name, $default);
+
+        if (
+            is_string($value) &&
+            isset($value[0]) && $value[0] === '-' &&
+            isset($value[1]) && $value[1] === '>'
+        ) {
+            return $this->fallback_container->getParameter(substr($value, 2));
+        }
+
+        return $value;
     }
 
     /**

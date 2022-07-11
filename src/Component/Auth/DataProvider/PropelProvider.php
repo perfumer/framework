@@ -83,7 +83,12 @@ class PropelProvider extends AbstractProvider
 
         $session_entry = SessionEntryQuery::create()
             ->filterByToken([$hashed_token, $token], Criteria::IN)
-            ->findOneOrCreate();
+            ->findOne();
+
+        if (!$session_entry) {
+            $session_entry = new SessionEntry();
+            $session_entry->setToken($hashed_token);
+        }
 
         $session_entry->setModelId($data);
         $session_entry->setModelName('App\\Model\\User');
