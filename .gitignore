@@ -1,6 +1,8 @@
 .idea
 composer.lock
 nbproject
+.phpunit.cache
+.phpunit.result.cache
 tmp/cache/*
 tmp/logs/*
 tmp/twig/*
