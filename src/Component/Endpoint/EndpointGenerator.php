@@ -17,7 +17,7 @@ class EndpointGenerator
 {
     private string $generatedPath;
 
-    public function __construct(array $options)
+    public function __construct(array $options = [])
     {
         if (isset($options['generated_path']) && is_string($options['generated_path'])) {
             $this->generatedPath = $options['generated_path'];

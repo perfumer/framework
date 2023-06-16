@@ -35,7 +35,7 @@ abstract class AbstractController implements ControllerInterface
 
     protected ?AbstractEndpoint $_endpoint;
 
-    protected AbstractView $_view;
+    protected ?AbstractView $_view = null;
 
     protected $_auth;
 

@@ -137,7 +137,8 @@ return [
         'shared' => true,
         'class' => 'Perfumer\\Framework\\Proxy\\Proxy',
         'arguments' => [[
-            'debug' => '@proxy/debug'
+            'debug' => '@proxy/debug',
+            'fake' => '@proxy/fake',
         ]],
         'after' => function(Perfumer\Component\Container\Container $container, \Perfumer\Framework\Proxy\Proxy $proxy) {
             $proxy->setContainer($container);

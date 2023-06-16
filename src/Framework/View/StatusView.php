@@ -12,6 +12,18 @@ class StatusView extends SerializeView
     {
         parent::__construct($serializer);
 
+        $this->setup();
+    }
+
+    public function flush(): void
+    {
+        parent::flush();
+
+        $this->setup();
+    }
+
+    public function setup(): void
+    {
         $this->addVars([
             'status' => true,
             'status_code' => null,
@@ -122,10 +134,7 @@ class StatusView extends SerializeView
         return $this->hasVar('message');
     }
 
-    /**
-     * @return array
-     */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->getVars('errors');
     }

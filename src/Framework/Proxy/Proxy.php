@@ -434,9 +434,13 @@ class Proxy
         }
 
         if ($this->isDebug()) {
-            /** @var EndpointGenerator $generator */
-            $generator = $this->container->get('generator.endpoint');
-            $generatedEndpoint = $generator->generate($endpoint);
+            try {
+                /** @var EndpointGenerator $generator */
+                $generator = $this->container->get('generator.endpoint');
+                $generatedEndpoint = $generator->generate($endpoint);
+            } catch (\ReflectionException $e) {
+                return null;
+            }
         } else {
             $generatedEndpoint = 'Generated\\Endpoint\\' . $endpoint;
         }

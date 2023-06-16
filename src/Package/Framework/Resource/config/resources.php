@@ -32,7 +32,8 @@ return [
     ],
 
     'proxy' => [
-        'debug' => false
+        'debug' => false,
+        'fake' => false,
     ],
 
     'translator' => [
