@@ -4,6 +4,7 @@ namespace Perfumer\Framework\Controller;
 
 use Perfumer\Component\Container\Container;
 use Perfumer\Component\Container\Exception\NotFoundException;
+use Perfumer\Component\Endpoint\AbstractEndpoint;
 use Perfumer\Framework\Application\Application;
 use Perfumer\Framework\Controller\Exception\ExitActionException;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
@@ -18,55 +19,27 @@ use Symfony\Component\Console\Output\Output;
 
 abstract class AbstractController implements ControllerInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $_container;
+    private ContainerInterface $_container;
 
-    /**
-     * @var bool
-     */
-    private $_is_container_reachable = true;
+    private bool $_is_container_reachable = true;
 
-    /**
-     * @var Application
-     */
-    protected $_application;
+    protected Application $_application;
 
-    /**
-     * @var Proxy
-     */
-    protected $_proxy;
+    protected Proxy $_proxy;
 
-    /**
-     * @var Request
-     */
-    protected $_current;
+    protected Request $_current;
 
-    /**
-     * @var Response
-     */
-    protected $_response;
+    protected Response $_response;
 
-    /**
-     * @var \ReflectionClass
-     */
-    protected $_reflection_class;
+    protected \ReflectionClass $_reflection_class;
 
-    /**
-     * @var AbstractView
-     */
-    protected $_view;
+    protected ?AbstractEndpoint $_endpoint;
 
-    /**
-     * @var mixed
-     */
+    protected AbstractView $_view;
+
     protected $_auth;
 
-    /**
-     * @var array
-     */
-    private $_components;
+    private array $_components;
 
     /**
      * AbstractController constructor.
@@ -87,7 +60,8 @@ abstract class AbstractController implements ControllerInterface
         Request $request,
         Response $response,
         array $components,
-        \ReflectionClass $reflection_class
+        \ReflectionClass $reflection_class,
+        ?AbstractEndpoint $endpoint
     )
     {
         $this->_container = $container;
@@ -98,6 +72,7 @@ abstract class AbstractController implements ControllerInterface
         $this->_response = $response;
         $this->_components = $components;
         $this->_reflection_class = $reflection_class;
+        $this->_endpoint = $endpoint;
     }
 
     /**
@@ -110,12 +85,32 @@ abstract class AbstractController implements ControllerInterface
 
         $this->before();
 
-        $action = $current->getAction();
-        $args = $current->getArgs();
+        $errors = null;
 
-        try {
-            $this->_reflection_class->getMethod($action)->invokeArgs($this, $args);
-        } catch (ExitActionException $e) {
+        // TODO провека на f костыль
+        if ($this->_endpoint !== null && method_exists($this, 'f')) {
+            $errors = $this->_endpoint->validateIn($current->getAction(), $this->f());
+        }
+
+        if ($errors) {
+            $this->getView()->setErrors($errors);
+        } else {
+            $action = $current->getAction();
+            $args = $current->getArgs();
+
+            try {
+                $this->_reflection_class->getMethod($action)->invokeArgs($this, $args);
+            } catch (ExitActionException $e) {
+            }
+
+            if ($this->_proxy->isDebug() && $this->_endpoint) {
+                $errors = $this->_endpoint->validateOut($current->getAction(), $this->getView()->getVars());
+
+                if ($errors) {
+                    $this->getView()->flush();
+                    $this->getView()->setErrors($errors);
+                }
+            }
         }
 
         $this->after();

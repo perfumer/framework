@@ -4,187 +4,123 @@ namespace Perfumer\Framework\Proxy;
 
 use Perfumer\Component\Container\Container;
 use Perfumer\Component\Container\Exception\NotFoundException;
+use Perfumer\Component\Endpoint\AbstractEndpoint;
+use Perfumer\Component\Endpoint\EndpointGenerator;
 use Perfumer\Framework\Controller\ControllerInterface;
 use Perfumer\Framework\Controller\Module;
 use Perfumer\Framework\Gateway\GatewayInterface;
 use Perfumer\Framework\Gateway\HttpGateway;
+use Perfumer\Framework\Router\RouterInterface;
 use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Proxy
 {
-    /**
-     * @var Container
-     */
-    protected $container;
+    protected Container $container;
 
-    /**
-     * @var GatewayInterface
-     */
-    protected $gateway;
+    protected GatewayInterface $gateway;
 
-    /**
-     * @var array
-     */
-    protected $modules = [];
+    protected array $modules = [];
 
-    /**
-     * @var mixed
-     */
-    protected $external_request;
+    protected mixed $external_request;
 
-    /**
-     * @var mixed
-     */
-    protected $external_response;
+    protected mixed $external_response;
 
-    /**
-     * @var Router
-     */
-    protected $router;
+    protected RouterInterface $router;
 
     /**
      * The very first request
-     *
-     * @var Request
      */
-    protected $initial;
+    protected Request $initial;
 
     /**
      * The request which response will be returned to router
-     *
-     * @var Request
      */
-    protected $main;
+    protected Request $main;
 
-    /**
-     * @var array
-     */
-    protected $request_pool = [];
+    protected ?AbstractEndpoint $endpoint = null;
 
-    /**
-     * @var array
-     */
-    protected $deferred = [];
+    protected array $request_pool = [];
 
-    /**
-     * @var array
-     */
-    protected $options = [];
+    protected array $deferred = [];
 
-    /**
-     * @var bool
-     */
-    protected $is_deferred_stage = false;
+    protected array $options = [];
+
+    protected bool $is_deferred_stage = false;
 
     /**
      * Proxy constructor.
-     * @param array $options
      * @throws NotFoundException
      */
     public function __construct(array $options = [])
     {
         $default_options = [
             'debug' => false,
+            'fake' => false,
         ];
 
         $this->options = array_merge($default_options, $options);
     }
 
-    /**
-     * @param Container $container
-     */
     public function setContainer(Container $container): void
     {
         $this->container = $container;
     }
 
-    /**
-     * @param GatewayInterface $gateway
-     */
-    public function setGateway(mixed $gateway): void
+    public function setGateway(GatewayInterface $gateway): void
     {
         $this->gateway = $gateway;
     }
 
-    /**
-     * @return GatewayInterface
-     */
-    public function getGateway()
+    public function getGateway(): GatewayInterface
     {
         return $this->gateway;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getExternalRequest()
+    public function getExternalRequest(): mixed
     {
         return $this->external_request;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getExternalResponse()
+    public function getExternalResponse(): mixed
     {
         return $this->external_response;
     }
 
-    /**
-     * @return array
-     */
     public function getModules(): array
     {
         return $this->modules;
     }
 
-    /**
-     * @param array $modules
-     */
     public function setModules(array $modules): void
     {
         $this->modules = $modules;
     }
 
-    /**
-     * @return Router
-     */
-    public function getRouter()
+    public function getRouter(): RouterInterface
     {
         return $this->router;
     }
 
-    /**
-     * @return array
-     */
-    public function getRequestPool()
+    public function getRequestPool(): array
     {
         return $this->request_pool;
     }
 
-    /**
-     * @return Request
-     */
-    public function getInitial()
+    public function getInitial(): Request
     {
         return $this->initial;
     }
 
-    /**
-     * @return Request
-     */
-    public function getMain()
+    public function getMain(): Request
     {
         return $this->main;
     }
 
-    /**
-     * @param $external_request mixed
-     */
-    public function initExternalRequestResponse($external_request = null): void
+    public function initExternalRequestResponse(mixed $external_request = null): void
     {
         if (!$external_request) {
             $external_request = $this->gateway->createRequestFromGlobals();
@@ -198,13 +134,12 @@ class Proxy
     }
 
     /**
-     * @param bool $return_response
      * @return ConsoleOutput|\Symfony\Component\HttpFoundation\Response|null
      * @throws ForwardException
      * @throws NotFoundException
      * @throws ProxyException
      */
-    public function run($return_response = false)
+    public function run(bool $return_response = false)
     {
         $module = $this->gateway->dispatch($this->external_request);
 
@@ -216,7 +151,7 @@ class Proxy
 
         $this->router = $this->container->get($router_service_name);
 
-        list($resource, $action, $args) = $this->router->dispatch($this->external_request);
+        [$resource, $action, $args] = $this->router->dispatch($this->external_request);
 
         $this->initial = $this->main = $this->initializeRequest($module, $resource, $action, $args);
 
@@ -227,7 +162,7 @@ class Proxy
 
             return $this->external_response;
         } else {
-            if ($this->options['debug'] === true) {
+            if ($this->isDebug()) {
                 $this->runDeferred();
 
                 $this->gateway->sendResponse($this->external_response, $response);
@@ -242,16 +177,11 @@ class Proxy
     }
 
     /**
-     * @param string $module
-     * @param string $resource
-     * @param string $action
-     * @param array $args
-     * @return Response
      * @throws ProxyException
      * @throws NotFoundException
      * @throws ForwardException
      */
-    public function execute($module, $resource, $action, array $args = [])
+    public function execute(string $module, string $resource, string $action, array $args = []): Response
     {
         $request = $this->initializeRequest($module, $resource, $action, $args);
 
@@ -259,15 +189,11 @@ class Proxy
     }
 
     /**
-     * @param string $module
-     * @param string $resource
-     * @param string $action
-     * @param array $args
      * @throws ProxyException
      * @throws ForwardException
      * @throws NotFoundException
      */
-    public function forward($module, $resource, $action, array $args = [])
+    public function forward(string $module, string $resource, string $action, array $args = []): void
     {
         if ($this->is_deferred_stage) {
             throw new ProxyException('"Forward" method is not allowed in deferred stage of runtime.');
@@ -279,15 +205,11 @@ class Proxy
     }
 
     /**
-     * @param string $module
-     * @param string $resource
-     * @param string $action
-     * @param array $args
      * @throws ProxyException
      * @throws NotFoundException
      * @throws ForwardException
      */
-    public function defer($module, $resource, $action, array $args = [])
+    public function defer(string $module, string $resource, string $action, array $args = []): void
     {
         if ($this->is_deferred_stage) {
             $this->execute($module, $resource, $action, $args);
@@ -296,10 +218,7 @@ class Proxy
         }
     }
 
-    /**
-     * @param callable $callable
-     */
-    public function deferCallable(callable $callable)
+    public function deferCallable(callable $callable): void
     {
         if ($this->is_deferred_stage) {
             $callable();
@@ -349,7 +268,7 @@ class Proxy
      * @throws NotFoundException
      * @throws ProxyException
      */
-    public function pageNotFoundException()
+    public function pageNotFoundException(): void
     {
         $controller_not_found = $this->router->getNotFoundAttributes();
 
@@ -361,7 +280,7 @@ class Proxy
      * @throws NotFoundException
      * @throws ForwardException
      */
-    public function runDeferred()
+    public function runDeferred(): void
     {
         $this->is_deferred_stage = true;
 
@@ -374,12 +293,21 @@ class Proxy
         }
     }
 
+    public function isDebug(): bool
+    {
+        return $this->options['debug'] === true;
+    }
+
+    public function isFake(): bool
+    {
+        return $this->options['fake'] === true;
+    }
+
     /**
-     * @return Response
      * @throws ProxyException
      * @throws NotFoundException
      */
-    protected function start()
+    protected function start(): Response
     {
         try {
             $response = $this->executeRequest($this->main);
@@ -391,15 +319,10 @@ class Proxy
     }
 
     /**
-     * @param string $module
-     * @param string $resource
-     * @param string $action
-     * @param array $args
-     * @return Request
      * @throws ProxyException
      * @throws NotFoundException
      */
-    protected function initializeRequest($module, $resource, $action, array $args = []): Request
+    protected function initializeRequest(string $module, string $resource, string $action, array $args = []): Request
     {
         $request_service_name = $this->getModuleComponent($module, 'request');
 
@@ -411,13 +334,11 @@ class Proxy
     }
 
     /**
-     * @param Request $request
-     * @return Response
      * @throws ProxyException
      * @throws NotFoundException
      * @throws ForwardException
      */
-    protected function executeRequest(Request $request)
+    protected function executeRequest(Request $request): Response
     {
         $this->request_pool[] = $request;
 
@@ -442,6 +363,12 @@ class Proxy
         $inject_response = $this->container->get($response_service_name);
         $inject_container = $container_service_name ? $this->container->get($container_service_name) : $this->container;
 
+        if ($request === $this->main && !$this->endpoint) {
+            $this->endpoint = $this->resolveEndpoint($request);
+        }
+
+        $fakeResponse = null;
+
         try {
             $reflection_class = new \ReflectionClass($request->getController());
 
@@ -453,32 +380,78 @@ class Proxy
                 $request,
                 $inject_response,
                 $request_module->getComponents(),
-                $reflection_class
+                $reflection_class,
+                $this->endpoint
             );
 
             if (!method_exists($controller, $request->getAction())) {
-                if ($request === $this->initial) {
-                    $this->pageNotFoundException();
-                } else {
-                    throw new ProxyException('Action "' . $request->getAction() . '" not found in controller "' . $request->getController() . '".');
-                }
+                $fakeResponse = $this->controllerOrActionNotFound($request, 'Action "' . $request->getAction() . '" not found in controller "' . $request->getController() . '".');
             }
         } catch (\ReflectionException $e) {
-            if ($request === $this->initial) {
-                $this->pageNotFoundException();
-            } else {
-                throw new ProxyException('Controller "' . $request->getController() . '" not found.');
-            }
+            $fakeResponse = $this->controllerOrActionNotFound($request, 'Controller "' . $request->getController() . '" not found.');
         }
 
-        /** @var ControllerInterface $controller */
+        if ($fakeResponse) {
+            $response = new Response();
+            $response->setContent($fakeResponse);
+        } else {
+            /** @var ControllerInterface $controller */
+            $response = $controller->_run();
 
-        $response = $controller->_run();
-
-        if (!$response instanceof Response) {
-            throw new ProxyException('Method "_run" of controller must return object of type Response.');
+            if (!$response instanceof Response) {
+                throw new ProxyException('Method "_run" of controller must return object of type Response.');
+            }
         }
 
         return $response;
+    }
+
+    protected function controllerOrActionNotFound(Request $request, string $exceptionMessage): string
+    {
+        if (
+            $this->isFake() &&
+            $this->endpoint &&
+            $request === $this->main
+        ) {
+            $fakeResponse = $this->endpoint->fake($request->getAction());
+            $fakeResponse['status'] = true;
+            return json_encode($fakeResponse, JSON_UNESCAPED_UNICODE);
+        }
+
+        if ($request === $this->initial) {
+            $this->pageNotFoundException();
+        } else {
+            throw new ProxyException($exceptionMessage);
+        }
+    }
+
+    protected function resolveEndpoint(Request $request): ?AbstractEndpoint
+    {
+        $endpoint = $request->getEndpoint();
+
+        if (!$endpoint) {
+            return null;
+        }
+
+        if ($this->isDebug()) {
+            /** @var EndpointGenerator $generator */
+            $generator = $this->container->get('generator.endpoint');
+            $generatedEndpoint = $generator->generate($endpoint);
+        } else {
+            $generatedEndpoint = 'Generated\\Endpoint\\' . $endpoint;
+        }
+
+        try {
+            $reflection_class = new \ReflectionClass($generatedEndpoint);
+            $instance = $reflection_class->newInstance();
+
+            if (!method_exists($instance, $request->getAction())) {
+                return null;
+            }
+        } catch (\ReflectionException $e) {
+            return null;
+        }
+
+        return $instance;
     }
 }

@@ -4,33 +4,15 @@ namespace Perfumer\Framework\Proxy;
 
 class Attributes
 {
-    /**
-     * @var string
-     */
-    protected $module;
+    protected string $module;
 
-    /**
-     * @var string
-     */
-    protected $resource;
+    protected string $resource;
 
-    /**
-     * @var string
-     */
-    protected $action;
+    protected string $action;
 
-    /**
-     * @var array
-     */
-    protected $args;
+    protected array $args;
 
-    /**
-     * @param string $module
-     * @param string $resource
-     * @param string $action
-     * @param array $args
-     */
-    public function __construct($module, $resource, $action, $args = [])
+    public function __construct(string $module, string $resource, string $action, array $args = [])
     {
         $this->module = (string) $module;
         $this->resource = (string) $resource;
@@ -38,51 +20,35 @@ class Attributes
         $this->args = (array) $args;
     }
 
-    /**
-     * @return string
-     */
-    public function getIdentity()
+    public function getIdentity(): string
     {
         return $this->module . '.' . $this->resource . '.' . $this->action;
     }
 
     /**
-     * @return string
      * @deprecated Use getModule() instead
      */
-    public function getBundle()
+    public function getBundle(): string
     {
         return $this->module;
     }
 
-    /**
-     * @return string
-     */
-    public function getModule()
+    public function getModule(): string
     {
         return $this->module;
     }
 
-    /**
-     * @return string
-     */
-    public function getResource()
+    public function getResource(): string
     {
         return $this->resource;
     }
 
-    /**
-     * @return string
-     */
-    public function getAction()
+    public function getAction(): string
     {
         return $this->action;
     }
 
-    /**
-     * @return array
-     */
-    public function getArgs()
+    public function getArgs(): array
     {
         return $this->args;
     }

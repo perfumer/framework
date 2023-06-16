@@ -6,20 +6,21 @@ use Perfumer\Framework\View\Exception\ViewException;
 
 abstract class AbstractView
 {
-    /**
-     * @var array
-     */
-    protected $vars = [];
-
-    /**
-     * @var array
-     */
-    protected $groups = [];
+    protected array $vars = [];
+    protected array $groups = [];
+    protected array $errors = [];
 
     /**
      * @return string
      */
     abstract public function render();
+
+    public function flush(): void
+    {
+        $this->vars = [];
+        $this->groups = [];
+        $this->errors = [];
+    }
 
     /**
      * @param $name
@@ -40,13 +41,7 @@ abstract class AbstractView
         return $group === null ? $this->vars : $this->groups[$group];
     }
 
-    /**
-     * @param $name
-     * @param $value
-     * @param $group
-     * @return $this
-     */
-    public function addVar($name, $value, $group = null)
+    public function addVar(string $name, mixed $value, ?string $group = null): static
     {
         if ($group === null) {
             $this->vars[$name] = $value;
@@ -57,12 +52,7 @@ abstract class AbstractView
         return $this;
     }
 
-    /**
-     * @param array $vars
-     * @param $group
-     * @return $this
-     */
-    public function addVars(array $vars, $group = null)
+    public function addVars(array $vars, ?string $group = null): static
     {
         if ($group === null) {
             $this->vars = array_merge($this->vars, $vars);
@@ -73,12 +63,7 @@ abstract class AbstractView
         return $this;
     }
 
-    /**
-     * @param $name
-     * @param $group
-     * @return bool
-     */
-    public function hasVar($name, $group = null)
+    public function hasVar(string $name, ?string $group = null): bool
     {
         return $group === null ? isset($this->vars[$name]) : isset($this->groups[$group][$name]);
     }
@@ -124,12 +109,9 @@ abstract class AbstractView
     }
 
     /**
-     * @param $name
-     * @param $parent
-     * @return $this
      * @throws ViewException
      */
-    public function addGroup($name, $parent = null)
+    public function addGroup(string $name, ?string $parent = null): static
     {
         if ($parent === null) {
             $this->vars[$name] = [];
@@ -148,5 +130,15 @@ abstract class AbstractView
         $this->groups[$name] = &$base;
 
         return $this;
+    }
+
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    public function setErrors(array $errors): void
+    {
+        $this->errors = $errors;
     }
 }

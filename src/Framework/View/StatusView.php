@@ -139,6 +139,11 @@ class StatusView extends SerializeView
         return $this->getVar($key, 'errors');
     }
 
+    public function setErrors(array $errors): void
+    {
+        $this->addErrors($errors);
+    }
+
     /**
      * @param array $errors
      */

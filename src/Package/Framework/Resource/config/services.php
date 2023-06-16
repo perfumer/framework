@@ -69,6 +69,11 @@ return [
         ]]
     ],
 
+    'generator.endpoint' => [
+        'shared' => true,
+        'class' => 'Perfumer\\Component\\Endpoint\\EndpointGenerator',
+    ],
+
     'logger' => [
         'shared' => true,
         'class' => 'Monolog\\Logger',
