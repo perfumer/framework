@@ -103,7 +103,12 @@ abstract class AbstractController implements ControllerInterface
             } catch (ExitActionException $e) {
             }
 
-            if ($this->_proxy->isDebug() && $this->getView()->getVar('status') === true && $this->_endpoint) {
+            if (
+                $this->_proxy->isDebug() &&
+                $this->hasComponent('view') &&
+                $this->getView()->getVar('status') === true &&
+                $this->_endpoint
+            ) {
                 $errors = $this->_endpoint->validateOut($current->getAction(), $this->getView()->getVars());
 
                 if ($errors) {
