@@ -5,7 +5,7 @@ namespace Perfumer\Component\Endpoint\Attributes;
 #[\Attribute(\Attribute::TARGET_METHOD|\Attribute::IS_REPEATABLE)]
 class ApiParamExample extends ApiExample
 {
-    public string $apidocAnnotation = 'ApiParamExample';
+    public string $apidocAnnotation = 'apiParamExample';
 
     public function __construct(
         public ?string $desc = null,
