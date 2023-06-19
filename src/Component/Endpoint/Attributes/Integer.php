@@ -3,7 +3,7 @@
 namespace Perfumer\Component\Endpoint\Attributes;
 
 #[\Attribute(\Attribute::TARGET_METHOD|\Attribute::IS_REPEATABLE)]
-class Int extends Type
+class Integer extends Type
 {
     public string $type = 'int';
 

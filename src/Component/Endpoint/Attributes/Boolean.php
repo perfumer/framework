@@ -3,7 +3,7 @@
 namespace Perfumer\Component\Endpoint\Attributes;
 
 #[\Attribute(\Attribute::TARGET_METHOD|\Attribute::IS_REPEATABLE)]
-class Bool extends Type
+class Boolean extends Type
 {
     public string $type = 'bool';
 

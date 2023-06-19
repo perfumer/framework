@@ -3,9 +3,9 @@
 namespace Perfumer\Component\Endpoint\Attributes;
 
 #[\Attribute(\Attribute::TARGET_METHOD|\Attribute::IS_REPEATABLE)]
-class Float extends Type
+class Double extends Type
 {
-    public string $type = 'float';
+    public string $type = 'double';
 
     public function validate(mixed $value): ?string
     {
