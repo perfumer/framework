@@ -105,9 +105,9 @@ abstract class AbstractController implements ControllerInterface
 
             if (
                 $this->_proxy->isDebug() &&
+                $this->_endpoint &&
                 $this->hasComponent('view') &&
-                $this->getView()->getVar('status') === true &&
-                $this->_endpoint
+                $this->getView()->getVar('status') === true
             ) {
                 $errors = $this->_endpoint->validateOut($current->getAction(), $this->getView()->getVars());
 
