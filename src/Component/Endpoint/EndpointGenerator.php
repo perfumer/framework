@@ -100,6 +100,10 @@ class EndpointGenerator
                     $constructContent .= "\$this->{$target}['{$reflectionMethod->getName()}'][] = \\".get_class($instance)."::fromArray(";
                     $constructContent .= var_export($args, true);
                     $constructContent .= ");".PHP_EOL;
+                    $fieldType = $instance->type;
+                    if ($instance->arr) {
+                        $fieldType .= '[]';
+                    }
                     $fieldKey = $instance->name;
                     if (!$instance->required) {
                         $fieldKey = '['.$fieldKey.']';
@@ -107,7 +111,7 @@ class EndpointGenerator
 
                     $docBlockTags[] = [
                         'name'        => $target === 'in' ? 'apiBody' : 'apiSuccess',
-                        'description' => sprintf('{%s} %s %s', $instance->type, $fieldKey, $instance->desc),
+                        'description' => sprintf('{%s} %s %s', $fieldType, $fieldKey, $instance->desc),
                     ];
                 }
 

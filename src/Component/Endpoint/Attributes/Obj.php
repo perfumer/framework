@@ -9,11 +9,11 @@ class Obj extends Type
 
     public function validate(mixed $value): ?string
     {
-        return is_string($value) ? null : sprintf('%s is not a string', $this->name);
+        return is_array($value) ? null : sprintf('%s is not an array', $this->name);
     }
 
     public function fake(): mixed
     {
-        return new \stdClass();
+        return $this->arr ? [new \stdClass()] : new \stdClass();
     }
 }

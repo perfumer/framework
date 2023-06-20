@@ -9,6 +9,7 @@ class Type extends Attribute
     public function __construct(
         public string $name,
         public bool $required = false,
+        public bool $arr = false,
         public string $desc = ''
     )
     {
@@ -20,6 +21,7 @@ class Type extends Attribute
         return new static(
             name: $array['name'],
             required: (bool) ($array['required'] ?? false),
+            arr: (bool) ($array['arr'] ?? false),
             desc: $array['desc'] ?? '',
         );
     }

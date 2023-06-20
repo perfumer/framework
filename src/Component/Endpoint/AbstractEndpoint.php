@@ -61,8 +61,6 @@ abstract class AbstractEndpoint
             }
         }
 
-        $this->clearNestedArray($return);
-
         return $return;
     }
 
@@ -75,7 +73,7 @@ abstract class AbstractEndpoint
         $arrayKeys = [];
 
         foreach ($attributes as $attribute) {
-            if ($attribute instanceof Arr) {
+            if ($attribute->arr) {
                 $arrayKeys[] = $attribute->name;
             }
 
@@ -140,10 +138,17 @@ abstract class AbstractEndpoint
         $nestedArray = &$array;
 
         foreach ($keys as $key) {
-            if (!isset($nestedArray[$key]) || !is_array($nestedArray[$key])) {
+            if (is_array($nestedArray) && !isset($nestedArray[$key])) {
                 $nestedArray[$key] = [];
+            } elseif (is_object($nestedArray) && !property_exists($nestedArray, $key)) {
+                $nestedArray->$key = new \stdClass();
             }
-            $nestedArray = &$nestedArray[$key];
+
+            if (is_array($nestedArray)) {
+                $nestedArray = &$nestedArray[$key];
+            } elseif (is_object($nestedArray)) {
+                $nestedArray = &$nestedArray->$key;
+            }
 
             if (is_array($nestedArray) && isset($nestedArray[0])) {
                 $nestedArray = &$nestedArray[0];
@@ -151,19 +156,5 @@ abstract class AbstractEndpoint
         }
 
         $nestedArray = $value;
-    }
-
-    private function clearNestedArray(&$array): void
-    {
-        foreach ($array as $key => $value) {
-            if (is_int($key) && is_array($value) && count($value) === 0) {
-                unset($array[$key]);
-                continue;
-            }
-
-            if (is_array($value)) {
-                $this->clearNestedArray($array[$key]);
-            }
-        }
     }
 }

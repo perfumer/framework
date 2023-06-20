@@ -9,11 +9,25 @@ class Integer extends Type
 
     public function validate(mixed $value): ?string
     {
-        return is_int($value) ? null : sprintf('%s is not an integer', $this->name);
+        if ($this->arr) {
+            if (!is_array($value)) {
+                return sprintf('%s is not an array of integers', $this->name);
+            }
+
+            foreach ($value as $item) {
+                if (!is_int($item)) {
+                    return sprintf('%s is not an array of integers', $this->name);
+                }
+            }
+        } else {
+            return is_int($value) ? null : sprintf('%s is not an integer', $this->name);
+        }
+
+        return null;
     }
 
     public function fake(): mixed
     {
-        return 123;
+        return $this->arr ? [123] : 123;
     }
 }

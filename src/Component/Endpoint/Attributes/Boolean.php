@@ -9,11 +9,23 @@ class Boolean extends Type
 
     public function validate(mixed $value): ?string
     {
-        return is_bool($value) ? null : sprintf('%s is not a bool', $this->name);
+        if ($this->arr) {
+            if (!is_array($value)) {
+                return sprintf('%s is not an array of booleans', $this->name);
+            }
+
+            foreach ($value as $item) {
+                if (!is_bool($item)) {
+                    return sprintf('%s is not an array of booleans', $this->name);
+                }
+            }
+        } else {
+            return is_bool($value) ? null : sprintf('%s is not a boolean', $this->name);
+        }
     }
 
     public function fake(): mixed
     {
-        return true;
+        return $this->arr ? [true] : true;
     }
 }
