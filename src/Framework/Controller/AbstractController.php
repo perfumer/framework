@@ -61,7 +61,7 @@ abstract class AbstractController implements ControllerInterface
         Response $response,
         array $components,
         \ReflectionClass $reflection_class,
-        ?AbstractEndpoint $endpoint
+        ?AbstractEndpoint $endpoint = null
     )
     {
         $this->_container = $container;
