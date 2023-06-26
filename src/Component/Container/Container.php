@@ -314,6 +314,11 @@ class Container implements ContainerInterface
         $this->fallback_container = $fallback_container;
     }
 
+    public function flush(): void
+    {
+        $this->shared = [];
+    }
+
     /**
      * @param array $array
      * @param array $parameters
