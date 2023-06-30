@@ -9,6 +9,7 @@ use Laminas\Code\Generator\PropertyGenerator;
 use Perfumer\Component\Endpoint\Attributes\Api;
 use Perfumer\Component\Endpoint\Attributes\ApiExample;
 use Perfumer\Component\Endpoint\Attributes\Attribute;
+use Perfumer\Component\Endpoint\Attributes\Entity;
 use Perfumer\Component\Endpoint\Attributes\Out;
 use Perfumer\Component\Endpoint\Attributes\Type;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
@@ -95,24 +96,35 @@ class EndpointGenerator
                 }
 
                 if ($instance instanceof Type) {
-                    $args = $attribute->getArguments();
+                    $objs = [];
 
-                    $constructContent .= "\$this->{$target}['{$reflectionMethod->getName()}'][] = \\".get_class($instance)."::fromArray(";
-                    $constructContent .= var_export($args, true);
-                    $constructContent .= ");".PHP_EOL;
-                    $fieldType = $instance->type;
-                    if ($instance->arr) {
-                        $fieldType .= '[]';
-                    }
-                    $fieldKey = $instance->name;
-                    if (!$instance->required) {
-                        $fieldKey = '['.$fieldKey.']';
+                    if ($instance->name) {
+                        $objs[] = [$attribute, $instance];
                     }
 
-                    $docBlockTags[] = [
-                        'name'        => $target === 'in' ? 'apiBody' : 'apiSuccess',
-                        'description' => sprintf('{%s} %s %s', $fieldType, $fieldKey, $instance->desc),
-                    ];
+                    $this->collectEntityAttrs($instance, $objs);
+
+                    foreach ($objs as list($attribute, $instance)) {
+                        $args = $attribute->getArguments();
+                        $args['name'] = $instance->name;
+
+                        $constructContent .= "\$this->{$target}['{$reflectionMethod->getName()}'][] = \\".get_class($instance)."::fromArray(";
+                        $constructContent .= var_export($args, true);
+                        $constructContent .= ");".PHP_EOL;
+                        $fieldType = $instance->type;
+                        if ($instance->arr) {
+                            $fieldType .= '[]';
+                        }
+                        $fieldKey = $instance->name;
+                        if (!$instance->required) {
+                            $fieldKey = '['.$fieldKey.']';
+                        }
+
+                        $docBlockTags[] = [
+                            'name'        => $target === 'in' ? 'apiBody' : 'apiSuccess',
+                            'description' => sprintf('{%s} %s %s', $fieldType, $fieldKey, $instance->desc),
+                        ];
+                    }
                 }
 
                 if ($instance instanceof ApiExample) {
@@ -166,5 +178,27 @@ class EndpointGenerator
         file_put_contents($output_name, $code);
 
         return 'Generated\\Endpoint\\' . $class;
+    }
+
+    private function collectEntityAttrs($instance, &$objs): void
+    {
+        if ($instance instanceof Entity) {
+            $reflectionEntity = new \ReflectionClass($instance);
+            $entityAttributes = $reflectionEntity->getAttributes();
+
+            foreach ($entityAttributes as $entityAttribute) {
+                $entityInstance = $entityAttribute->newInstance();
+                if ($entityInstance instanceof Type) {
+                    if ($instance->name) {
+                        $entityInstance->name = trim($instance->name, '.').'.'.$entityInstance->name;
+                    }
+                    $objs[] = [$entityAttribute, $entityInstance];
+                }
+
+                if ($entityInstance instanceof Entity) {
+                    $this->collectEntityAttrs($entityInstance, $objs);
+                }
+            }
+        }
     }
 }
