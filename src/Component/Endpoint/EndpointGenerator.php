@@ -10,6 +10,8 @@ use Perfumer\Component\Endpoint\Attributes\Api;
 use Perfumer\Component\Endpoint\Attributes\ApiExample;
 use Perfumer\Component\Endpoint\Attributes\Attribute;
 use Perfumer\Component\Endpoint\Attributes\Entity;
+use Perfumer\Component\Endpoint\Attributes\EnumInt;
+use Perfumer\Component\Endpoint\Attributes\EnumStr;
 use Perfumer\Component\Endpoint\Attributes\Out;
 use Perfumer\Component\Endpoint\Attributes\Type;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
@@ -104,7 +106,7 @@ class EndpointGenerator
 
                     $this->collectEntityAttrs($instance, $objs);
 
-                    foreach ($objs as list($attribute, $instance)) {
+                    foreach ($objs as [$attribute, $instance]) {
                         $args = $attribute->getArguments();
                         $args['name'] = $instance->name;
 
@@ -120,9 +122,21 @@ class EndpointGenerator
                             $fieldKey = '['.$fieldKey.']';
                         }
 
+                        if ($instance instanceof EnumStr) {
+                            $allowed_values = join(',', array_map(function($v) {
+                                return "\"$v\"";
+                            }, $instance->allowedValues));
+                            $docFieldType = sprintf('%s=%s', $fieldType, $allowed_values);
+                        } else if ($instance instanceof EnumInt) {
+                            $allowed_values = join(',', $instance->allowedValues);
+                            $docFieldType = sprintf('%s=%s', $fieldType, $allowed_values);
+                        } else {
+                            $docFieldType = $fieldType;
+                        }
+
                         $docBlockTags[] = [
                             'name'        => $target === 'in' ? 'apiBody' : 'apiSuccess',
-                            'description' => sprintf('{%s} %s %s', $fieldType, $fieldKey, $instance->desc),
+                            'description' => sprintf('{%s} %s %s', $docFieldType, $fieldKey, $instance->desc),
                         ];
                     }
                 }
