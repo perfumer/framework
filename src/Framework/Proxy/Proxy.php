@@ -58,8 +58,9 @@ class Proxy
     public function __construct(array $options = [])
     {
         $default_options = [
-            'debug' => false,
-            'fake' => false,
+            'debug' => false, // enables some behaviours to more verbose
+            'fake' => false, // fakes responses for endpoints
+            'defer' => true, // if false runs deferred jobs immediately (for CLI for instance)
         ];
 
         $this->options = array_merge($default_options, $options);
@@ -211,7 +212,7 @@ class Proxy
      */
     public function defer(string $module, string $resource, string $action, array $args = []): void
     {
-        if ($this->is_deferred_stage) {
+        if (!$this->options['defer'] || $this->is_deferred_stage) {
             $this->execute($module, $resource, $action, $args);
         } else {
             $this->deferred[] = new Attributes($module, $resource, $action, $args);
@@ -220,7 +221,7 @@ class Proxy
 
     public function deferCallable(callable $callable): void
     {
-        if ($this->is_deferred_stage) {
+        if (!$this->options['defer'] || $this->is_deferred_stage) {
             $callable();
         } else {
             $this->deferred[] = $callable;
