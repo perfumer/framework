@@ -13,6 +13,7 @@ use Perfumer\Component\Endpoint\Attributes\Entity;
 use Perfumer\Component\Endpoint\Attributes\EnumInt;
 use Perfumer\Component\Endpoint\Attributes\EnumStr;
 use Perfumer\Component\Endpoint\Attributes\Out;
+use Perfumer\Component\Endpoint\Attributes\SameAs;
 use Perfumer\Component\Endpoint\Attributes\Type;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 
@@ -63,7 +64,7 @@ class EndpointGenerator
             $methodGenerator = new MethodGenerator();
             $methodGenerator->setName($reflectionMethod->getName());
             $classGen->addMethodFromGenerator($methodGenerator);
-            $attributes = $reflectionMethod->getAttributes();
+            $typeAttributes = $metaAttributes = $reflectionMethod->getAttributes();
             $target = 'in';
             $docBlock = new DocBlockGenerator();
             $docBlockTags = [];
@@ -73,11 +74,8 @@ class EndpointGenerator
             $apiName = null;
             $apiVersion = null;
 
-            foreach ($attributes as $attribute) {
+            foreach ($metaAttributes as $attribute) {
                 $instance = $attribute->newInstance();
-                if (!$instance instanceof Attribute) {
-                    continue;
-                }
 
                 if ($instance instanceof Api) {
                     $apiPath = $instance->path;
@@ -85,6 +83,18 @@ class EndpointGenerator
                     $apiGroup = $instance->group;
                     $apiName = $instance->name;
                     $apiVersion = $instance->version;
+                    continue;
+                }
+
+                if ($instance instanceof SameAs) {
+                    $typeAttributes = $this->collectMethodAttrs($instance->endpoint);
+                    continue;
+                }
+            }
+
+            foreach ($typeAttributes as $attribute) {
+                $instance = $attribute->newInstance();
+                if (!$instance instanceof Attribute) {
                     continue;
                 }
 
@@ -192,6 +202,15 @@ class EndpointGenerator
         file_put_contents($output_name, $code);
 
         return 'Generated\\Endpoint\\' . $class;
+    }
+
+    private function collectMethodAttrs($class)
+    {
+        $reflection = new \ReflectionClass($class);
+
+        foreach ($reflection->getMethods() as $reflectionMethod) {
+            return $reflectionMethod->getAttributes();
+        }
     }
 
     private function collectEntityAttrs($instance, &$objs): void
