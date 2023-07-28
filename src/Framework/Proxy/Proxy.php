@@ -212,7 +212,7 @@ class Proxy
      */
     public function defer(string $module, string $resource, string $action, array $args = []): void
     {
-        if (!$this->options['defer'] || $this->is_deferred_stage) {
+        if (!$this->isDeferrable() || $this->is_deferred_stage) {
             $this->execute($module, $resource, $action, $args);
         } else {
             $this->deferred[] = new Attributes($module, $resource, $action, $args);
@@ -221,7 +221,7 @@ class Proxy
 
     public function deferCallable(callable $callable): void
     {
-        if (!$this->options['defer'] || $this->is_deferred_stage) {
+        if (!$this->isDeferrable() || $this->is_deferred_stage) {
             $callable();
         } else {
             $this->deferred[] = $callable;
@@ -294,14 +294,34 @@ class Proxy
         }
     }
 
+    public function setDebug(bool $debug): void
+    {
+        $this->options['debug'] = $debug;
+    }
+
     public function isDebug(): bool
     {
         return $this->options['debug'] === true;
     }
 
+    public function setFake(bool $fake): void
+    {
+        $this->options['fake'] = $fake;
+    }
+
     public function isFake(): bool
     {
         return $this->options['fake'] === true;
+    }
+
+    public function setDeferrable(bool $deferrable): void
+    {
+        $this->options['defer'] = $deferrable;
+    }
+
+    public function isDeferrable(): bool
+    {
+        return $this->options['defer'] === true;
     }
 
     /**
