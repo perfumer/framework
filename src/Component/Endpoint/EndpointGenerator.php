@@ -188,6 +188,7 @@ class EndpointGenerator
                 ]);
             }
 
+            $docBlock->setWordWrap(false);
             $docBlock->setTags($docBlockTags);
             $methodGenerator->setDocBlock($docBlock);
             $constructorGenerator->setBody($constructContent);
