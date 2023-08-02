@@ -11,8 +11,8 @@ class EnumInt extends Type
 
     public function __construct(
         public string $name,
-        public bool $required = false,
         public array $allowedValues,
+        public bool $required = false,
         public bool $arr = false,
         public string $desc = ''
     )
