@@ -25,6 +25,17 @@ class EnumInt extends Type
         );
     }
 
+    public static function fromArray(array $array): static
+    {
+        return new static(
+            name: $array['name'],
+            allowedValues: (array) $array['allowedValues'],
+            required: (bool) ($array['required'] ?? false),
+            arr: (bool) ($array['arr'] ?? false),
+            desc: $array['desc'] ?? '',
+        );
+    }
+
     public function validate(mixed $value): ?string
     {
         if (count($this->allowedValues) === 0) {
