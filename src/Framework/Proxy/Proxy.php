@@ -459,6 +459,10 @@ class Proxy
                 /** @var EndpointGenerator $generator */
                 $generator = $this->container->get('generator.endpoint');
                 $generatedEndpoint = $generator->generate($endpoint);
+
+                if (!$generatedEndpoint) {
+                    return null;
+                }
             } catch (\ReflectionException $e) {
                 return null;
             }

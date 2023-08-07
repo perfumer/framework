@@ -9,6 +9,7 @@ use Laminas\Code\Generator\PropertyGenerator;
 use Perfumer\Component\Endpoint\Attributes\Api;
 use Perfumer\Component\Endpoint\Attributes\ApiExample;
 use Perfumer\Component\Endpoint\Attributes\Attribute;
+use Perfumer\Component\Endpoint\Attributes\Draft;
 use Perfumer\Component\Endpoint\Attributes\Entity;
 use Perfumer\Component\Endpoint\Attributes\EnumInt;
 use Perfumer\Component\Endpoint\Attributes\EnumStr;
@@ -39,7 +40,7 @@ class EndpointGenerator
         }
     }
 
-    public function generate(string $class): string
+    public function generate(string $class): ?string
     {
         $reflection = new \ReflectionClass($class);
         $classParts = explode('\\', $class);
@@ -76,6 +77,10 @@ class EndpointGenerator
 
             foreach ($metaAttributes as $attribute) {
                 $instance = $attribute->newInstance();
+
+                if ($instance instanceof Draft) {
+                    return null;
+                }
 
                 if ($instance instanceof Api) {
                     $apiPath = $instance->path;
