@@ -15,12 +15,12 @@ class Double extends Type
             }
 
             foreach ($value as $item) {
-                if (!is_float($item)) {
+                if (!is_float($item) && !is_int($item)) {
                     return sprintf('%s is not an array of floats', $this->name);
                 }
             }
         } else {
-            return is_float($value) ? null : sprintf('%s is not a float', $this->name);
+            return is_float($value) || is_int($value) ? null : sprintf('%s is not a float', $this->name);
         }
 
         return null;
