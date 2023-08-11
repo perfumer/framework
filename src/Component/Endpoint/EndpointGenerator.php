@@ -65,17 +65,18 @@ class EndpointGenerator
             $methodGenerator = new MethodGenerator();
             $methodGenerator->setName($reflectionMethod->getName());
             $classGen->addMethodFromGenerator($methodGenerator);
-            $typeAttributes = $metaAttributes = $reflectionMethod->getAttributes();
+            $methodAttributes = $reflectionMethod->getAttributes();
             $target = 'in';
             $docBlock = new DocBlockGenerator();
             $docBlockTags = [];
+            $responseAttributes = [];
             $apiPath = null;
             $apiDesc = null;
             $apiGroup = null;
             $apiName = null;
             $apiVersion = null;
 
-            foreach ($metaAttributes as $attribute) {
+            foreach ($methodAttributes as $attribute) {
                 $instance = $attribute->newInstance();
 
                 if ($instance instanceof Draft) {
@@ -92,12 +93,12 @@ class EndpointGenerator
                 }
 
                 if ($instance instanceof SameAs) {
-                    $typeAttributes = $this->collectMethodAttrs($instance->endpoint);
+                    $responseAttributes = $this->collectSameAsMethodAttrs($instance->endpoint);
                     continue;
                 }
             }
 
-            foreach ($typeAttributes as $attribute) {
+            foreach ($methodAttributes as $attribute) {
                 $instance = $attribute->newInstance();
                 if (!$instance instanceof Attribute) {
                     continue;
@@ -112,56 +113,21 @@ class EndpointGenerator
                     continue;
                 }
 
-                if ($instance instanceof Type) {
-                    $objs = [];
-
-                    if ($instance->name) {
-                        $objs[] = [$attribute, $instance];
-                    }
-
-                    $this->collectEntityAttrs($instance, $objs);
-
-                    foreach ($objs as [$attribute, $instance]) {
-                        $args = $attribute->getArguments();
-                        $args['name'] = $instance->name;
-
-                        $constructContent .= "\$this->{$target}['{$reflectionMethod->getName()}'][] = \\".get_class($instance)."::fromArray(";
-                        $constructContent .= var_export($args, true);
-                        $constructContent .= ");".PHP_EOL;
-                        $fieldType = $instance->type;
-                        if ($instance->arr) {
-                            $fieldType .= '[]';
-                        }
-                        $fieldKey = $instance->name;
-                        if (!$instance->required) {
-                            $fieldKey = '['.$fieldKey.']';
-                        }
-
-                        if ($instance instanceof EnumStr) {
-                            $allowed_values = join(',', array_map(function($v) {
-                                return "\"$v\"";
-                            }, $instance->allowedValues));
-                            $docFieldType = sprintf('%s=%s', $fieldType, $allowed_values);
-                        } else if ($instance instanceof EnumInt) {
-                            $allowed_values = join(',', $instance->allowedValues);
-                            $docFieldType = sprintf('%s=%s', $fieldType, $allowed_values);
-                        } else {
-                            $docFieldType = $fieldType;
-                        }
-
-                        $docBlockTags[] = [
-                            'name'        => $target === 'in' ? 'apiBody' : 'apiSuccess',
-                            'description' => sprintf('{%s} %s %s', $docFieldType, $fieldKey, $instance->desc),
-                        ];
-                    }
-                }
-
                 if ($instance instanceof ApiExample) {
                     $docBlockTags[] = [
                         'name'        => $instance->apidocAnnotation,
                         'description' => sprintf('{json} %s %s%s', $instance->desc, PHP_EOL, json_encode($instance->json, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)),
                     ];
                 }
+
+                if (!$responseAttributes || $target === 'in') {
+                    $this->processAttr($instance, $attribute, $target, $reflectionMethod, $constructContent, $docBlockTags);
+                }
+            }
+
+            foreach ($responseAttributes as $attribute) {
+                $instance = $attribute->newInstance();
+                $this->processAttr($instance, $attribute, 'out', $reflectionMethod, $constructContent, $docBlockTags);
             }
 
             $docBlock->setTags([
@@ -210,13 +176,79 @@ class EndpointGenerator
         return 'Generated\\Endpoint\\' . $class;
     }
 
-    private function collectMethodAttrs($class)
+    private function processAttr($instance, $attribute, $target, $reflectionMethod, &$constructContent, &$docBlockTags)
+    {
+        if ($instance instanceof Type) {
+            $objs = [];
+
+            if ($instance->name) {
+                $objs[] = [$attribute, $instance];
+            }
+
+            $this->collectEntityAttrs($instance, $objs);
+
+            foreach ($objs as [$attribute, $instance]) {
+                $args = $attribute->getArguments();
+                $args['name'] = $instance->name;
+
+                $constructContent .= "\$this->{$target}['{$reflectionMethod->getName()}'][] = \\".get_class($instance)."::fromArray(";
+                $constructContent .= var_export($args, true);
+                $constructContent .= ");".PHP_EOL;
+                $fieldType = $instance->type;
+                if ($instance->arr) {
+                    $fieldType .= '[]';
+                }
+                $fieldKey = $instance->name;
+                if (!$instance->required) {
+                    $fieldKey = '['.$fieldKey.']';
+                }
+
+                if ($instance instanceof EnumStr) {
+                    $allowed_values = join(',', array_map(function($v) {
+                        return "\"$v\"";
+                    }, $instance->allowedValues));
+                    $docFieldType = sprintf('%s=%s', $fieldType, $allowed_values);
+                } else if ($instance instanceof EnumInt) {
+                    $allowed_values = join(',', $instance->allowedValues);
+                    $docFieldType = sprintf('%s=%s', $fieldType, $allowed_values);
+                } else {
+                    $docFieldType = $fieldType;
+                }
+
+                $docBlockTags[] = [
+                    'name'        => $target === 'in' ? 'apiBody' : 'apiSuccess',
+                    'description' => sprintf('{%s} %s %s', $docFieldType, $fieldKey, $instance->desc),
+                ];
+            }
+        }
+    }
+
+    private function collectSameAsMethodAttrs($class)
     {
         $reflection = new \ReflectionClass($class);
+        $return = [];
 
         foreach ($reflection->getMethods() as $reflectionMethod) {
-            return $reflectionMethod->getAttributes();
+            $attrs = $reflectionMethod->getAttributes();
+            $out = false;
+
+            foreach ($attrs as $attr) {
+                $instance = $attr->newInstance();
+                if ($instance instanceof Out) {
+                    $out = true;
+                } elseif (!$out) {
+                    continue;
+                }
+
+                if (!$instance instanceof Type) {
+                    continue;
+                }
+
+                $return[] = $attr;
+            }
         }
+
+        return $return;
     }
 
     private function collectEntityAttrs($instance, &$objs): void
