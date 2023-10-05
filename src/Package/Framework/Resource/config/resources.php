@@ -34,6 +34,7 @@ return [
     'proxy' => [
         'debug' => false,
         'fake' => false,
+        'defer' => true,
     ],
 
     'translator' => [

@@ -139,6 +139,7 @@ return [
         'arguments' => [[
             'debug' => '@proxy/debug',
             'fake' => '@proxy/fake',
+            'defer' => '@proxy/defer',
         ]],
         'after' => function(Perfumer\Component\Container\Container $container, \Perfumer\Framework\Proxy\Proxy $proxy) {
             $proxy->setContainer($container);
