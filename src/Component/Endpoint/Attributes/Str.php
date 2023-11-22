@@ -15,12 +15,12 @@ class Str extends Type
             }
 
             foreach ($value as $item) {
-                if (!is_string($item)) {
+                if (!is_string($item) && !$item instanceof \Stringable) {
                     return sprintf('%s is not an array of strings', $this->name);
                 }
             }
         } else {
-            return is_string($value) ? null : sprintf('%s is not a string', $this->name);
+            return is_string($value) || $value instanceof \Stringable ? null : sprintf('%s is not a string', $this->name);
         }
 
         return null;
