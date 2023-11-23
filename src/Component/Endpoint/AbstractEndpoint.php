@@ -71,6 +71,7 @@ abstract class AbstractEndpoint
     {
         $allErrors = [];
         $arrayKeys = [];
+        $notRequiredEmptyArrays = [];
 
         foreach ($attributes as $attribute) {
             if ($attribute->arr) {
@@ -81,15 +82,34 @@ abstract class AbstractEndpoint
             $errors = [];
             $isEmpty = $value === null || $value === '';
 
-            if ($attribute->required && $isEmpty) {
-                $errors[] = sprintf('%s is required', $attribute->name);
-            }
+            if (
+                $attribute->arr &&
+                !$attribute->required &&
+                (is_array($value) && count($value) === 0) ||
+                $value === null
+            ) {
+                $notRequiredEmptyArrays[] = $attribute->name;
+            } else {
+                $isInNotRequiredEmptyArray = false;
 
-            if (!$isEmpty) {
-                $error = $attribute->validate($value);
+                foreach ($notRequiredEmptyArrays as $notRequiredEmptyArray) {
+                    if (str_starts_with($attribute->name, $notRequiredEmptyArray)) {
+                        $isInNotRequiredEmptyArray = true;
+                    }
+                }
 
-                if ($error) {
-                    $errors[] = $error;
+                if (!$isInNotRequiredEmptyArray) {
+                    if ($attribute->required && $isEmpty) {
+                        $errors[] = sprintf('%s is required', $attribute->name);
+                    }
+
+                    if (!$isEmpty) {
+                        $error = $attribute->validate($value);
+
+                        if ($error) {
+                            $errors[] = $error;
+                        }
+                    }
                 }
             }
 
