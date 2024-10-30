@@ -9,12 +9,9 @@ use Perfumer\Component\Endpoint\EndpointGenerator;
 use Perfumer\Framework\Controller\ControllerInterface;
 use Perfumer\Framework\Controller\Module;
 use Perfumer\Framework\Gateway\GatewayInterface;
-use Perfumer\Framework\Gateway\HttpGateway;
 use Perfumer\Framework\Router\RouterInterface;
-use Perfumer\Framework\Router\RouterInterface as Router;
 use Perfumer\Framework\Proxy\Exception\ForwardException;
 use Perfumer\Framework\Proxy\Exception\ProxyException;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Proxy
@@ -276,24 +273,6 @@ class Proxy
         $this->forward($controller_not_found[0], $controller_not_found[1], $controller_not_found[2]);
     }
 
-    /**
-     * @throws ProxyException
-     * @throws NotFoundException
-     * @throws ForwardException
-     */
-    public function runDeferred(): void
-    {
-        $this->is_deferred_stage = true;
-
-        foreach ($this->deferred as $deferred) {
-            if ($deferred instanceof Attributes) {
-                $this->execute($deferred->getModule(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
-            } elseif (is_callable($deferred)) {
-                $deferred();
-            }
-        }
-    }
-
     public function setDebug(bool $debug): void
     {
         $this->options['debug'] = $debug;
@@ -322,6 +301,50 @@ class Proxy
     public function isDeferrable(): bool
     {
         return $this->options['defer'] === true;
+    }
+
+    /**
+     * Execute all deferred jobs
+     *
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
+     */
+    public function releaseDeferred(): void
+    {
+        foreach ($this->deferred as $deferred) {
+            if ($deferred instanceof Attributes) {
+                $this->execute($deferred->getModule(), $deferred->getResource(), $deferred->getAction(), $deferred->getArgs());
+            } elseif (is_callable($deferred)) {
+                $deferred();
+            }
+        }
+
+        $this->flushDeferred();
+    }
+
+    /**
+     * Clean deferred stack without executing
+     *
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
+     */
+    public function flushDeferred(): void
+    {
+        $this->deferred = [];
+    }
+
+    /**
+     * @throws ProxyException
+     * @throws NotFoundException
+     * @throws ForwardException
+     */
+    protected function runDeferred(): void
+    {
+        $this->is_deferred_stage = true;
+
+        $this->releaseDeferred();
     }
 
     /**
