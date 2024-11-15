@@ -22,6 +22,8 @@ class Boolean extends Type
         } else {
             return is_bool($value) ? null : sprintf('%s is not a boolean', $this->name);
         }
+
+        return null;
     }
 
     public function fake(): mixed
